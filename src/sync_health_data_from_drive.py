@@ -104,6 +104,21 @@ class GoogleDriveHealthSync:
         config.setdefault('max_file_size_mb', MAX_FILE_SIZE_MB)
         config.setdefault('sync_options', {})
 
+        # Validate max_file_size_mb if provided
+        max_size = config['max_file_size_mb']
+        if not isinstance(max_size, (int, float)):
+            raise ConfigurationError(
+                f"max_file_size_mb must be a number, got {type(max_size).__name__}"
+            )
+        if max_size <= 0:
+            raise ConfigurationError(
+                f"max_file_size_mb must be positive, got {max_size}"
+            )
+        if max_size > 10240:  # 10GB limit
+            raise ConfigurationError(
+                f"max_file_size_mb too large (max 10240 MB / 10 GB), got {max_size}"
+            )
+
         return config
 
     def _load_sync_state(self) -> Dict:
