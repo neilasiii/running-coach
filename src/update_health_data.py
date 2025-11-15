@@ -251,11 +251,16 @@ class IncrementalHealthDataManager:
         cache["weight_readings"].sort(key=lambda x: x["timestamp"], reverse=True)
         cache["resting_hr_readings"].sort(key=lambda x: x[0], reverse=True)
 
+        # Validate activities for data quality issues
+        validation_warnings = self._validate_activities(cache["activities"])
+
         # Save updated cache
         self.save_cache(cache)
 
         if not quiet:
             self._print_update_summary(counts)
+            if validation_warnings:
+                self._print_validation_warnings(validation_warnings)
 
         return counts
 
@@ -278,6 +283,62 @@ class IncrementalHealthDataManager:
             if counts["rhr"] > 0:
                 print(f"  • {counts['rhr']} new resting HR readings")
             print(f"\nCache updated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+
+    def _validate_activities(self, activities: List[Dict]) -> List[Dict]:
+        """
+        Validate activities for data quality issues
+
+        Returns:
+            List of validation warnings
+        """
+        warnings = []
+
+        for activity in activities:
+            if activity['activity_type'] != 'RUNNING':
+                continue
+
+            pace = activity.get('pace_per_mile')
+            distance = activity.get('distance_miles', 0)
+            duration = activity.get('duration_seconds', 0)
+
+            if not pace or not distance or not duration:
+                continue
+
+            # Flag suspiciously fast paces (< 8:00/mile for this athlete)
+            if pace < 8.0:
+                warnings.append({
+                    'date': activity['date'],
+                    'type': 'suspicious_pace',
+                    'message': f"Unusually fast pace detected: {int(pace)}:{int((pace % 1) * 60):02d}/mile",
+                    'distance': distance,
+                    'duration': duration,
+                    'pace': pace
+                })
+
+        return warnings
+
+    def _print_validation_warnings(self, warnings: List[Dict]):
+        """Print validation warnings to alert user of data quality issues"""
+        if not warnings:
+            return
+
+        print(f"\n⚠️  Data Quality Warnings ({len(warnings)} found):")
+        print("=" * 80)
+
+        for w in warnings:
+            if w['type'] == 'suspicious_pace':
+                date_str = datetime.fromisoformat(w['date']).strftime('%Y-%m-%d %H:%M')
+                duration_str = f"{w['duration']//60}:{w['duration']%60:02d}"
+                pace_str = f"{int(w['pace'])}:{int((w['pace'] % 1) * 60):02d}"
+
+                print(f"\n{date_str}:")
+                print(f"  {w['message']}")
+                print(f"  Distance: {w['distance']:.2f} mi")
+                print(f"  Duration: {duration_str}")
+                print(f"  This may indicate doubled distance in the export file.")
+                print(f"  Please verify in Garmin Connect and correct if needed.")
+
+        print()
 
     def get_recent_summary(self, days: int = 14) -> Dict:
         """Get summary of recent health data from cache"""
