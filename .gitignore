@@ -5,9 +5,10 @@ config/.drive_token.pickle  # Legacy - can be deleted if found
 config/.drive_sync_state.json
 config/.drive_sync_config.json
 
-# Health data cache and exports
-data/health/health_data_cache.json
+# Health data exports (raw CSVs/TCX/GPX - keep local, sync from Drive)
 health_connect_export/
+
+# Note: data/health/health_data_cache.json is committed for cross-session persistence
 
 # Python
 __pycache__/
