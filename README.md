@@ -42,6 +42,15 @@ A personalized training guidance system that integrates objective health data fr
 - **DETAILED Mode** - Comprehensive explanations with physiological reasoning
 - **Dynamic Switching** - Change detail level anytime during coaching sessions
 
+### 🤖 Training Analytics & ML Features
+
+- **Training Load Analytics** - Monitor fitness (CTL), fatigue (ATL), and form (TSB) using Training Stress Score methodology
+- **ACWR Monitoring** - Acute:Chronic Workload Ratio for injury risk detection (research-backed Gabbett method)
+- **Injury Risk Prediction** - ML-based analysis of overtraining patterns across multiple metrics (sleep, RHR, HRV, readiness)
+- **Automated VDOT Adjustments** - Smart recommendations based on workout performance and heart rate trends
+- **Performance Prediction** - Race time estimates adjusted for current fitness, fatigue, and recovery status
+- **Race Readiness Assessment** - Comprehensive evaluation of preparation for upcoming races
+
 ## Quick Start
 
 ### Prerequisites
@@ -245,6 +254,68 @@ Import the generated .ics file:
 - **Google Calendar**: Settings → Import & Export → Import
 - **Outlook**: File → Import/Export → Import an iCalendar file
 - **Apple Calendar**: File → Import
+
+### Training Analytics & ML Features
+
+**Monitor Training Load**
+
+Track fitness, fatigue, and form using Training Stress Score methodology:
+
+```bash
+# Get comprehensive training load summary
+bash bin/training_analytics.sh --summary
+
+# View weekly progression
+bash bin/training_analytics.sh --weekly --weeks 12
+```
+
+Provides CTL (fitness), ATL (fatigue), TSB (form), and ACWR (injury risk ratio).
+
+**Assess Injury Risk**
+
+ML-based analysis of overtraining patterns:
+
+```bash
+# Get comprehensive risk assessment
+bash bin/injury_risk.sh
+
+# Output as JSON for programmatic use
+bash bin/injury_risk.sh --json
+```
+
+Analyzes ACWR violations, sleep quality, RHR elevation, HRV suppression, and training readiness.
+
+**Calculate and Adjust VDOT**
+
+Optimize training paces based on performance:
+
+```bash
+# Calculate VDOT from race result
+bash bin/vdot_calculator.sh --race Marathon 3:55:30
+
+# Generate training paces for VDOT
+bash bin/vdot_calculator.sh --vdot 45
+
+# Analyze recent workout performance
+bash bin/vdot_calculator.sh --analyze
+
+# Track VDOT progression over time
+bash bin/vdot_calculator.sh --progression
+```
+
+**Predict Race Performance**
+
+Get race time predictions adjusted for current state:
+
+```bash
+# Predict race times with fitness/recovery adjustments
+bash bin/performance_predictor.sh --predict
+
+# Assess readiness for upcoming race
+bash bin/performance_predictor.sh --race-readiness Marathon --days-until-race 14
+```
+
+See the [Training Analytics Guide](docs/TRAINING_ANALYTICS_GUIDE.md) for comprehensive usage instructions and best practices.
 
 ## Architecture
 

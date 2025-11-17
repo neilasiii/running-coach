@@ -146,6 +146,37 @@ head -5 data/athlete/communication_preferences.md
 
 See [docs/COMMUNICATION_PREFERENCES_GUIDE.md](docs/COMMUNICATION_PREFERENCES_GUIDE.md) for examples and usage guide.
 
+**Training Analytics & ML**
+
+Monitor training load, assess injury risk, optimize VDOT, and predict performance:
+
+```bash
+# Training Load Analytics (TSS/CTL/ATL/TSB/ACWR)
+bash bin/training_analytics.sh --summary
+bash bin/training_analytics.sh --weekly --weeks 12
+
+# Injury Risk Prediction (ML-based overtraining detection)
+bash bin/injury_risk.sh
+
+# VDOT Calculator (optimize training paces)
+bash bin/vdot_calculator.sh --race Marathon 3:55:30
+bash bin/vdot_calculator.sh --vdot 45
+bash bin/vdot_calculator.sh --analyze
+
+# Performance Predictor (race time estimates with confidence adjustments)
+bash bin/performance_predictor.sh --predict
+bash bin/performance_predictor.sh --race-readiness Marathon --days-until-race 14
+```
+
+**Key Metrics:**
+- **TSS (Training Stress Score)**: Workout intensity × duration score
+- **CTL (Fitness)**: 42-day training load average (target 60-100 for marathon)
+- **ATL (Fatigue)**: 7-day training load average
+- **TSB (Form)**: CTL - ATL (positive = fresh, negative = fatigued)
+- **ACWR**: 7-day / 28-day ratio (safe zone: 0.8-1.3, high risk: >1.5)
+
+See [docs/TRAINING_ANALYTICS_GUIDE.md](docs/TRAINING_ANALYTICS_GUIDE.md) for comprehensive guide.
+
 ### Testing
 
 **Verify Health Data System**

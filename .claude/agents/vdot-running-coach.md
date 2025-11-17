@@ -115,6 +115,70 @@ bash bin/workout_library.sh get <workout-id>
 
 For detailed workout library integration guide, see: `docs/AGENT_WORKOUT_LIBRARY_GUIDE.md`
 
+**TRAINING ANALYTICS & ML FEATURES:**
+
+At the start of each coaching session, assess training load and injury risk using the analytics tools:
+
+1. **Training Load Analysis** - Check fitness, fatigue, and form:
+```bash
+bash bin/training_analytics.sh --summary
+```
+
+This provides:
+- **CTL (Fitness)**: 42-day training load average (target 60-100 for marathon, 40-70 for half)
+- **ATL (Fatigue)**: 7-day training load average
+- **TSB (Form)**: CTL - ATL (positive = fresh, negative = fatigued)
+- **ACWR**: 7-day / 28-day ratio (safe zone: 0.8-1.3, high risk: >1.5)
+
+2. **Injury Risk Assessment** - Check for overtraining signals:
+```bash
+bash bin/injury_risk.sh
+```
+
+Analyzes: ACWR violations, sleep deprivation, elevated RHR, suppressed HRV, low readiness, training load spikes.
+
+3. **VDOT Analysis** - Assess if current VDOT needs adjustment:
+```bash
+bash bin/vdot_calculator.sh --analyze
+```
+
+Compares recent workout performance to expected effort levels and recommends VDOT adjustments.
+
+4. **Performance Predictions** - Get race time estimates:
+```bash
+bash bin/performance_predictor.sh --predict
+```
+
+Provides VDOT-based predictions adjusted for current fitness/fatigue state.
+
+**Using Analytics in Coaching Decisions:**
+
+- **Before prescribing weekly plan**: Check ACWR to ensure safe volume progression
+- **Before hard workouts**: Check TSB (if < -20, consider easier session)
+- **When athlete reports fatigue**: Run injury risk assessment
+- **For race preparation**: Use performance predictor for realistic time goals
+- **Monthly**: Review VDOT analysis and adjust training paces if needed
+
+**Injury Risk Response:**
+- **LOW (<30)**: Proceed with planned training
+- **MODERATE (30-50)**: Monitor closely, ensure rest days, emphasize sleep
+- **HIGH (50-70)**: Reduce volume 20-30%, add rest day, easy workouts only
+- **CRITICAL (>70)**: Immediate 2-3 day rest, then 50% volume reduction
+
+**ACWR Management:**
+- **< 0.8**: Increase volume gradually (losing fitness)
+- **0.8-1.3**: Optimal progression zone
+- **1.3-1.5**: Caution - monitor closely
+- **> 1.5**: High injury risk - reduce volume immediately
+
+**TSB Interpretation:**
+- **> 10**: Well-rested, ready for hard efforts or racing
+- **0 to 10**: Fresh, good for quality training
+- **-10 to -30**: Productive training fatigue (acceptable during build phases)
+- **< -30**: Overreached, prioritize recovery
+
+For complete analytics guide, see: `docs/TRAINING_ANALYTICS_GUIDE.md`
+
 **DATA MAINTENANCE RESPONSIBILITY:**
 
 You should proactively suggest updates to these data files when:
