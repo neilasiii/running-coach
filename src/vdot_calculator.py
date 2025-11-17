@@ -243,18 +243,92 @@ class VDOTCalculator:
         """
         Estimate VDOT from VO2 max.
 
-        Note: VDOT ≈ VO2max for well-trained runners.
-        For less experienced runners, VDOT may be 2-5 points lower.
+        Note: VDOT ≈ VO2max for elite runners with excellent running economy.
+        For recreational runners, VDOT is typically 10-20% lower than VO2max due to
+        running economy factors (biomechanics, efficiency, etc).
 
         Args:
             vo2_max: VO2 max in ml/kg/min
 
         Returns:
-            Estimated VDOT
+            Estimated VDOT (conservative estimate)
         """
-        # For most runners, VDOT ≈ VO2max
-        # Adjust slightly down for conservative estimate
-        return round(vo2_max * 0.98, 1)
+        # Conservative conversion accounting for typical running economy
+        # Most recreational runners: VDOT = 0.80-0.85 * VO2max
+        # Well-trained runners: VDOT = 0.90-0.95 * VO2max
+        # Elite runners: VDOT ≈ 0.98-1.00 * VO2max
+        # Use 0.85 as reasonable middle ground for trained recreational runners
+        return round(vo2_max * 0.85, 1)
+
+    def estimate_vdot_from_workouts(self, days: int = 60) -> Optional[float]:
+        """
+        Estimate VDOT from actual workout paces using heart rate to identify effort level.
+
+        More accurate than VO2max estimation as it accounts for actual running economy.
+
+        Args:
+            days: Number of days of workouts to analyze (default: 60)
+
+        Returns:
+            Estimated VDOT from workout paces, or None if insufficient data
+        """
+        activities = self.cache.get('activities', [])
+        if not activities:
+            return None
+
+        cutoff = (datetime.now(timezone.utc) - timedelta(days=days)).isoformat()
+        recent_runs = [a for a in activities
+                      if a.get('activity_type') == 'RUNNING' and a.get('date', '') >= cutoff]
+
+        # Collect workouts at different effort levels based on HR and duration
+        marathon_effort_runs = []  # HR 145-160, 45+ min
+        tempo_runs = []  # HR 160-170, 20-40 min
+
+        for activity in recent_runs:
+            duration_min = activity.get('duration_seconds', 0) / 60
+            pace = activity.get('pace_per_mile', 0)
+            distance = activity.get('distance_miles', 0)
+            avg_hr = activity.get('avg_heart_rate', 0)
+
+            if pace == 0 or distance == 0 or avg_hr == 0:
+                continue
+
+            # True marathon pace runs: 8:30-9:30 pace, HR 150-165, 45+ min
+            # These are runs specifically at or near goal marathon pace
+            if 8.5 <= pace <= 9.5 and 150 <= avg_hr <= 165 and duration_min >= 45:
+                # This is actual marathon effort - use pace directly with minimal adjustment
+                estimated_marathon_pace = pace * 1.005  # Tiny adjustment for race day fatigue
+                marathon_effort_runs.append(estimated_marathon_pace)
+
+            # Moderate sustained runs: HR 145-160, duration 60+ min (likely marathon training pace)
+            # But exclude if pace is too slow (>10:00 = easy runs)
+            elif 145 <= avg_hr <= 160 and duration_min >= 60 and pace < 10.0:
+                # These sustained efforts at moderate pace estimate marathon capability
+                estimated_marathon_pace = pace * 1.02
+                marathon_effort_runs.append(estimated_marathon_pace)
+
+            # Tempo/Threshold runs: HR 160-172, duration 20-50 min, faster pace
+            # Convert to marathon equivalent
+            elif 160 <= avg_hr <= 172 and 20 <= duration_min <= 50 and pace < 9.5:
+                # Threshold pace is about 6-8% faster than marathon
+                estimated_marathon_pace = pace * 1.07  # Threshold to marathon conversion
+                tempo_runs.append(estimated_marathon_pace)
+
+        # Prioritize marathon effort runs, use tempo as backup
+        if marathon_effort_runs:
+            avg_marathon_pace = sum(marathon_effort_runs) / len(marathon_effort_runs)
+        elif tempo_runs:
+            avg_marathon_pace = sum(tempo_runs) / len(tempo_runs)
+        else:
+            return None
+
+        # Convert pace (min/mile) to marathon time
+        marathon_time_seconds = avg_marathon_pace * 26.2 * 60
+
+        # Calculate VDOT from this marathon performance
+        vdot = self.calculate_vdot_from_race(RACE_DISTANCES['Marathon'], marathon_time_seconds)
+
+        return vdot
 
     def analyze_workout_performance(self, days: int = 30) -> Dict[str, Any]:
         """
@@ -360,10 +434,18 @@ class VDOTCalculator:
             adjustment = "0"
             reasoning = "Workout performance aligns well with current VDOT. No adjustment needed."
 
-        # Estimate current VDOT from VO2 max if available
-        estimated_vdot = None
+        # Estimate current VDOT from multiple sources
+        estimated_vdot_vo2 = None
+        estimated_vdot_workouts = None
+
         if current_vo2_max:
-            estimated_vdot = self.estimate_vdot_from_vo2max(current_vo2_max)
+            estimated_vdot_vo2 = self.estimate_vdot_from_vo2max(current_vo2_max)
+
+        # Get VDOT from actual workout paces (most accurate)
+        estimated_vdot_workouts = self.estimate_vdot_from_workouts(days=60)
+
+        # Use workout-based estimate as primary if available
+        best_vdot_estimate = estimated_vdot_workouts if estimated_vdot_workouts else estimated_vdot_vo2
 
         return {
             'workouts_analyzed': len(workout_quality_scores),
@@ -372,7 +454,9 @@ class VDOTCalculator:
             'adjustment': adjustment,
             'reasoning': reasoning,
             'current_vo2_max': current_vo2_max,
-            'estimated_vdot_from_vo2': estimated_vdot,
+            'estimated_vdot_from_vo2': estimated_vdot_vo2,
+            'estimated_vdot_from_workouts': estimated_vdot_workouts,
+            'best_vdot_estimate': best_vdot_estimate,
             'analysis_period_days': days
         }
 
@@ -509,9 +593,13 @@ def main():
                 print(f"\nRecommendation: {analysis['recommendation']} VDOT by {analysis['adjustment']}")
                 print(f"Reasoning: {analysis['reasoning']}")
 
+                print(f"\nVDOT Estimates:")
+                if analysis.get('estimated_vdot_from_workouts'):
+                    print(f"  From workout paces: {analysis['estimated_vdot_from_workouts']} (MOST ACCURATE)")
                 if analysis.get('current_vo2_max'):
-                    print(f"\nCurrent VO2 Max: {analysis['current_vo2_max']} ml/kg/min")
-                    print(f"Estimated VDOT from VO2: {analysis['estimated_vdot_from_vo2']}")
+                    print(f"  From VO2 max ({analysis['current_vo2_max']} ml/kg/min): {analysis['estimated_vdot_from_vo2']}")
+                if analysis.get('best_vdot_estimate'):
+                    print(f"\n  → Recommended VDOT: {analysis['best_vdot_estimate']}")
 
                 print("\n" + "="*70 + "\n")
 
