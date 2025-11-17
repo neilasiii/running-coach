@@ -119,29 +119,33 @@ class PerformancePredictor:
         tsb = summary['current_metrics']['tsb']
         ctl = summary['current_metrics']['ctl']
 
-        # TSB adjustment
+        # TSB adjustment - more aggressive for negative TSB
         if tsb > 10:
             # Well-rested
-            tsb_adjustment = 0.98  # 2% faster
+            tsb_adjustment = 0.97  # 3% faster
             tsb_note = "well-rested (TSB +{:.0f})".format(tsb)
-        elif tsb > 0:
-            # Slightly fresh
-            tsb_adjustment = 0.99  # 1% faster
+        elif tsb > 5:
+            # Fresh
+            tsb_adjustment = 0.98  # 2% faster
             tsb_note = "fresh (TSB +{:.0f})".format(tsb)
-        elif tsb > -10:
+        elif tsb > -5:
             # Neutral
             tsb_adjustment = 1.0
             tsb_note = "neutral form (TSB {:.0f})".format(tsb)
-        elif tsb > -20:
-            # Fatigued
-            tsb_adjustment = 1.02  # 2% slower
-            tsb_note = "fatigued (TSB {:.0f})".format(tsb)
+        elif tsb > -15:
+            # Moderately fatigued
+            tsb_adjustment = 1.03  # 3% slower
+            tsb_note = "moderately fatigued (TSB {:.0f})".format(tsb)
+        elif tsb > -25:
+            # Significantly fatigued
+            tsb_adjustment = 1.04  # 4% slower
+            tsb_note = "significantly fatigued (TSB {:.0f})".format(tsb)
         else:
-            # Very fatigued
-            tsb_adjustment = 1.05  # 5% slower
-            tsb_note = "very fatigued (TSB {:.0f})".format(tsb)
+            # Severely overreached
+            tsb_adjustment = 1.10  # 10% slower
+            tsb_note = "severely overreached (TSB {:.0f})".format(tsb)
 
-        # CTL adjustment (fitness level)
+        # CTL adjustment (fitness level) - more aggressive for low CTL in marathon
         # For marathon: CTL should be 60-100
         # For half: CTL should be 40-70
         # Adjust if significantly below expected
@@ -149,11 +153,14 @@ class PerformancePredictor:
         ctl_note = ""
 
         if ctl < 30:
-            ctl_adjustment = 1.05  # Low fitness
+            ctl_adjustment = 1.06  # Low fitness - significant impact
             ctl_note = ", low fitness base (CTL {:.0f})".format(ctl)
-        elif ctl < 50:
-            ctl_adjustment = 1.02  # Moderate fitness
+        elif ctl < 45:
+            ctl_adjustment = 1.03  # Below ideal for marathon
             ctl_note = ", moderate fitness (CTL {:.0f})".format(ctl)
+        elif ctl < 60:
+            ctl_adjustment = 1.02  # Adequate but not ideal
+            ctl_note = ", adequate fitness (CTL {:.0f})".format(ctl)
         else:
             ctl_note = ", good fitness base (CTL {:.0f})".format(ctl)
 
@@ -189,7 +196,7 @@ class PerformancePredictor:
 
         concerns = []
 
-        # Determine adjustment
+        # Determine adjustment with more aggressive penalties for poor recovery
         if recovery_score >= 80:
             adjustment = 0.99  # 1% faster
             status = "Excellent recovery"
@@ -197,13 +204,13 @@ class PerformancePredictor:
             adjustment = 1.0
             status = "Good recovery"
         elif recovery_score >= 50:
-            adjustment = 1.02  # 2% slower
+            adjustment = 1.03  # 3% slower
             status = "Moderate recovery concerns"
             if sleep_risk['risk_score'] > 50:
                 concerns.append("sleep deprivation")
             if rhr_risk['risk_score'] > 50:
                 concerns.append("elevated RHR")
-        else:
+        elif recovery_score >= 35:
             adjustment = 1.05  # 5% slower
             status = "Poor recovery"
             if sleep_risk['risk_score'] > 50:
@@ -212,6 +219,22 @@ class PerformancePredictor:
                 concerns.append("elevated RHR")
             if readiness_risk['risk_score'] > 50:
                 concerns.append("low readiness")
+        else:
+            adjustment = 1.08  # 8% slower for critical recovery issues
+            status = "Critical recovery deficit"
+            if sleep_risk['risk_score'] > 50:
+                concerns.append("severe sleep deprivation")
+            if rhr_risk['risk_score'] > 50:
+                concerns.append("elevated RHR")
+            if readiness_risk['risk_score'] > 50:
+                concerns.append("low readiness")
+
+        # Additional penalty for severe sleep deprivation specifically
+        if sleep_risk['risk_score'] > 70:
+            adjustment *= 1.02  # Extra 2% penalty for severe sleep issues
+            if "sleep deprivation" in concerns:
+                concerns.remove("sleep deprivation")
+                concerns.insert(0, "severe sleep deprivation")
 
         explanation = status
         if concerns:
