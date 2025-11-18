@@ -2,6 +2,13 @@
 
 A dockerized, AI-agnostic web service that provides personalized training guidance across four domains: running, strength, mobility, and nutrition. Integrates objective health data from Garmin Connect and supports multiple AI providers (Claude, ChatGPT, Gemini, and local LLMs via Ollama).
 
+## Screenshots
+
+![Running Coach Web Interface](docs/images/web-interface-screenshot.png)
+*Web interface for interacting with your personalized running coach*
+
+> **Note:** To add a screenshot, run `bash bin/capture_screenshot.sh` or see [Screenshot Guide](docs/images/README.md) for manual instructions.
+
 ## Features
 
 ### 🐳 Docker Deployment & AI Flexibility
