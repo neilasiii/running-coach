@@ -4,10 +4,8 @@ A dockerized, AI-agnostic web service that provides personalized training guidan
 
 ## Screenshots
 
-![Running Coach Web Interface](docs/images/web-interface-screenshot.png)
+![Running Coach Web Interface](docs/images/web-interface-screenshot.svg)
 *Web interface for interacting with your personalized running coach*
-
-> **Note:** To add a screenshot, run `bash bin/capture_screenshot.sh` or see [Screenshot Guide](docs/images/README.md) for manual instructions.
 
 ## Features
 
