@@ -1,6 +1,10 @@
 # Running Coach System
 
-A dockerized, AI-agnostic web service that provides personalized training guidance across four domains: running, strength, mobility, and nutrition. Integrates objective health data from Garmin Connect and supports multiple AI providers (Claude, ChatGPT, Gemini, and local LLMs via Ollama).
+A dockerized, AI-agnostic web service that provides personalized training guidance across four domains: running, strength, mobility, and nutrition.
+
+**Data Philosophy:** Your Garmin device collects the data. This app makes intelligent coaching decisions based on that data. We leverage Garmin's expertise in biometric tracking (HR zones, lactate threshold, HRV, training readiness, VO2 max) and focus on what AI does best: interpreting those metrics to provide personalized training guidance.
+
+Supports multiple AI providers (Claude, ChatGPT, Gemini, and local LLMs via Ollama).
 
 ## Screenshots
 
