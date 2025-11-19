@@ -35,12 +35,14 @@ A dockerized, AI-agnostic web service that provides personalized training guidan
 
 ### 📊 Health Data Integration
 
-- **Direct Garmin Connect Sync** - Automatic import of activities, sleep, HR, and VO2 max data
-- **HR Zone Analysis** - Time-in-zone data for each activity to verify workout intensity distribution
-- **Lactate Threshold Tracking** - Auto-detected threshold heart rate and pace for validating VDOT
+The system uses objective metrics from your Garmin device to inform coaching decisions:
+
+- **Direct Garmin Connect Sync** - Automatic import of activities, sleep, HR, VO2 max, and biometric data
+- **Garmin-Provided Analytics** - Leverages Garmin's HR zone analysis, lactate threshold detection, HRV, and training readiness scores
 - **Calendar Integration** - Import scheduled workouts from FinalSurge, TrainingPeaks, or any ICS calendar
-- **Recovery Monitoring** - Track resting heart rate, HRV, sleep quality, and training readiness
-- **Performance Tracking** - Monitor pace progression, training load, and race predictions
+- **Data-Informed Coaching** - AI coaches interpret Garmin metrics to adjust training intensity, volume, and recovery
+
+*The app focuses on making intelligent coaching decisions based on data from your Garmin device, not on collecting or analyzing metrics.*
 
 ### 📚 Workout Library
 
@@ -410,15 +412,17 @@ Import the generated .ics file:
 
 **See [ARCHITECTURE.md](docs/ARCHITECTURE.md) for complete technical details.**
 
-### Health Data Types
+### Health Data from Garmin Connect
 
-All data synced from Garmin Connect:
+The system consumes metrics directly from Garmin Connect (no manual data entry required):
 
-- **Activities** - Distance, duration, pace, heart rate, calories
-- **Sleep** - Total duration, sleep stages, efficiency
-- **VO2 Max** - Garmin estimates
-- **Weight** - Body weight, composition
-- **Resting Heart Rate** - Daily RHR (key recovery indicator)
+- **Activities** - Distance, duration, pace, heart rate, calories, HR zones (time-in-zone)
+- **Sleep** - Total duration, sleep stages, efficiency, sleep score
+- **Recovery Metrics** - Resting heart rate (RHR), HRV, training readiness score
+- **Fitness Indicators** - VO2 max estimates, lactate threshold (HR & pace)
+- **Body Composition** - Weight, body fat %, muscle mass (when available)
+
+These metrics inform coaching decisions but are calculated by Garmin devices, not by this application.
 
 ## Documentation
 
@@ -606,15 +610,11 @@ This project is actively evolving. Current development priorities:
 - [ ] **Community Forums** - Athlete discussion and peer support
 - [ ] **Coach Dashboard** - Interface for human coaches to monitor athlete progress
 
-### Advanced Analytics & Intelligence
-- [x] **HR Zone Analysis** - Time-in-zone tracking for each activity to validate workout intensity
-- [x] **Lactate Threshold Tracking** - Auto-detected threshold HR and pace from Garmin for VDOT validation
-- [x] **HRV Tracking** - Heart rate variability monitoring for recovery assessment
-- [x] **Training Readiness** - Daily readiness scores incorporating sleep, HRV, and recovery metrics
-- [ ] **Injury Risk Prediction** - ML model to detect overtraining patterns from training load trends
-- [ ] **Automated VDOT Adjustments** - Update training paces based on race results and workout performance
-- [ ] **Performance Prediction** - Race time estimates based on current fitness and training phase (partially complete: Garmin race predictions available)
-- [ ] **Training Load Analytics** - Acute/chronic workload ratio, TSS/CTL tracking
+### Enhanced Coaching Intelligence
+- [x] **Garmin Metrics Integration** - HR zones, lactate threshold, HRV, training readiness, and VO2 max all available to coaching agents
+- [ ] **Contextual Recovery Recommendations** - Suggest workout adjustments based on sleep quality, RHR trends, and training readiness
+- [ ] **Workout Adaptation Engine** - Automatically modify prescribed workouts based on recent performance and recovery data
+- [ ] **Race Strategy Planning** - Generate race-day pacing and fueling strategies using historical performance data
 
 ### Mobile & Offline Support
 - [ ] **Native iOS/Android Apps** - Full-featured mobile applications
