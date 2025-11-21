@@ -147,7 +147,16 @@ The health data cache (`data/health/health_data_cache.json`) provides critical n
    # If improving, current nutrition approach is supporting adaptation
    ```
 
-**Quick Health Check Example:**
+**Quick Health Check:**
+
+**Option 1: Database Query (Preferred):**
+```bash
+# Check weekly training load and recovery
+bash bin/query_data.sh recent-runs --limit 7
+bash bin/query_data.sh recent-sleep --days 7
+```
+
+**Option 2: JSON File (Backward Compatibility):**
 ```python
 import json
 with open('data/health/health_data_cache.json', 'r') as f:

@@ -115,7 +115,17 @@ The health data cache (`data/health/health_data_cache.json`) provides critical i
    - Recovery weeks → Opportunity for higher strength emphasis
    - Taper period → Minimal strength, maintenance only
 
-**Quick Health Check Example:**
+**Quick Health Check:**
+
+**Option 1: Database Query (Preferred):**
+```bash
+# Check recent recovery metrics
+bash bin/query_data.sh resting-hr --days 3
+bash bin/query_data.sh recent-sleep --days 1
+bash bin/query_data.sh recent-runs --limit 3
+```
+
+**Option 2: JSON File (Backward Compatibility):**
 ```python
 import json
 with open('data/health/health_data_cache.json', 'r') as f:

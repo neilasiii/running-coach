@@ -211,6 +211,31 @@ bash bin/manage_plans.sh by-athlete <id>    # Plans for athlete
 bash bin/manage_plans.sh by-race <race_id>  # Plans for race
 ```
 
+**Query Data (Agent-Friendly)**
+```bash
+# Quick database queries that return JSON output
+# Perfect for coaching agents to access data programmatically
+
+# Get recent activities
+bash bin/query_data.sh recent-runs --limit 5
+bash bin/query_data.sh recent-activities --limit 10
+
+# Get training status and paces
+bash bin/query_data.sh training-status
+
+# Check recovery metrics
+bash bin/query_data.sh resting-hr --days 14
+bash bin/query_data.sh recent-sleep --days 7
+
+# Get athlete info
+bash bin/query_data.sh communication-prefs
+bash bin/query_data.sh upcoming-races
+bash bin/query_data.sh athlete-profile
+
+# Search workouts
+bash bin/query_data.sh search-workouts --domain running --type tempo
+```
+
 **Database Access**
 ```bash
 # Connect to PostgreSQL
@@ -429,6 +454,11 @@ Coaching Agents (query database/cache for decisions)
 **[bin/manage_plans.sh](bin/manage_plans.sh)**: Training plan management
 - View and manage training plans
 - Commands: migrate, list, list-active, show, by-athlete, by-race
+
+**[bin/query_data.sh](bin/query_data.sh)** & **[src/query_data.py](src/query_data.py)**: Agent-friendly data queries
+- Returns JSON output for easy parsing by coaching agents
+- Quick access to training status, health metrics, upcoming races
+- Commands: recent-runs, training-status, resting-hr, recent-sleep, communication-prefs, upcoming-races, athlete-profile, search-workouts
 
 ### Athlete Context and Data Storage
 

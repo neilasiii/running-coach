@@ -126,7 +126,16 @@ The health data cache (`data/health/health_data_cache.json`) informs mobility pr
        # Lower volume: opportunity for more intensive mobility development
    ```
 
-**Quick Health Check Example:**
+**Quick Health Check:**
+
+**Option 1: Database Query (Preferred):**
+```bash
+# Check recent workout intensity
+bash bin/query_data.sh recent-runs --limit 1
+bash bin/query_data.sh recent-sleep --days 1
+```
+
+**Option 2: JSON File (Backward Compatibility):**
 ```python
 import json
 with open('data/health/health_data_cache.json', 'r') as f:

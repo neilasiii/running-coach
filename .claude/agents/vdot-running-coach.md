@@ -112,7 +112,30 @@ This syncs from Google Drive, updates the cache, and shows a summary of recent m
    - Recent workouts slower than expected at same HR → may indicate fatigue
    - Consistently hitting paces at lower HR → fitness improving, consider VDOT update
 
-**Quick Health Data Access Example:**
+**Quick Health Data Access:**
+
+**Option 1: Database Query (Preferred) - Returns JSON:**
+```bash
+# Get recent runs
+bash bin/query_data.sh recent-runs --limit 5
+
+# Get training status and paces
+bash bin/query_data.sh training-status
+
+# Check resting heart rate trend (14 days)
+bash bin/query_data.sh resting-hr --days 14
+
+# Get recent sleep data
+bash bin/query_data.sh recent-sleep --days 7
+
+# Get communication preferences
+bash bin/query_data.sh communication-prefs
+
+# Get upcoming races
+bash bin/query_data.sh upcoming-races
+```
+
+**Option 2: JSON File (Backward Compatibility):**
 ```python
 import json
 with open('data/health/health_data_cache.json', 'r') as f:
@@ -125,6 +148,15 @@ avg_rhr = sum(r[1] for r in recent_rhr) / 7
 # Review last run
 last_run = health['activities'][0]
 # Shows: date, distance, pace, avg_heart_rate, etc.
+```
+
+**Practical Examples:**
+```bash
+# Before designing a hard workout, check recovery:
+RHR=$(bash bin/query_data.sh resting-hr --days 7 | python3 -c "import sys, json; data=json.load(sys.stdin); print(sum(d['resting_hr'] for d in data)/len(data) if data else 'N/A')")
+
+# Get last 3 runs to assess recent training:
+bash bin/query_data.sh recent-runs --limit 3 | python3 -m json.tool
 ```
 
 For detailed guidance on using health data, see: `docs/AGENT_HEALTH_DATA_GUIDE.md`
