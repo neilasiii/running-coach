@@ -2,7 +2,8 @@
 
 import os
 import sys
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
+import subprocess
 
 # Add parent directory to path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
@@ -25,17 +26,42 @@ def sync_garmin_data(days: int = 7):
         Dictionary with sync results
     """
     try:
-        # This would call the Garmin sync script
-        # For now, just a placeholder
-        print(f"Syncing Garmin data for last {days} days...")
+        print(f"Starting Garmin sync for last {days} days...")
 
-        # Invalidate health cache after sync
-        cache = get_cache()
-        cache.invalidate_health_cache()
+        # Get the path to the garmin_sync script
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+        sync_script = os.path.join(script_dir, 'garmin_sync.py')
 
+        # Run the sync script using Python
+        result = subprocess.run(
+            [sys.executable, sync_script, '--days', str(days), '--quiet'],
+            capture_output=True,
+            text=True,
+            timeout=300  # 5 minute timeout
+        )
+
+        if result.returncode == 0:
+            print("Garmin sync completed successfully")
+            # The script will have already saved to database and invalidated cache
+            return {
+                'status': 'success',
+                'message': f'Synced {days} days of Garmin data',
+                'timestamp': datetime.utcnow().isoformat(),
+                'stdout': result.stdout,
+            }
+        else:
+            print(f"Garmin sync failed with return code {result.returncode}")
+            return {
+                'status': 'error',
+                'message': f'Sync failed: {result.stderr}',
+                'return_code': result.returncode,
+                'timestamp': datetime.utcnow().isoformat(),
+            }
+
+    except subprocess.TimeoutExpired:
         return {
-            'status': 'success',
-            'message': f'Synced {days} days of Garmin data',
+            'status': 'error',
+            'message': 'Sync timed out after 5 minutes',
             'timestamp': datetime.utcnow().isoformat(),
         }
     except Exception as e:

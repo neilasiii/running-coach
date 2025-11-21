@@ -51,6 +51,27 @@ except ImportError:
     # ICS exporter is optional
     export_calendar = None
 
+try:
+    from database.connection import get_session
+    from database.models import (
+        Activity, SleepSession, VO2MaxReading, WeightReading, RestingHRReading,
+        HRVReading, TrainingReadiness
+    )
+    from database.redis_cache import RedisCache
+    DATABASE_AVAILABLE = True
+except ImportError:
+    # Database is optional - will fall back to JSON only
+    DATABASE_AVAILABLE = False
+    get_session = None
+    Activity = None
+    SleepSession = None
+    VO2MaxReading = None
+    WeightReading = None
+    RestingHRReading = None
+    HRVReading = None
+    TrainingReadiness = None
+    RedisCache = None
+
 
 # Constants
 CACHE_FILE = Path(__file__).parent.parent / "data" / "health" / "health_data_cache.json"
@@ -1317,9 +1338,196 @@ def merge_data(existing: List, new: List, key_field: str = 'date') -> List:
     return result
 
 
+def save_to_database(cache: Dict[str, Any], quiet: bool = False) -> bool:
+    """
+    Save health data to PostgreSQL database (primary storage).
+
+    Args:
+        cache: Cache dictionary with health data
+        quiet: Suppress output
+
+    Returns:
+        True if successful, False otherwise
+    """
+    if not DATABASE_AVAILABLE:
+        if not quiet:
+            print("  ⚠ Database not available, skipping database write")
+        return False
+
+    try:
+        with get_session() as session:
+            # Save activities
+            for activity_data in cache.get('activities', []):
+                try:
+                    # Parse datetime from ISO format
+                    start_time = datetime.fromisoformat(activity_data['date'].replace('Z', '+00:00'))
+                    if start_time.tzinfo is None:
+                        start_time = start_time.replace(tzinfo=timezone.utc)
+
+                    # Convert distance to km (stored as miles in cache)
+                    distance_km = activity_data.get('distance_miles', 0) * 1.60934 if activity_data.get('distance_miles') else None
+
+                    # Calculate avg pace per km from pace per mile
+                    pace_per_mile = activity_data.get('pace_per_mile', 0)
+                    avg_pace_per_km = pace_per_mile / 1.60934 if pace_per_mile else None
+
+                    activity = Activity(
+                        garmin_activity_id=str(activity_data.get('activity_id')),
+                        activity_type=activity_data.get('activity_type', 'UNKNOWN'),
+                        start_time=start_time,
+                        duration_minutes=activity_data.get('duration_seconds', 0) / 60 if activity_data.get('duration_seconds') else None,
+                        distance_km=distance_km,
+                        avg_pace_per_km=f"{int(avg_pace_per_km)}:{int((avg_pace_per_km % 1) * 60):02d}" if avg_pace_per_km else None,
+                        avg_heart_rate=activity_data.get('avg_heart_rate'),
+                        max_heart_rate=activity_data.get('max_heart_rate'),
+                        calories=activity_data.get('calories'),
+                        hr_zones=activity_data.get('hr_zones'),  # JSON field
+                        splits=activity_data.get('splits'),  # JSON field
+                    )
+                    # Use merge to update if exists, insert if new
+                    session.merge(activity)
+                except Exception as e:
+                    if not quiet:
+                        print(f"  ⚠ Warning: Failed to save activity {activity_data.get('activity_id')}: {e}", file=sys.stderr)
+
+            # Save sleep sessions
+            for sleep_data in cache.get('sleep_sessions', []):
+                try:
+                    sleep_date = datetime.fromisoformat(sleep_data['date']).date() if isinstance(sleep_data['date'], str) else sleep_data['date']
+
+                    sleep_session = SleepSession(
+                        sleep_date=sleep_date,
+                        total_duration_minutes=sleep_data.get('total_duration_minutes'),
+                        deep_sleep_minutes=sleep_data.get('deep_sleep_minutes'),
+                        light_sleep_minutes=sleep_data.get('light_sleep_minutes'),
+                        rem_sleep_minutes=sleep_data.get('rem_sleep_minutes'),
+                        awake_minutes=sleep_data.get('awake_minutes'),
+                        sleep_score=sleep_data.get('sleep_score'),
+                    )
+                    session.merge(sleep_session)
+                except Exception as e:
+                    if not quiet:
+                        print(f"  ⚠ Warning: Failed to save sleep data for {sleep_data.get('date')}: {e}", file=sys.stderr)
+
+            # Save VO2 max readings
+            for vo2_data in cache.get('vo2_max_readings', []):
+                try:
+                    vo2_date = datetime.fromisoformat(vo2_data['date']).date() if isinstance(vo2_data['date'], str) else vo2_data['date']
+
+                    vo2 = VO2MaxReading(
+                        reading_date=vo2_date,
+                        vo2_max=vo2_data.get('vo2_max'),
+                    )
+                    session.merge(vo2)
+                except Exception as e:
+                    if not quiet:
+                        print(f"  ⚠ Warning: Failed to save VO2 max for {vo2_data.get('date')}: {e}", file=sys.stderr)
+
+            # Save weight readings
+            for weight_data in cache.get('weight_readings', []):
+                try:
+                    # Weight readings use timestamp, not date
+                    timestamp = datetime.fromisoformat(weight_data['timestamp'].replace('Z', '+00:00'))
+                    if timestamp.tzinfo is None:
+                        timestamp = timestamp.replace(tzinfo=timezone.utc)
+
+                    # Convert lbs to kg (stored as lbs in cache)
+                    weight_kg = weight_data.get('weight_lbs', 0) / 2.20462 if weight_data.get('weight_lbs') else None
+
+                    weight = WeightReading(
+                        reading_date=timestamp.date(),
+                        weight_kg=weight_kg,
+                        body_fat_percentage=weight_data.get('body_fat_percent'),
+                        muscle_mass_kg=weight_data.get('muscle_mass'),
+                    )
+                    session.merge(weight)
+                except Exception as e:
+                    if not quiet:
+                        print(f"  ⚠ Warning: Failed to save weight reading: {e}", file=sys.stderr)
+
+            # Save resting HR readings
+            for rhr_data in cache.get('resting_hr_readings', []):
+                try:
+                    # RHR readings are stored as [date, value] tuples
+                    if isinstance(rhr_data, list) and len(rhr_data) >= 2:
+                        rhr_date = datetime.fromisoformat(rhr_data[0]).date() if isinstance(rhr_data[0], str) else rhr_data[0]
+                        rhr_value = rhr_data[1]
+                    elif isinstance(rhr_data, dict):
+                        rhr_date = datetime.fromisoformat(rhr_data['date']).date() if isinstance(rhr_data['date'], str) else rhr_data['date']
+                        rhr_value = rhr_data.get('resting_hr')
+                    else:
+                        continue
+
+                    rhr = RestingHRReading(
+                        reading_date=rhr_date,
+                        resting_hr=rhr_value,
+                    )
+                    session.merge(rhr)
+                except Exception as e:
+                    if not quiet:
+                        print(f"  ⚠ Warning: Failed to save resting HR: {e}", file=sys.stderr)
+
+            # Save HRV readings
+            for hrv_data in cache.get('hrv_readings', []):
+                try:
+                    hrv_date = datetime.fromisoformat(hrv_data['date']).date() if isinstance(hrv_data['date'], str) else hrv_data['date']
+
+                    hrv = HRVReading(
+                        reading_date=hrv_date,
+                        hrv_value=hrv_data.get('hrv_value'),
+                        baseline_low=hrv_data.get('baseline_low'),
+                        baseline_high=hrv_data.get('baseline_high'),
+                        baseline_balanced_low=hrv_data.get('baseline_balanced_low'),
+                        baseline_balanced_high=hrv_data.get('baseline_balanced_high'),
+                    )
+                    session.merge(hrv)
+                except Exception as e:
+                    if not quiet:
+                        print(f"  ⚠ Warning: Failed to save HRV reading: {e}", file=sys.stderr)
+
+            # Save training readiness
+            for readiness_data in cache.get('training_readiness', []):
+                try:
+                    readiness_date = datetime.fromisoformat(readiness_data['date']).date() if isinstance(readiness_data['date'], str) else readiness_data['date']
+
+                    readiness = TrainingReadiness(
+                        reading_date=readiness_date,
+                        score=readiness_data.get('score'),
+                        recovery_time_hours=readiness_data.get('recovery_time_hours'),
+                        factors=readiness_data.get('factors'),  # JSON field
+                    )
+                    session.merge(readiness)
+                except Exception as e:
+                    if not quiet:
+                        print(f"  ⚠ Warning: Failed to save training readiness: {e}", file=sys.stderr)
+
+            # Commit all changes
+            session.commit()
+
+            if not quiet:
+                print("  ✓ Data saved to PostgreSQL")
+
+            # Invalidate Redis cache so it gets refreshed on next read
+            try:
+                cache_mgr = RedisCache()
+                cache_mgr.invalidate_health_cache()
+                if not quiet:
+                    print("  ✓ Redis cache invalidated")
+            except Exception as e:
+                if not quiet:
+                    print(f"  ⚠ Warning: Failed to invalidate Redis cache: {e}", file=sys.stderr)
+
+            return True
+
+    except Exception as e:
+        if not quiet:
+            print(f"  ✗ Error saving to database: {e}", file=sys.stderr)
+        return False
+
+
 def save_cache(cache: Dict[str, Any], quiet: bool = False):
     """
-    Save health data cache atomically with backup.
+    Save health data to database (primary) and JSON file (backward compatibility).
 
     Args:
         cache: Cache dictionary to save
@@ -1327,6 +1535,15 @@ def save_cache(cache: Dict[str, Any], quiet: bool = False):
     """
     # Update timestamp (UTC)
     cache['last_updated'] = utc_now()
+
+    # Save to database first (primary storage)
+    if not quiet:
+        print("\nSaving to database...")
+    save_to_database(cache, quiet)
+
+    # Then save to JSON file for backward compatibility
+    if not quiet:
+        print("\nSaving to JSON file (backward compatibility)...")
 
     # Create parent directory if needed
     CACHE_FILE.parent.mkdir(parents=True, exist_ok=True)
