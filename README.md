@@ -594,14 +594,17 @@ This project is actively evolving. Current development priorities:
 - [x] **Docker Deployment** - Containerized service for easy deployment ✅
 
 ### Data & Persistence
-- [ ] **Database Integration** - Replace JSON files with proper database (PostgreSQL/SQLite)
+- [x] **Database Integration** - PostgreSQL with Redis caching for workouts, health data, and athlete profiles ✅
+- [x] **Athlete Data Management** - Structured storage of training status, preferences, races, and documents ✅
+- [x] **Version Tracking** - Historical tracking for training status and athlete documents ✅
 - [ ] **Chat History** - Store and retrieve coaching conversation history
-- [ ] **Training Plan Versioning** - Track plan changes over time
-- [ ] **Multi-athlete Support** - Support multiple athlete profiles in single instance
+- [ ] **Training Plan Versioning** - Track generated training plans over time
+- [ ] **Multi-athlete Support** - Support multiple athlete profiles in single instance (infrastructure ready)
 
 ### Enhanced Features
-- [x] **Workout Library** - Searchable database of workouts and training blocks
-- [x] **Adjustable Communication Detail** - BRIEF/STANDARD/DETAILED response modes for coaching agents
+- [x] **Workout Library** - Searchable database of workouts and training blocks ✅
+- [x] **Adjustable Communication Detail** - BRIEF/STANDARD/DETAILED response modes for coaching agents ✅
+- [x] **Background Job Processing** - Celery with Redis for async tasks (Garmin sync, metrics calculation) ✅
 - [ ] **Automated Plan Generation** - Generate multi-week training plans based on race goals
 - [ ] **Email/SMS Notifications** - Workout reminders and recovery alerts
 - [ ] **Integration Testing** - Comprehensive test suite for all coaching domains
