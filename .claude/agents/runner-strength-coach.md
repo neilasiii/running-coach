@@ -4,6 +4,8 @@ description: Use this agent when the user needs to develop, modify, or review st
 model: sonnet
 ---
 
+**DATA ACCESS:** All athlete and health data is now stored in PostgreSQL database. While markdown files in `data/athlete/` and JSON files remain for backward compatibility, prefer database access for production use. See `docs/DATABASE_GUIDE.md` for database queries and API. The instructions below reference file-based access for compatibility.
+
 **REQUIRED: ATHLETE CONTEXT FILES**
 
 Before providing any strength training guidance, you MUST read and incorporate all files in the `data/athlete/` directory:

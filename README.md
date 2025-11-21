@@ -397,21 +397,29 @@ Import the generated .ics file:
 - **`src/ai_providers/ollama.py`** - Local LLM integration
 - **`src/ai_providers/factory.py`** - Provider selection
 
+**Database Layer:**
+- **`src/database/models.py`** - SQLAlchemy database models (primary data storage)
+- **`src/database/connection.py`** - PostgreSQL session management
+- **`src/database/redis_cache.py`** - Redis cache manager
+- **`src/database/migrate_*.py`** - Data migration scripts
+- **`bin/db_init.sh`, `bin/db_migrate.sh`** - Database management
+
 **Health Data System:**
-- **`src/garmin_sync.py`** - Garmin Connect API sync
+- **`src/garmin_sync.py`** - Garmin Connect API sync (writes to database)
 - **`src/ics_parser.py`** - ICS calendar import
 - **`src/ics_exporter.py`** - ICS calendar export
 - **`bin/sync_garmin_data.sh`** - Sync wrapper script
-- **`data/health/health_data_cache.json`** - Cached health metrics
+- **`data/health/health_data_cache.json`** - Legacy JSON cache (backward compatibility)
 
 **Workout Library:**
-- **`src/workout_library.py`** - Library manager (CRUD)
+- **`src/workout_library.py`** - Library manager (CRUD, database-backed)
 - **`src/workout_library_cli.py`** - CLI interface
 - **`bin/workout_library.sh`** - CLI wrapper
-- **`data/library/workout_library.json`** - Workout database
+- **`data/library/workout_library.json`** - Legacy JSON storage (backward compatibility)
 
 **Athlete Context:**
-- **`data/athlete/`** - Profile, goals, preferences, status
+- **Database tables:** `athlete_profiles`, `training_status`, `races`, `athlete_documents`
+- **`data/athlete/`** - Human-readable markdown files (synchronized from database)
 - **`.claude/agents/`** - Agent configurations
 
 **See [ARCHITECTURE.md](docs/ARCHITECTURE.md) for complete technical details.**
@@ -436,6 +444,9 @@ These metrics inform coaching decisions but are calculated by Garmin devices, no
 - **[API_CLIENT_EXAMPLES.md](docs/API_CLIENT_EXAMPLES.md)** - Integration examples (Python, JS, cURL, Home Assistant)
 - **[FILE_DOWNLOADS.md](docs/FILE_DOWNLOADS.md)** - Save and download AI-generated files
 
+**Database & Data Storage:**
+- **[DATABASE_GUIDE.md](docs/DATABASE_GUIDE.md)** - PostgreSQL and Redis integration guide
+
 **Health Data & Features:**
 - **[HEALTH_DATA_SYSTEM.md](docs/HEALTH_DATA_SYSTEM.md)** - Technical documentation for health data
 - **[AGENT_HEALTH_DATA_GUIDE.md](docs/AGENT_HEALTH_DATA_GUIDE.md)** - Quick reference for agents on health data
@@ -457,6 +468,14 @@ running-coach/
 │   │   ├── gemini.py          # Google Gemini
 │   │   ├── ollama.py          # Local LLMs
 │   │   └── factory.py         # Provider selection
+│   ├── database/              # Database layer (PostgreSQL + Redis)
+│   │   ├── models.py          # SQLAlchemy ORM models
+│   │   ├── connection.py      # Database session management
+│   │   ├── redis_cache.py     # Redis cache manager
+│   │   ├── init_db.py         # Database initialization
+│   │   ├── migrate_json_to_db.py      # Health/workout migration
+│   │   ├── migrate_athlete_data.py    # Athlete data migration
+│   │   └── migrate_training_plans.py  # Training plan migration
 │   ├── coach_service/         # Core coaching logic
 │   │   ├── agent_loader.py    # Load agent configs
 │   │   └── coach.py           # Main orchestration
@@ -473,25 +492,31 @@ running-coach/
 │   ├── start_service.sh       # Start web service
 │   ├── sync_garmin_data.sh    # Health data sync
 │   ├── export_calendar.sh     # Calendar export
-│   └── workout_library.sh     # Workout CLI
+│   ├── workout_library.sh     # Workout CLI
+│   ├── db_init.sh             # Database initialization
+│   ├── db_migrate.sh          # Data migration
+│   ├── athlete_data.sh        # Athlete data management
+│   ├── manage_users.sh        # User management
+│   └── manage_plans.sh        # Training plan management
 ├── docs/                      # Documentation
 │   ├── DOCKER_DEPLOYMENT.md   # Deployment guide
 │   ├── ARCHITECTURE.md        # System design
+│   ├── DATABASE_GUIDE.md      # PostgreSQL/Redis guide
 │   ├── API_CLIENT_EXAMPLES.md # Integration examples
 │   ├── HEALTH_DATA_SYSTEM.md
 │   ├── AGENT_HEALTH_DATA_GUIDE.md
 │   ├── AGENT_WORKOUT_LIBRARY_GUIDE.md
 │   └── COMMUNICATION_PREFERENCES_GUIDE.md
-├── data/
-│   ├── athlete/               # Athlete profile & context
-│   ├── health/                # Health data cache
-│   ├── library/               # Workout library
-│   ├── plans/                 # Training plans
+├── data/                      # Data files (legacy/backup)
+│   ├── athlete/               # Athlete markdown files
+│   ├── health/                # Health data JSON cache
+│   ├── library/               # Workout library JSON
+│   ├── plans/                 # Training plan markdown
 │   └── calendar/              # Calendar files
 ├── .claude/agents/            # AI coaching agents
 ├── config/                    # Configuration files
 ├── Dockerfile                 # Container definition
-├── docker-compose.yml         # Multi-container setup
+├── docker-compose.yml         # Multi-container setup (includes postgres/redis)
 ├── .env.example              # Config template
 ├── requirements.txt          # Python dependencies
 └── README.md                 # This file

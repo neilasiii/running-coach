@@ -430,19 +430,31 @@ Coaching Agents (query database/cache for decisions)
 - View and manage training plans
 - Commands: migrate, list, list-active, show, by-athlete, by-race
 
-### Athlete Context Files
+### Athlete Context and Data Storage
 
-All coaching agents MUST read these files in [data/athlete/](data/athlete/) before providing guidance:
+**Primary Data Source**: All athlete data is stored in **PostgreSQL** database tables:
+- `athlete_profiles` - Core athlete information
+- `training_status` - Current VDOT, paces, phase (with version history)
+- `communication_preferences` - Detail level and format preferences
+- `races` - Race schedule with goals and strategies
+- `athlete_documents` - Goals, history, preferences (with version tracking)
+- `activities`, `sleep_sessions`, etc. - Health metrics from Garmin Connect
+
+Coaching agents should query the database using the Python database API. See [docs/DATABASE_GUIDE.md](docs/DATABASE_GUIDE.md) for details.
+
+**Markdown Files** (Human-Readable Reference):
+
+The following files in [data/athlete/](data/athlete/) provide human-readable views of athlete data and are maintained for convenience:
 
 - **[goals.md](data/athlete/goals.md)** - Performance goals, training objectives
 - **[communication_preferences.md](data/athlete/communication_preferences.md)** - Detail level (BRIEF/STANDARD/DETAILED) and response format preferences
 - **[training_history.md](data/athlete/training_history.md)** - Injury history, past training patterns
-- **[training_preferences.md](data/athlete/training_preferences.md)** - Schedule constraints (Mon-Thu workdays 0700-1730), preferred workout structure, dietary requirements (gluten-free, dairy-free)
+- **[training_preferences.md](data/athlete/training_preferences.md)** - Schedule constraints, dietary requirements (gluten-free, dairy-free)
 - **[upcoming_races.md](data/athlete/upcoming_races.md)** - Race schedule, time goals, taper timing
 - **[current_training_status.md](data/athlete/current_training_status.md)** - Current VDOT, training paces, phase status
-- **[health_data_cache.json](data/health/health_data_cache.json)** - Objective metrics from Garmin Connect
+- **[health_profile.md](data/athlete/health_profile.md)** - Human-readable health summary
 
-**Database Availability**: This athlete context data is also stored in PostgreSQL tables (`athlete_profiles`, `training_status`, `communication_preferences`, `races`, `athlete_documents`) and can be queried programmatically. See [docs/DATABASE_GUIDE.md](docs/DATABASE_GUIDE.md) for details.
+These markdown files are synchronized from the database and can be read when programmatic database access is not convenient. For production coaching logic, prefer querying the database directly.
 
 ### Documentation
 
@@ -483,37 +495,59 @@ The garminconnect library handles OAuth authentication and stores tokens in `~/.
 
 ### Using Health Data in Coaching Decisions
 
-**Recovery Assessment:**
+**Database Access (Preferred):**
 ```python
+from src.database.connection import get_session
+from src.database.models import Activity, SleepSession, RestingHRReading
+from datetime import datetime, timedelta
+
+# Get recent activities
+with get_session() as session:
+    recent_runs = session.query(Activity)\
+        .filter(Activity.activity_type == 'RUNNING')\
+        .order_by(Activity.start_time.desc())\
+        .limit(5)\
+        .all()
+
+    # Check recent RHR trend for recovery assessment
+    week_ago = datetime.utcnow() - timedelta(days=7)
+    recent_rhr = session.query(RestingHRReading)\
+        .filter(RestingHRReading.reading_date >= week_ago)\
+        .order_by(RestingHRReading.reading_date.desc())\
+        .all()
+    avg_rhr = sum(r.resting_hr for r in recent_rhr) / len(recent_rhr)
+
+    # RHR elevated >5 bpm → recommend easy day
+    # RHR elevated 3-5 bpm → reduce intensity
+```
+
+**Redis Cache (Fast Lookups):**
+```python
+from src.database.redis_cache import RedisCache
+
+cache = RedisCache()
+
+# Get cached recent activities
+recent_activities = cache.get_recent_activities(limit=10)
+
+# Get cached sleep data
+recent_sleep = cache.get_recent_sleep(days=7)
+
+# Check sleep quality
+last_night = recent_sleep[0] if recent_sleep else None
+if last_night:
+    sleep_score = last_night.get('sleep_score', 0)
+    total_hrs = last_night.get('total_duration_minutes', 0) / 60
+    # Sleep <6.5 hrs or score <60 → consider conservative adjustment
+```
+
+**Legacy JSON Access (Backward Compatibility):**
+```python
+# JSON files are maintained for backward compatibility
 import json
 with open('data/health/health_data_cache.json', 'r') as f:
     cache = json.load(f)
-
-# Check recent RHR trend
-recent_rhr = cache['resting_hr_readings'][:7]
-avg_rhr = sum(r[1] for r in recent_rhr) / 7
-
-# RHR elevated >5 bpm → recommend easy day
-# RHR elevated 3-5 bpm → reduce intensity
-```
-
-**Workout Validation:**
-```python
-# Get last 5 runs
-recent_runs = [a for a in cache['activities'] if a['activity_type'] == 'RUNNING'][:5]
-
-# Compare prescribed paces to actual HR data
-# If easy runs show HR >145, paces may be too aggressive
-# If threshold runs show HR <140, VDOT may be underestimated
-```
-
-**Sleep Quality Check:**
-```python
-last_night = cache['sleep_sessions'][0]
-total_sleep_hrs = last_night['total_duration_minutes'] / 60
-sleep_score = last_night['sleep_score']  # Garmin's 0-100 quality score
-
-# Sleep <6.5 hrs or score <60 → consider conservative adjustment
+# ... same access patterns as before
 ```
 
 ### Supported Data Types
@@ -549,11 +583,12 @@ running-coach/
 │   └── seed_workout_library.py     # Populate library with templates
 │
 ├── docs/                           # Documentation
-│   ├── HEALTH_DATA_SYSTEM.md       # Technical documentation
-│   ├── AGENT_HEALTH_DATA_GUIDE.md  # Agent quick reference
+│   ├── DATABASE_GUIDE.md           # PostgreSQL and Redis guide
+│   ├── HEALTH_DATA_SYSTEM.md       # Health data technical documentation
+│   ├── AGENT_HEALTH_DATA_GUIDE.md  # Agent health data quick reference
 │   ├── AGENT_WORKOUT_LIBRARY_GUIDE.md # Workout library integration guide
-│   ├── README.md                   # Project README
-│   └── SETUP_COMPLETE.md           # Setup completion notes
+│   ├── COMMUNICATION_PREFERENCES_GUIDE.md # Detail level guide
+│   └── README.md                   # Project README
 │
 ├── config/                         # Configuration files
 │   ├── calendar_sources.json       # Calendar import URLs
