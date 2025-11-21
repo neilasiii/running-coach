@@ -120,9 +120,10 @@ def health():
 
     # Check PostgreSQL database
     try:
+        from sqlalchemy import text
         from ..database.connection import get_session
         with get_session() as session:
-            session.execute("SELECT 1")
+            session.execute(text("SELECT 1"))
         health_status['services']['database'] = {
             'status': 'healthy',
             'type': 'postgresql'

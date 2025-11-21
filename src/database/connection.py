@@ -3,7 +3,7 @@
 import os
 import logging
 from contextlib import contextmanager
-from sqlalchemy import create_engine, event
+from sqlalchemy import create_engine, event, text
 from sqlalchemy.orm import sessionmaker, scoped_session
 from sqlalchemy.pool import NullPool, QueuePool
 from .models import Base
@@ -105,7 +105,7 @@ def get_readonly_session():
     session = Session()
     try:
         # Set transaction to read-only
-        session.execute("SET TRANSACTION READ ONLY")
+        session.execute(text("SET TRANSACTION READ ONLY"))
         yield session
     except Exception:
         session.rollback()
@@ -129,23 +129,22 @@ if IS_PRODUCTION or os.getenv('ENABLE_QUERY_LOGGING', 'false').lower() == 'true'
         """Log slow queries."""
         total = time.time() - conn.info['query_start_time'].pop(-1)
 
-        # Log queries taking longer than 500ms
-        if total > 0.5:
-            # Truncate statement for logging
+        # Log very slow queries at ERROR level (>2s)
+        if total > 2.0:
             stmt_preview = statement.replace('\n', ' ')[:200]
-            logger.warning(
-                f"Slow query detected ({total:.2f}s): {stmt_preview}...",
+            logger.error(
+                f"Very slow query detected ({total:.2f}s): {stmt_preview}...",
                 extra={
                     'query_time': total,
                     'statement': statement,
                     'executemany': executemany
                 }
             )
-        # Log very long queries at error level
-        elif total > 2.0:
+        # Log slow queries at WARNING level (>500ms)
+        elif total > 0.5:
             stmt_preview = statement.replace('\n', ' ')[:200]
-            logger.error(
-                f"Very slow query detected ({total:.2f}s): {stmt_preview}...",
+            logger.warning(
+                f"Slow query detected ({total:.2f}s): {stmt_preview}...",
                 extra={
                     'query_time': total,
                     'statement': statement,
