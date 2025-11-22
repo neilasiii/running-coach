@@ -533,3 +533,71 @@ class SettingsManager:
             'threshold_pace': {'min': threshold_pace, 'max': threshold_pace},
             'interval_pace': {'min': interval_pace, 'max': interval_pace},
         }
+
+    def calculate_vdot_from_race(self, distance: str, time_str: str) -> float:
+        """
+        Calculate VDOT from race time using Jack Daniels tables.
+
+        Args:
+            distance: Race distance ('5k', '10k', 'half_marathon', 'marathon')
+            time_str: Race time in format 'HH:MM:SS' or 'MM:SS'
+
+        Returns:
+            Calculated VDOT value (rounded to 1 decimal)
+        """
+        # Parse time string to total seconds
+        time_parts = time_str.strip().split(':')
+        if len(time_parts) == 3:
+            hours, minutes, seconds = map(int, time_parts)
+            total_seconds = hours * 3600 + minutes * 60 + seconds
+        elif len(time_parts) == 2:
+            minutes, seconds = map(int, time_parts)
+            total_seconds = minutes * 60 + seconds
+        else:
+            raise ValueError("Time must be in HH:MM:SS or MM:SS format")
+
+        # Convert distance to meters
+        distance_meters = {
+            '5k': 5000,
+            '10k': 10000,
+            'half_marathon': 21097.5,
+            'marathon': 42195,
+        }.get(distance)
+
+        if not distance_meters:
+            raise ValueError(f"Invalid distance: {distance}")
+
+        # Calculate velocity in meters/minute
+        velocity_m_per_min = distance_meters / (total_seconds / 60)
+
+        # Use Jack Daniels VDOT formula with empirically-tuned constants
+        # VO2 = -4.60 + 0.182258 * V + 0.000104 * V^2
+        # Where V is velocity in meters/minute and VO2 is in ml/kg/min
+
+        # Calculate VO2 at race pace
+        vo2_at_race_pace = (-4.60 +
+                           0.182258 * velocity_m_per_min +
+                           0.000104 * (velocity_m_per_min ** 2))
+
+        # Empirically-tuned fractional utilization to match Jack Daniels' VDOT tables
+        # These values are adjusted to produce VDOT estimates that align with
+        # the published race equivalency tables in "Daniels' Running Formula"
+        #
+        # Note: These are higher than theoretical %VO2max because they account for
+        # running economy variations and match empirical race performance data
+
+        fractional_utilization = {
+            '5k': 0.86,        # ~15-20 min effort
+            '10k': 0.825,      # ~30-50 min effort
+            'half_marathon': 0.79,  # ~70-110 min effort
+            'marathon': 0.75,  # ~150-270 min effort
+        }.get(distance)
+
+        # Calculate VDOT by adjusting for fractional utilization
+        # VDOT = VO2_at_race_pace / fractional_utilization
+        vdot = vo2_at_race_pace / fractional_utilization
+
+        # Clamp to reasonable range (30-85)
+        vdot = max(30.0, min(85.0, vdot))
+
+        return round(vdot, 1)

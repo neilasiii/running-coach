@@ -553,6 +553,44 @@ def calculate_paces():
         return jsonify({'error': str(e)}), 500
 
 
+@api_v1.route('/settings/calculate-vdot', methods=['POST'])
+def calculate_vdot():
+    """
+    Calculate VDOT from race time.
+
+    Expected JSON:
+    {
+        "distance": "5k",  # or "10k", "half_marathon", "marathon"
+        "time": "25:30"    # format: HH:MM:SS or MM:SS
+    }
+
+    Returns:
+        Calculated VDOT value
+    """
+    data = request.get_json()
+
+    if not data or 'distance' not in data or 'time' not in data:
+        logger.warning("Calculate VDOT request missing distance or time")
+        return jsonify({'error': 'Missing distance or time parameter'}), 400
+
+    try:
+        distance = data['distance']
+        time_str = data['time']
+
+        from ..settings_manager import SettingsManager
+        manager = SettingsManager(athlete_id=1)
+        vdot = manager.calculate_vdot_from_race(distance, time_str)
+
+        logger.info(f"VDOT calculated from {distance} race time {time_str}: {vdot}")
+        return jsonify({'vdot': vdot})
+    except ValueError as e:
+        logger.warning(f"Invalid race data: {e}")
+        return jsonify({'error': str(e)}), 400
+    except Exception as e:
+        logger.error(f"Calculate VDOT failed: {e}", exc_info=True)
+        return jsonify({'error': str(e)}), 500
+
+
 # =============================================================================
 # Register API v1 Blueprint
 # =============================================================================

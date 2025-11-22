@@ -764,6 +764,26 @@
                                 </select>
                             </div>
                         </div>
+                        <div style="margin: 15px 0; padding: 15px; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #667eea;">
+                            <h4 style="margin: 0 0 10px 0; font-size: 0.95em; color: #667eea;">📊 Calculate VDOT from Race Time</h4>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Race Distance</label>
+                                    <select id="race_distance" class="form-control">
+                                        <option value="">Select distance...</option>
+                                        <option value="5k">5K</option>
+                                        <option value="10k">10K</option>
+                                        <option value="half_marathon">Half Marathon</option>
+                                        <option value="marathon">Marathon</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Finish Time (HH:MM:SS or MM:SS)</label>
+                                    <input type="text" id="race_time" class="form-control" placeholder="1:55:04 or 25:30">
+                                </div>
+                            </div>
+                            <button id="calculateVdot" class="btn-secondary">Calculate VDOT from Race</button>
+                        </div>
                         <div class="form-row">
                             <div class="form-group">
                                 <label>Weekly Volume (hours)</label>
@@ -1516,6 +1536,52 @@
             } catch (error) {
                 console.error('Calculate paces error:', error);
                 showSettingsMessage('Failed to calculate paces: ' + error.message, 'error');
+            }
+        });
+
+        // Calculate VDOT from race time
+        document.getElementById('calculateVdot').addEventListener('click', async () => {
+            const distance = document.getElementById('race_distance').value;
+            const time = document.getElementById('race_time').value;
+
+            if (!distance) {
+                showSettingsMessage('Please select a race distance', 'error');
+                return;
+            }
+
+            if (!time || !time.trim()) {
+                showSettingsMessage('Please enter a race time', 'error');
+                return;
+            }
+
+            // Validate time format (HH:MM:SS or MM:SS)
+            const timePattern = /^(\d{1,2}:)?\d{1,2}:\d{2}$/;
+            if (!timePattern.test(time.trim())) {
+                showSettingsMessage('Time must be in HH:MM:SS or MM:SS format (e.g., 1:55:04 or 25:30)', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/v1/settings/calculate-vdot', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ distance: distance, time: time.trim() })
+                });
+
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.error || 'Failed to calculate VDOT');
+                }
+
+                const result = await response.json();
+
+                // Update VDOT field
+                document.getElementById('vdot_prescribed').value = result.vdot;
+
+                showSettingsMessage(`VDOT calculated: ${result.vdot} (from ${distance.replace('_', ' ')} in ${time})`, 'success');
+            } catch (error) {
+                console.error('Calculate VDOT error:', error);
+                showSettingsMessage('Failed to calculate VDOT: ' + error.message, 'error');
             }
         });
 
