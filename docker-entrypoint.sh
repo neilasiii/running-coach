@@ -24,16 +24,25 @@ if [ "$TABLE_COUNT" -eq "0" ]; then
   # Run database initialization
   python3 src/database/init_db.py create
 
-  # Run migrations
-  alembic upgrade head
+  # Mark the migration as applied (stamp without running)
+  echo "📝 Marking migration as applied..."
+  alembic stamp head
 
   echo "✅ Database initialized successfully!"
 else
   echo "✅ Database already initialized ($TABLE_COUNT tables found)"
 
-  # Run any pending migrations
-  echo "🔄 Checking for pending migrations..."
-  alembic upgrade head
+  # Check if alembic_version table exists
+  ALEMBIC_TABLE=$(psql "${DATABASE_URL}" -t -c "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'alembic_version';" 2>/dev/null || echo "0")
+
+  if [ "$ALEMBIC_TABLE" -eq "0" ]; then
+    echo "📝 Alembic version tracking not initialized - stamping current state..."
+    alembic stamp head
+  else
+    # Run any pending migrations
+    echo "🔄 Checking for pending migrations..."
+    alembic upgrade head
+  fi
 fi
 
 echo "🌐 Starting web server..."
