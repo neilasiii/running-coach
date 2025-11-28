@@ -38,3 +38,23 @@ RHR: 45 bpm (-1.7 vs baseline)
 → suboptimal sleep quality (59)
 
 No workout scheduled today
+=== Morning Report: Fri Nov 28 17:51:42 EST 2025 ===
+Syncing Garmin data...
+API call failed for path '/wellness-service/wellness/dailyHeartRate/None': Error in request: 403 Client Error: Forbidden for url: https://connectapi.garmin.com/wellness-service/wellness/dailyHeartRate/None?date=2025-11-21 (status=403)
+API call failed for path '/wellness-service/wellness/dailyHeartRate/None': Error in request: 403 Client Error: Forbidden for url: https://connectapi.garmin.com/wellness-service/wellness/dailyHeartRate/None?date=2025-11-22 (status=403)
+API call failed for path '/wellness-service/wellness/dailyHeartRate/None': Error in request: 403 Client Error: Forbidden for url: https://connectapi.garmin.com/wellness-service/wellness/dailyHeartRate/None?date=2025-11-23 (status=403)
+API call failed for path '/wellness-service/wellness/dailyHeartRate/None': Error in request: 403 Client Error: Forbidden for url: https://connectapi.garmin.com/wellness-service/wellness/dailyHeartRate/None?date=2025-11-24 (status=403)
+API call failed for path '/wellness-service/wellness/dailyHeartRate/None': Error in request: 403 Client Error: Forbidden for url: https://connectapi.garmin.com/wellness-service/wellness/dailyHeartRate/None?date=2025-11-25 (status=403)
+API call failed for path '/wellness-service/wellness/dailyHeartRate/None': Error in request: 403 Client Error: Forbidden for url: https://connectapi.garmin.com/wellness-service/wellness/dailyHeartRate/None?date=2025-11-26 (status=403)
+API call failed for path '/wellness-service/wellness/dailyHeartRate/None': Error in request: 403 Client Error: Forbidden for url: https://connectapi.garmin.com/wellness-service/wellness/dailyHeartRate/None?date=2025-11-27 (status=403)
+API call failed for path '/wellness-service/wellness/dailyHeartRate/None': Error in request: 403 Client Error: Forbidden for url: https://connectapi.garmin.com/wellness-service/wellness/dailyHeartRate/None?date=2025-11-28 (status=403)
+✓ Loaded valid tokens from /data/data/com.termux/files/home/.garminconnect
+Generating report...
+Sending notification...
+Report sent successfully
+Last run (2025-11-23): Central Florida Legends Skunk Ape Marathon
+  26.49mi in 4h35m @ 10:24/mi
+Sleep: 7.1h (score: 59)
+RHR: 45 bpm (-1.7 vs baseline)
+
+No workout scheduled today
