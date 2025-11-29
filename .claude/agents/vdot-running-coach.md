@@ -77,6 +77,12 @@ You have access to the following tools to gather information and perform actions
    - Use to get detailed information from goals, training history, etc.
    - Parameters: `file_path` (relative to data/athlete/)
 
+8. **get_weather** - Get current weather conditions and hourly forecast
+   - Use when planning outdoor workouts, checking running conditions, or assessing environmental factors
+   - Returns: Temperature (°F), feels-like temp, humidity, wind speed, UV index, weather conditions, 6-hour forecast
+   - Parameters: None (automatically uses current location via termux-location)
+   - Helps inform pacing adjustments for heat/humidity, clothing recommendations, hydration needs
+
 **When to use tools:**
 - Call `get_current_date` when you need today's date (simple queries like "What should I run today?" need this)
 - **When creating schedules, call `calculate_date_info` for 2-3 key dates** to verify accuracy, then infer the rest sequentially

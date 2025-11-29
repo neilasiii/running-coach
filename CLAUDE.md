@@ -56,6 +56,25 @@ python3 src/garmin_sync.py --quiet
 python3 src/garmin_sync.py --days 30 --summary
 ```
 
+**Weather Data**
+```bash
+# Get current weather and forecast
+python3 src/get_weather.py
+
+# Returns:
+# - Current temp (°F), feels-like, humidity, wind, UV index
+# - Weather conditions (clear, cloudy, rain, etc.)
+# - Next 6 hours forecast
+```
+
+Coaching agents can use weather data to adjust:
+- Pacing recommendations for heat/humidity
+- Hydration and electrolyte strategies
+- Clothing recommendations
+- UV protection needs
+
+**Requires:** `termux-api` package for location access. Uses Open-Meteo API (free, no API key required).
+
 **Authentication Setup**
 
 Token-based authentication is recommended for automated/bot access (more reliable than password auth):
@@ -191,6 +210,76 @@ head -5 data/athlete/communication_preferences.md
 - **DETAILED**: Comprehensive explanations with physiological reasoning and multiple options
 
 See [docs/COMMUNICATION_PREFERENCES_GUIDE.md](docs/COMMUNICATION_PREFERENCES_GUIDE.md) for examples and usage guide.
+
+**Automation (Termux)**
+
+Automate health data syncing and morning reports with cron jobs:
+
+```bash
+# Setup automated sync (every 2 hours)
+bash bin/setup_cron.sh
+
+# Manual sync with notification (shows only NEW items)
+bash bin/sync_with_notification.sh
+bash bin/sync_with_notification.sh --days 7
+
+# Morning report (daily health summary + today's workout)
+bash bin/morning_report.sh
+```
+
+**Sync with Notification** (`bin/sync_with_notification.sh`):
+- Syncs Garmin data and sends Termux notification
+- **Shows only NEW items** synced (not all data from summary)
+- Example notification: "Run: 1 runs, 6.5 mi, 1.1 hrs | Sleep: 1 nights"
+- Shows "No new data" if nothing new was synced
+- Logs output to `data/sync_log.txt` for debugging
+- Designed for cron automation
+
+**Morning Report** (`bin/morning_report.sh`):
+- **AI-Powered** - Uses Claude Code in headless mode for intelligent recommendations
+- Incremental sync (fetches only latest data since last sync)
+- Reads cached health data for analysis (recent activities, sleep, RHR, readiness, scheduled workouts)
+- Generates AI analysis with personalized workout recommendations including:
+  - Recovery status assessment
+  - Today's primary workout (run/strength/mobility) with specific durations and intensities
+  - Alternative options based on fatigue level
+  - Contextual insights about training phase and goals
+- Sends concise notification (~300 chars) at scheduled time (default: 0715 daily)
+- Logs to `data/morning_report.log`
+- Falls back to basic metrics if AI generation fails
+
+**Setup Cron** (`bin/setup_cron.sh`):
+- Installs cron job for automated Garmin sync
+- Default schedule: Every 6 hours at :05 (00:05, 06:05, 12:05, 18:05) with incremental sync
+- Starts crond daemon
+- View crontab: `crontab -l`
+- Edit crontab: `crontab -e`
+
+**Common Cron Schedules (choose based on preference):**
+```bash
+# Option A: Garmin sync every 2 hours + morning report
+5 */2 * * * cd $HOME/running-coach && bash bin/sync_with_notification.sh --days 1
+15 7 * * * cd $HOME/running-coach && bash bin/morning_report.sh
+
+# Option B: Garmin sync every 6 hours + morning report (recommended)
+5 */6 * * * cd $HOME/running-coach && bash bin/sync_with_notification.sh --days 1
+15 7 * * * cd $HOME/running-coach && bash bin/morning_report.sh
+
+# Option C: Morning report only (no automated sync)
+15 7 * * * cd $HOME/running-coach && bash bin/morning_report.sh
+
+# Option D: Incremental sync (most efficient - auto-detects what's new since last sync)
+5 */6 * * * cd $HOME/running-coach && bash bin/sync_with_notification.sh
+15 7 * * * cd $HOME/running-coach && bash bin/morning_report.sh
+```
+
+**Note**:
+- **Recommended**: Use incremental sync (no --days flag) for all automated syncs - most efficient
+- Incremental sync automatically fetches only new data since last sync
+- All analysis reads from the cached data (which contains full history)
+- Use `--days N` only for initial setup or after long periods without syncing
+
+**Note**: Termux cron may not survive device restarts. Add `crond` to your `.bashrc` to auto-start on Termux launch.
 
 ### Testing
 
@@ -392,6 +481,9 @@ All data is fetched directly from Garmin Connect API:
 running-coach/
 ├── bin/                            # Executable scripts
 │   ├── sync_garmin_data.sh         # Garmin Connect sync + summary
+│   ├── sync_with_notification.sh   # Automated sync with Termux notifications (shows only NEW items)
+│   ├── morning_report.sh           # Daily morning report with health summary + today's workout
+│   ├── setup_cron.sh               # Install cron job for automated syncing
 │   ├── export_calendar.sh          # Export workouts to ICS calendar
 │   └── workout_library.sh          # Browse and search workout library
 │
@@ -399,6 +491,7 @@ running-coach/
 │   ├── garmin_sync.py              # Garmin Connect API sync script
 │   ├── ics_parser.py               # ICS calendar import parser
 │   ├── ics_exporter.py             # ICS calendar export generator
+│   ├── get_weather.py              # Weather conditions and forecast
 │   ├── workout_library.py          # Workout library manager (CRUD ops)
 │   ├── workout_library_cli.py      # CLI for browsing workouts
 │   └── seed_workout_library.py     # Populate library with templates
