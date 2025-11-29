@@ -88,6 +88,30 @@ bash bin/sync_garmin_data.sh --days 60
 bash bin/sync_garmin_data.sh --check-only
 ```
 
+### Check Weather Conditions
+
+Get current weather and hourly forecast to inform training decisions:
+
+```bash
+# Get current conditions and 6-hour forecast
+python3 src/get_weather.py
+```
+
+**Output includes:**
+- Current temperature and feels-like temperature (°F)
+- Humidity percentage and wind speed
+- UV index (for sun exposure considerations)
+- Weather conditions (clear, cloudy, rain, etc.)
+- Next 6 hours forecast with temps and conditions
+
+**Coaching agents automatically use weather data to:**
+- Adjust pacing recommendations for heat/humidity
+- Modify hydration and electrolyte strategies
+- Provide clothing recommendations
+- Consider UV protection needs
+
+*Requires `termux-api` package for location access. Uses Open-Meteo API (free, no API key needed).*
+
 ### Work with Coaching Agents
 
 The system uses specialized AI coaching agents defined in `.claude/agents/`:
@@ -236,6 +260,7 @@ Import the generated .ics file:
 - **`src/garmin_sync.py`** - Garmin Connect API sync
 - **`src/ics_parser.py`** - ICS calendar import
 - **`src/ics_exporter.py`** - ICS calendar export
+- **`src/get_weather.py`** - Weather conditions and forecast
 - **`bin/sync_garmin_data.sh`** - Sync wrapper script
 - **`data/health/health_data_cache.json`** - Cached health metrics
 
@@ -282,6 +307,7 @@ running-coach/
 │   ├── garmin_sync.py         # Garmin Connect sync
 │   ├── ics_parser.py          # Calendar import
 │   ├── ics_exporter.py        # Calendar export
+│   ├── get_weather.py         # Weather conditions & forecast
 │   ├── workout_library.py     # Workout library CRUD
 │   ├── workout_library_cli.py # Workout CLI
 │   └── seed_workout_library.py
@@ -367,12 +393,6 @@ The nutrition coach respects dietary requirements configured in `data/athlete/tr
 
 This project is actively evolving. Current development priorities:
 
-### Data & Persistence
-- [ ] **Database Integration** - Replace JSON files with proper database (PostgreSQL/SQLite)
-- [ ] **Chat History** - Store and retrieve coaching conversation history
-- [ ] **Training Plan Versioning** - Track plan changes over time
-- [ ] **Multi-athlete Support** - Support multiple athlete profiles in single instance
-
 ### Enhanced Features
 - [x] **Workout Library** - Searchable database of workouts and training blocks
 - [x] **Adjustable Communication Detail** - BRIEF/STANDARD/DETAILED response modes for coaching agents
@@ -380,12 +400,6 @@ This project is actively evolving. Current development priorities:
 - [ ] **Email/SMS Notifications** - Workout reminders and recovery alerts
 - [ ] **Integration Testing** - Comprehensive test suite for all coaching domains
 - [ ] **Additional Wearables** - Support for Strava, Polar, Wahoo, etc.
-
-### Community & Collaboration
-- [ ] **Multi-coach Support** - Allow multiple coaching perspectives/methodologies
-- [ ] **Sharing & Templates** - Share workout templates and training frameworks
-- [ ] **Community Forums** - Athlete discussion and peer support
-- [ ] **Coach Dashboard** - Interface for human coaches to monitor athlete progress
 
 ### Enhanced Coaching Intelligence
 - [x] **Garmin Metrics Integration** - HR zones, lactate threshold, HRV, training readiness, and VO2 max all available to coaching agents
