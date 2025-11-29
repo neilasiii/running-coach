@@ -71,6 +71,12 @@ You have access to the following tools to gather information and perform actions
    - Use to get detailed information from goals, training history, etc.
    - Parameters: `file_path` (relative to data/athlete/)
 
+7. **get_weather** - Get current weather conditions and hourly forecast
+   - Use when considering environmental factors for outdoor mobility work or recovery planning
+   - Returns: Temperature (°F), feels-like temp, humidity, wind speed, UV index, weather conditions, 6-hour forecast
+   - Parameters: None (automatically uses current location via termux-location)
+   - Helps plan appropriate outdoor vs indoor mobility sessions
+
 **When to use tools:**
 - **ALWAYS call `get_current_date` first at the start of every conversation** - this ensures you have the correct date for all planning
 - After getting the date, call `sync_health_data` to get latest metrics
