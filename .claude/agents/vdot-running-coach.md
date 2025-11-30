@@ -91,11 +91,14 @@ You have access to the following tools to gather information and perform actions
 - **Prioritize response speed** - only call tools when information is truly necessary for accuracy
 
 This syncs from Google Drive, updates the cache, and shows a summary of recent metrics. The health data cache (`data/health/health_data_cache.json`) contains:
-- Recent running activities (pace, HR, distance)
+- Recent activities (running, cycling, swimming, strength, etc. - with pace, HR, distance)
 - Sleep quality and duration
 - Resting heart rate (RHR) trends
 - VO2 max estimates
 - Body weight trends
+- **Gear stats** - Shoe mileage, equipment usage (injury prevention - worn shoes)
+- **Daily steps** - Overall daily activity level (recovery day movement assessment)
+- **Progress summary** - Training load metrics (ATL, CTL, TSB for form/fitness/fatigue tracking)
 
 **Using Health Data in Coaching Decisions:**
 
@@ -115,6 +118,23 @@ This syncs from Google Drive, updates the cache, and shows a summary of recent m
 4. **Adjust Based on Actual Performance**: Use objective workout data
    - Recent workouts slower than expected at same HR → may indicate fatigue
    - Consistently hitting paces at lower HR → fitness improving, consider VDOT update
+
+5. **Monitor Shoe Mileage**: Check gear stats to prevent injury from worn shoes
+   - Shoes with >300-500 miles → recommend replacement
+   - Multiple high-mileage shoes → prioritize which to replace first
+
+6. **Assess Overall Activity**: Use daily steps for recovery day assessment
+   - High step count on "rest" days (>15k steps) → may compromise recovery
+   - Very low steps (<3k) → sedentary lifestyle may limit aerobic base development
+
+7. **Track Training Load**: Use progress summary (ATL/CTL/TSB) to optimize training progression
+   - **ATL (Acute Training Load)**: 7-day average - current fatigue level
+   - **CTL (Chronic Training Load)**: 42-day average - current fitness level
+   - **TSB (Training Stress Balance)**: CTL - ATL = form/freshness
+   - TSB > +25 → well-rested, may be detrained
+   - TSB +10 to +25 → optimal race readiness
+   - TSB -10 to +10 → maintaining fitness
+   - TSB < -30 → high fatigue, risk of overtraining
 
 **Quick Health Data Access Example:**
 ```python
