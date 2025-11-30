@@ -102,7 +102,20 @@ def generate_ai_commentary(cache, weather_data, recovery_score, tsb):
     rhr_readings = cache.get('resting_hr_readings', [])
     rhr = int(sum(r[1] for r in rhr_readings[:3]) / 3) if len(rhr_readings) >= 3 else 0
 
+    # Check if post-marathon recovery
+    days_since_marathon = None
+    for a in activities:
+        if a.get('distance_miles', 0) > 20:  # Marathon distance
+            from datetime import datetime
+            marathon_date = datetime.fromisoformat(a['date'][:10])
+            days_since_marathon = (datetime.now().date() - marathon_date.date()).days
+            break
+
     # Create prompt for Claude
+    context_note = ""
+    if days_since_marathon and days_since_marathon < 14:
+        context_note = f"\n\nIMPORTANT: Athlete is {days_since_marathon} days post-marathon. Recommend very conservative recovery activities (rest, walking 20-30min max, no running)."
+
     prompt = f"""Based on this athlete's data, provide concise training recommendations for TODAY in 3-4 bullet points.
 
 RECOVERY METRICS:
@@ -115,11 +128,11 @@ RECENT ACTIVITIES:
 {activity_summary}
 
 WEATHER TODAY:
-{weather_data if weather_data else 'Not available'}
+{weather_data if weather_data else 'Not available'}{context_note}
 
 Provide:
-1. Today's recommended workout type and duration
-2. Intensity guidance based on recovery
+1. Today's recommended workout type and duration (BE CONSERVATIVE - prioritize recovery)
+2. Intensity guidance based on recovery (if sleep <50 or recovery <50, recommend rest/walking only)
 3. Weather timing recommendation if relevant
 4. One key recovery or adaptation note
 
@@ -139,13 +152,15 @@ Format as brief bullet points (50-80 words total). Be specific and actionable.""
     except:
         pass
 
-    # Fallback if AI generation fails
-    if recovery_score < 50:
-        return "• Rest day recommended - recovery score below 50\n• Focus on sleep and nutrition\n• Light walking (20-30min) if feeling restless"
+    # Fallback if AI generation fails - be conservative
+    if days_since_marathon and days_since_marathon < 14:
+        return f"• Day {days_since_marathon} post-marathon - prioritize recovery\n• Rest or 20-30min easy walk maximum\n• Focus on sleep quality and nutrition\n• No running until day 10-14 post-marathon"
+    elif recovery_score < 50 or sleep_score < 50:
+        return "• Rest day recommended - recovery indicators below optimal\n• Focus on sleep and nutrition\n• Light walking (20-30min) if feeling restless"
     elif tsb < -10:
-        return "• Easy recovery workout - TSB indicates fatigue\n• 30-40min easy effort\n• Prioritize movement quality over intensity"
+        return "• Easy recovery workout - TSB indicates fatigue\n• 30-40min easy effort or rest\n• Prioritize movement quality over intensity"
     else:
-        return "• Moderate training day based on recovery metrics\n• Follow scheduled workout or 45-60min easy run\n• Monitor effort and adjust as needed"
+        return "• Moderate training day based on recovery metrics\n• 30-45min easy run or follow scheduled workout\n• Monitor effort and adjust as needed"
 
 def generate_html_report(weather_data=None):
     """Generate enhanced HTML report."""
