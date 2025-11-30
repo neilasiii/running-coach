@@ -1154,6 +1154,190 @@ def fetch_scheduled_workouts(client: Garmin, quiet: bool = False) -> List[Dict[s
         return []
 
 
+def fetch_gear_stats(client: Garmin, quiet: bool = False) -> List[Dict[str, Any]]:
+    """
+    Fetch gear/equipment stats from Garmin Connect (shoe mileage, bike usage, etc.).
+
+    Args:
+        client: Authenticated Garmin client
+        quiet: Suppress output
+
+    Returns:
+        List of gear item dictionaries with usage stats
+    """
+    if not quiet:
+        print(f"Fetching gear stats...")
+
+    try:
+        # Get user profile number first
+        user_profile = client.get_user_profile()
+        profile_id = user_profile.get('profileId')
+
+        if not profile_id:
+            if not quiet:
+                print(f"  Warning: Could not get user profile ID")
+            return []
+
+        gear_list = client.get_gear(profile_id)
+        gear_stats = []
+
+        for gear in gear_list:
+            # Get detailed stats for each gear item
+            gear_uuid = gear.get('uuid')
+            if not gear_uuid:
+                continue
+
+            try:
+                stats = client.get_gear_stats(gear_uuid)
+
+                gear_stats.append({
+                    'uuid': gear_uuid,
+                    'display_name': gear.get('displayName'),
+                    'model_name': gear.get('customMakeModel'),
+                    'gear_type': gear.get('gearTypeName'),  # e.g., "Shoes", "Bike"
+                    'date_begun': gear.get('dateBegun'),
+                    'date_retired': gear.get('dateRetired'),
+                    'is_active': not gear.get('dateRetired'),
+                    'total_distance_meters': stats.get('totalDistance', 0) if stats else 0,
+                    'total_activities': stats.get('totalActivities', 0) if stats else 0,
+                    'max_distance_single_activity': gear.get('maximumMetersSingleActivity'),
+                    'notification_distance_meters': gear.get('notificationDistanceMeters'),
+                    'created_date': gear.get('createDate'),
+                    'updated_date': gear.get('updateDate')
+                })
+            except Exception as e:
+                # If we can't get stats for a specific gear item, still include basic info
+                gear_stats.append({
+                    'uuid': gear_uuid,
+                    'display_name': gear.get('displayName'),
+                    'model_name': gear.get('customMakeModel'),
+                    'gear_type': gear.get('gearTypeName'),
+                    'date_begun': gear.get('dateBegun'),
+                    'date_retired': gear.get('dateRetired'),
+                    'is_active': not gear.get('dateRetired'),
+                    'total_distance_meters': 0,
+                    'total_activities': 0
+                })
+
+        if not quiet:
+            print(f"  Found {len(gear_stats)} gear items")
+
+        return gear_stats
+
+    except Exception as e:
+        print(f"Warning: Failed to fetch gear stats: {e}", file=sys.stderr)
+        return []
+
+
+def fetch_daily_steps(client: Garmin, start_date: date, end_date: date, quiet: bool = False) -> List[Dict[str, Any]]:
+    """
+    Fetch daily step count data from Garmin Connect for the specified date range.
+
+    Args:
+        client: Authenticated Garmin client
+        start_date: Start date for steps fetch
+        end_date: End date for steps fetch
+        quiet: Suppress output
+
+    Returns:
+        List of daily step count dictionaries
+    """
+    steps_data = []
+
+    if not quiet:
+        print(f"Fetching daily steps from {start_date} to {end_date}...")
+
+    try:
+        current_date = start_date
+        while current_date <= end_date:
+            try:
+                steps = client.get_steps_data(current_date.isoformat())
+
+                if steps:
+                    # Extract daily step count
+                    total_steps = steps.get('totalSteps', 0)
+                    goal_steps = steps.get('dailyStepGoal', 0)
+
+                    steps_data.append({
+                        'date': current_date.isoformat(),
+                        'total_steps': total_steps,
+                        'goal_steps': goal_steps,
+                        'goal_met': total_steps >= goal_steps if goal_steps > 0 else None
+                    })
+            except Exception as e:
+                if not quiet:
+                    print(f"  Warning: Could not fetch steps for {current_date}: {e}", file=sys.stderr)
+
+            current_date += timedelta(days=1)
+
+        if not quiet:
+            print(f"  Found {len(steps_data)} days of step data")
+
+        return steps_data
+
+    except Exception as e:
+        print(f"Warning: Failed to fetch daily steps: {e}", file=sys.stderr)
+        return []
+
+
+def fetch_progress_summary(client: Garmin, start_date: date, end_date: date, quiet: bool = False) -> Dict[str, Any]:
+    """
+    Fetch training progress summary (training load, fitness, fatigue) from Garmin Connect.
+
+    Args:
+        client: Authenticated Garmin client
+        start_date: Start date for progress summary
+        end_date: End date for progress summary
+        quiet: Suppress output
+
+    Returns:
+        Dictionary with progress summary data
+    """
+    if not quiet:
+        print(f"Fetching progress summary from {start_date} to {end_date}...")
+
+    try:
+        summary = client.get_progress_summary_between_dates(
+            start_date.isoformat(),
+            end_date.isoformat()
+        )
+
+        if summary:
+            # API returns a list, get the first item if available
+            if isinstance(summary, list) and len(summary) > 0:
+                summary_data = summary[0]
+            elif isinstance(summary, dict):
+                summary_data = summary
+            else:
+                return {}
+
+            progress_data = {
+                'start_date': start_date.isoformat(),
+                'end_date': end_date.isoformat(),
+                'acute_training_load': summary_data.get('atl'),  # Acute Training Load (7-day)
+                'chronic_training_load': summary_data.get('ctl'),  # Chronic Training Load (42-day)
+                'training_stress_balance': summary_data.get('tsb'),  # Form/Freshness
+                'avg_7_day_load': summary_data.get('avg7DayLoad'),
+                'avg_28_day_load': summary_data.get('avg28DayLoad'),
+                'fitness_level': summary_data.get('fitnessLevel'),
+                'form_level': summary_data.get('formLevel'),
+                'fatigue_level': summary_data.get('fatigueLevel')
+            }
+
+            if not quiet:
+                print(f"  Found progress summary (ATL: {progress_data.get('acute_training_load')}, "
+                      f"CTL: {progress_data.get('chronic_training_load')}, "
+                      f"TSB: {progress_data.get('training_stress_balance')})")
+
+            return progress_data
+
+        return {}
+
+    except Exception as e:
+        print(f"Warning: Failed to fetch progress summary: {e}", file=sys.stderr)
+        return {}
+
+
 def import_ics_calendar(garmin_workouts: List[Dict[str, Any]], quiet: bool = False) -> List[Dict[str, Any]]:
     """
     Import scheduled workout dates from ICS calendar files and URLs.
@@ -1285,7 +1469,10 @@ def load_cache() -> Dict[str, Any]:
         'race_predictions': {},
         'training_status': {},
         'lactate_threshold': {},
-        'scheduled_workouts': []
+        'scheduled_workouts': [],
+        'gear_stats': [],
+        'daily_steps': [],
+        'progress_summary': {}
     }
 
     if not CACHE_FILE.exists():
@@ -1544,6 +1731,9 @@ def main():
         new_lactate_threshold = fetch_lactate_threshold(client, args.quiet)
         new_training_status = fetch_training_status(client, end_date, args.quiet)
         garmin_workout_templates = fetch_scheduled_workouts(client, args.quiet)
+        new_gear_stats = fetch_gear_stats(client, args.quiet)
+        new_daily_steps = fetch_daily_steps(client, start_date, end_date, args.quiet)
+        new_progress_summary = fetch_progress_summary(client, start_date, end_date, args.quiet)
 
         # Import ICS calendar and merge with Garmin templates
         new_scheduled_workouts = import_ics_calendar(garmin_workout_templates, args.quiet)
@@ -1571,6 +1761,9 @@ def main():
             print(f"  {'✓' if new_lactate_threshold else '⚠'} Lactate Threshold: {'Yes' if new_lactate_threshold else 'No'}")
             print(f"  {'✓' if new_training_status else '⚠'} Training Status: {'Yes' if new_training_status else 'No'}")
             print(f"  {'✓' if new_scheduled_workouts else '⚠'} Scheduled Workouts: {len(new_scheduled_workouts)} workouts")
+            print(f"  {'✓' if new_gear_stats else '⚠'} Gear Stats: {len(new_gear_stats)} gear items")
+            print(f"  {'✓' if new_daily_steps else '⚠'} Daily Steps: {len(new_daily_steps)} days")
+            print(f"  {'✓' if new_progress_summary else '⚠'} Progress Summary: {'Yes' if new_progress_summary else 'No'}")
             print(f"{'='*60}\n")
 
         if args.check_only:
@@ -1598,6 +1791,10 @@ def main():
         else:
             cache['scheduled_workouts'] = merge_data(cache['scheduled_workouts'], new_scheduled_workouts, 'workout_id')
 
+        # Merge new data types
+        cache['gear_stats'] = merge_data(cache['gear_stats'], new_gear_stats, 'uuid')
+        cache['daily_steps'] = merge_data(cache['daily_steps'], new_daily_steps, 'date')
+
         # Update single-value fields (most recent only)
         if new_race_predictions:
             cache['race_predictions'] = new_race_predictions
@@ -1605,6 +1802,8 @@ def main():
             cache['lactate_threshold'] = new_lactate_threshold
         if new_training_status:
             cache['training_status'] = new_training_status
+        if new_progress_summary:
+            cache['progress_summary'] = new_progress_summary
 
         # Update last sync date
         cache['last_sync_date'] = end_date.isoformat()
