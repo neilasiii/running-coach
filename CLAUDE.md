@@ -478,6 +478,9 @@ All data is fetched directly from Garmin Connect API:
 - **Training Readiness**: Daily readiness score (0-100) with recovery time and contributing factors
 - **Body Battery**: Energy charged/drained throughout the day
 - **Stress**: All-day stress levels (avg/max)
+- **Gear Stats**: Equipment mileage tracking (shoes, bikes) - injury prevention via worn shoe alerts
+- **Daily Steps**: Overall daily activity level - recovery day movement assessment
+- **Progress Summary**: Training load metrics (ATL, CTL, TSB) - form/fitness/fatigue tracking
 
 ## Project Structure
 
