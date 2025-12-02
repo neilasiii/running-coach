@@ -3,7 +3,7 @@
 This document tracks current fitness level, prescribed training paces, and recent training block data.
 This file should be updated regularly as fitness evolves and new VDOT calculations are performed.
 
-**Last Updated:** November 30, 2025
+**Last Updated:** December 2, 2025
 
 ---
 
@@ -11,20 +11,22 @@ This file should be updated regularly as fitness evolves and new VDOT calculatio
 
 ### VDOT & Training Paces
 
-**Current VDOT:** 43.7 (based on Nov 23, 2025 marathon: 4:35:49)
+**Current VDOT:** 38.3 (based on half marathon PR: 1:55:04)
 
-**Training Paces (VDOT 43.7):**
+**Note:** Marathon performance (Nov 23, 2025: 4:35:49 = VDOT 31.9) was significantly affected by newborn care and compromised recovery. Using half marathon VDOT as true fitness baseline, as it better represents current aerobic capacity.
 
-- **Easy (E):** 10:04-10:48 /mile
-- **Marathon (M):** 9:10 /mile
-- **Threshold/Tempo (T):** 8:27 /mile
-- **Interval (I):** 7:55 /mile
-- **Repetition (R):** 7:30 /mile
+**Training Paces (VDOT 38.3):**
+
+- **Easy (E):** 10:20-12:58 /mile
+- **Marathon (M):** 9:06 /mile
+- **Threshold/Tempo (T):** 8:42 /mile
+- **Interval (I):** 7:39-7:48 /mile
+- **Repetition (R):** 6:39-7:17 /mile
 
 **Half Marathon Race Paces:**
-- A-Goal (1:50): 8:24/mile (stretch goal, faster than current T pace)
-- B-Goal (1:52): 8:33/mile (realistic, between M and T pace)
-- C-Goal (1:54): 8:42/mile (conservative, faster than current M pace)
+- A-Goal (1:50): 8:24/mile (requires VDOT 40.9 - ambitious stretch goal)
+- B-Goal (1:52): 8:33/mile (requires VDOT 39.6 - realistic with training)
+- C-Goal (1:54): 8:42/mile (matches current T pace - conservative)
 
 **Current Fitness Assessment (as of Nov 30, 2025):**
 - VO2 Max: 50.6 ml/kg/min (from Nov 23 marathon)
@@ -89,10 +91,10 @@ This file should be updated regularly as fitness evolves and new VDOT calculatio
 5. Taper (Week 12, Feb 16-22): Sharpening, 12-15 miles/week
 
 **Key Workouts:**
-- Tempo runs at T pace (8:27/mile) - Weeks 7-11
+- Tempo runs at T pace (8:42/mile) - Weeks 7-11
 - Half marathon pace runs at B-goal pace (8:33/mile) - Week 10
-- Interval work at I pace (7:55/mile) - Week 11
-- All easy runs at E pace (10:04-10:48/mile)
+- Interval work at I pace (7:39-7:48/mile) - Week 11
+- All easy runs at E pace (10:20-12:58/mile)
 
 ---
 
@@ -116,8 +118,8 @@ This file should be updated regularly as fitness evolves and new VDOT calculatio
 
 **Next Reassessment:** After Gasparilla Half Marathon (Feb 22, 2026)
 
-**Current VDOT:** 43.7
-**Target VDOT (B-goal 1:52):** 47.5 (+3.8 point improvement)
+**Current VDOT:** 38.3
+**Target VDOT (B-goal 1:52):** 39.6 (+1.3 point improvement)
 
 **Interim Assessment Triggers:**
 - If tempo workouts consistently feel too easy/hard for 2+ weeks
