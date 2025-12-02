@@ -4,6 +4,26 @@
 
 The Planned Workouts system stores the athlete's scheduled training plan workouts extracted from baseline plans. This provides agents with quick access to planned workouts, completion status, and adjustment history.
 
+## CRITICAL: Workout Priority Rules
+
+**Coaches must ALWAYS prioritize workouts in this order:**
+
+1. **FinalSurge Scheduled Workouts** (Priority 1 - PRIMARY SOURCE)
+   - Location: `data/health/health_data_cache.json` → `scheduled_workouts` array
+   - Identifier: `"source": "ics_calendar"`
+   - These represent the athlete's CURRENT training decisions
+   - **ALWAYS use these when they exist for a given date**
+
+2. **Baseline Plan Workouts** (Priority 2 - FALLBACK ONLY)
+   - Location: `data/plans/planned_workouts.json`
+   - Use ONLY when no FinalSurge workout exists for that date
+   - Represents general training framework, not current decisions
+
+**Why this matters:**
+- FinalSurge is where the athlete makes active plan adjustments
+- Baseline plan is static reference created at plan start
+- FinalSurge reflects reality, baseline plan reflects original intent
+
 ## Key Concepts
 
 **Planned Workout**: A scheduled workout extracted from the baseline training plan
@@ -13,9 +33,44 @@ The Planned Workouts system stores the athlete's scheduled training plan workout
 
 **Data Location**: `data/plans/planned_workouts.json`
 
+## Checking for FinalSurge Scheduled Workouts
+
+**ALWAYS do this first before checking baseline plan:**
+
+```bash
+# View FinalSurge scheduled workouts from health cache
+python3 -c "
+import json
+from datetime import date
+
+with open('data/health/health_data_cache.json') as f:
+    cache = json.load(f)
+
+today = date.today().isoformat()
+scheduled = cache.get('scheduled_workouts', [])
+
+# Filter for today's workouts from FinalSurge
+todays_workouts = [w for w in scheduled if w.get('scheduled_date') == today]
+
+if todays_workouts:
+    print(f'FinalSurge workout for {today}:')
+    for workout in todays_workouts:
+        print(f'  Name: {workout[\"name\"]}')
+        print(f'  Description: {workout[\"description\"]}')
+        print(f'  Source: {workout[\"source\"]}')
+else:
+    print(f'No FinalSurge workout for {today} - check baseline plan')
+"
+```
+
+**Workflow:**
+1. Check FinalSurge scheduled workouts (above script)
+2. If FinalSurge workout exists → use it, provide guidance based on it
+3. If no FinalSurge workout → fall back to baseline plan (see below)
+
 ## Common Agent Use Cases
 
-### 1. Check Today's Workout
+### 1. Check Baseline Plan Workout (Use ONLY if no FinalSurge workout)
 
 ```bash
 bash bin/planned_workouts.sh list --today -v
@@ -145,19 +200,36 @@ python3 src/extract_baseline_plan.py
 
 ## Example Agent Workflow
 
-### Morning Report
+### Morning Report (CORRECT WORKFLOW)
 
 ```bash
-# 1. Check today's workout
+# 1. FIRST: Check FinalSurge scheduled workout (Priority 1)
+python3 -c "
+import json
+from datetime import date
+cache = json.load(open('data/health/health_data_cache.json'))
+today = date.today().isoformat()
+fs_workouts = [w for w in cache.get('scheduled_workouts', []) if w.get('scheduled_date') == today]
+if fs_workouts:
+    print('FinalSurge workout found:')
+    print(fs_workouts[0])
+else:
+    print('No FinalSurge workout - check baseline plan')
+"
+
+# 2. ONLY if no FinalSurge workout: Check baseline plan (Priority 2)
 bash bin/planned_workouts.sh list --today -v
 
-# 2. Check week progress
+# 3. Check week progress
 bash bin/planned_workouts.sh summary --week 1
 
-# 3. Check upcoming workouts
+# 4. Check upcoming workouts
 bash bin/planned_workouts.sh list --upcoming 3 -v
 
-# 4. Provide guidance based on scheduled workout and recent completion rate
+# 5. Provide guidance based on:
+#    - FinalSurge workout (if exists) OR baseline plan workout (if no FinalSurge)
+#    - Recent completion rate
+#    - Recovery metrics
 ```
 
 ### Post-Workout Session
@@ -225,12 +297,13 @@ manager.add_adjustment(
 
 ## Best Practices
 
-1. **Check planned workouts at session start** - Understand what athlete expected to do
-2. **Update status after athlete reports** - Keep system current
-3. **Add adjustments with clear reasoning** - Document decision-making for future reference
-4. **Link to Garmin activities** - Maintain connection between plan and actual data
-5. **Review adherence weekly** - Use completion rates to assess plan viability
-6. **Respect the baseline plan** - Major deviations should be discussed with athlete
+1. **ALWAYS check FinalSurge first** - Priority 1 source of truth for scheduled workouts
+2. **Baseline plan is fallback only** - Use only when no FinalSurge workout exists
+3. **Update status after athlete reports** - Keep system current
+4. **Add adjustments with clear reasoning** - Document decision-making for future reference
+5. **Link to Garmin activities** - Maintain connection between plan and actual data
+6. **Review adherence weekly** - Use completion rates to assess plan viability
+7. **Document deviations** - Note when FinalSurge differs from baseline plan and why
 
 ## Data Schema
 
