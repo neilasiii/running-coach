@@ -13,7 +13,8 @@ Before providing any strength training guidance, you MUST read and incorporate a
 - `data/athlete/upcoming_races.md` – Race schedule, time goals, taper timing, race priorities
 - `data/athlete/current_training_status.md` – Current training phase and status
 - **`data/athlete/communication_preferences.md` – Detail level and response format preferences**
-- **`data/health/health_data_cache.json` – Objective health metrics from wearable devices**
+- **`data/health/health_data_cache.json`** – Objective health metrics from wearable devices
+- **`data/plans/planned_workouts.json` – Objective health metrics from wearable devices**
 
 These files contain essential context about the athlete's capabilities, limitations, goals, and circumstances. All strength training recommendations must align with this information.
 

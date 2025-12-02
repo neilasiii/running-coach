@@ -1,5 +1,5 @@
 {
-  "last_updated": "2025-12-02T07:46:03.349572+00:00",
+  "last_updated": "2025-12-02T14:01:01.145573+00:00",
   "last_sync_date": "2025-12-02",
   "activities": [
     {
@@ -24823,6 +24823,16 @@
   ],
   "sleep_sessions": [
     {
+      "date": "2025-12-02",
+      "total_duration_minutes": 416.5,
+      "light_sleep_minutes": 228.0,
+      "deep_sleep_minutes": 112.0,
+      "rem_sleep_minutes": 77.0,
+      "awake_minutes": 124.0,
+      "sleep_score": 64,
+      "deep_sleep_percentage": 26.86
+    },
+    {
       "date": "2025-12-01",
       "total_duration_minutes": 422.0,
       "light_sleep_minutes": 290.0,
@@ -29120,7 +29130,7 @@
   "resting_hr_readings": [
     [
       "2025-12-02T12:00:00",
-      49
+      47
     ],
     [
       "2025-12-01T12:00:00",
@@ -29149,6 +29159,26 @@
     [
       "2025-11-25T12:00:00",
       49
+    ],
+    [
+      "2025-11-24T12:00:00",
+      52
+    ],
+    [
+      "2025-11-23T12:00:00",
+      46
+    ],
+    [
+      "2025-11-22T12:00:00",
+      46
+    ],
+    [
+      "2025-11-21T12:00:00",
+      48
+    ],
+    [
+      "2025-11-20T12:00:00",
+      45
     ],
     [
       "2025-11-19T12:00:00",
@@ -30620,6 +30650,16 @@
     ]
   ],
   "hrv_readings": [
+    {
+      "date": "2025-12-02",
+      "weekly_avg": 64,
+      "last_night_avg": 68,
+      "last_night_5min_high": 92,
+      "status": "BALANCED",
+      "baseline_low_upper": 60,
+      "baseline_balanced_low": 63,
+      "baseline_balanced_upper": 75
+    },
     {
       "date": "2025-12-01",
       "weekly_avg": 63,
@@ -34414,13 +34454,13 @@
   "training_readiness": [
     {
       "date": "2025-12-02",
-      "score": 70,
+      "score": 63,
       "level": "MODERATE",
-      "recovery_time": 0,
-      "sleep_score": null,
+      "recovery_time": 1,
+      "sleep_score": 64,
       "hrv_feedback": "GOOD",
-      "stress_feedback": "MODERATE",
-      "acute_load": 97
+      "stress_feedback": "GOOD",
+      "acute_load": 49
     },
     {
       "date": "2025-12-01",
@@ -38216,8 +38256,8 @@
   "stress_readings": [
     {
       "date": "2025-12-02",
-      "avg_stress": 10,
-      "max_stress": 51
+      "avg_stress": 12,
+      "max_stress": 67
     },
     {
       "date": "2025-12-01",
@@ -40118,9 +40158,9 @@
   "spo2_readings": [
     {
       "date": "2025-12-02",
-      "avg_spo2": 94.0,
-      "lowest_spo2": 91,
-      "avg_sleep_spo2": null
+      "avg_spo2": 93.0,
+      "lowest_spo2": 88,
+      "avg_sleep_spo2": 95.0
     },
     {
       "date": "2025-12-01",
@@ -42400,8 +42440,8 @@
   "body_battery": [
     {
       "date": "2025-12-02",
-      "charged": 6,
-      "drained": 0
+      "charged": 49,
+      "drained": 6
     },
     {
       "date": "2025-12-01",
@@ -44308,8 +44348,18 @@
   },
   "training_status": {
     "date": "2025-12-02",
-    "vo2_max": null,
-    "training_load": {},
+    "vo2_max": {
+      "date": "2025-11-23",
+      "value": 51.0,
+      "precise_value": 50.6
+    },
+    "training_load": {
+      "date": "2025-12-02",
+      "aerobic_low": 512.0213,
+      "aerobic_high": 747.9109,
+      "anaerobic": 0.0,
+      "feedback": "ANAEROBIC_SHORTAGE"
+    },
     "training_status": {}
   },
   "scheduled_workouts": [
@@ -44478,7 +44528,7 @@
   "daily_steps": [
     {
       "date": "2025-12-02",
-      "total_steps": 0,
+      "total_steps": 619,
       "goal_steps": 13150,
       "goal_met": false
     },
@@ -44523,10 +44573,148 @@
       "total_steps": 8867,
       "goal_steps": 11850,
       "goal_met": false
+    },
+    {
+      "date": "2025-11-24",
+      "total_steps": 10878,
+      "goal_steps": 11950,
+      "goal_met": false
+    },
+    {
+      "date": "2025-11-23",
+      "total_steps": 46728,
+      "goal_steps": 9950,
+      "goal_met": true
+    },
+    {
+      "date": "2025-11-22",
+      "total_steps": 3676,
+      "goal_steps": 11510,
+      "goal_met": false
+    },
+    {
+      "date": "2025-11-21",
+      "total_steps": 9794,
+      "goal_steps": 11930,
+      "goal_met": false
+    },
+    {
+      "date": "2025-11-20",
+      "total_steps": 8484,
+      "goal_steps": 12310,
+      "goal_met": false
+    },
+    {
+      "date": "2025-11-19",
+      "total_steps": 14142,
+      "goal_steps": 12100,
+      "goal_met": true
+    },
+    {
+      "date": "2025-11-18",
+      "total_steps": 9337,
+      "goal_steps": 12780,
+      "goal_met": false
+    },
+    {
+      "date": "2025-11-17",
+      "total_steps": 12056,
+      "goal_steps": 12950,
+      "goal_met": false
+    },
+    {
+      "date": "2025-11-16",
+      "total_steps": 9084,
+      "goal_steps": 13380,
+      "goal_met": false
+    },
+    {
+      "date": "2025-11-15",
+      "total_steps": 21805,
+      "goal_steps": 12440,
+      "goal_met": true
+    },
+    {
+      "date": "2025-11-14",
+      "total_steps": 12198,
+      "goal_steps": 12490,
+      "goal_met": false
+    },
+    {
+      "date": "2025-11-13",
+      "total_steps": 7827,
+      "goal_steps": 13000,
+      "goal_met": false
+    },
+    {
+      "date": "2025-11-12",
+      "total_steps": 13597,
+      "goal_steps": 12930,
+      "goal_met": true
+    },
+    {
+      "date": "2025-11-11",
+      "total_steps": 11741,
+      "goal_steps": 13060,
+      "goal_met": false
+    },
+    {
+      "date": "2025-11-10",
+      "total_steps": 15780,
+      "goal_steps": 12750,
+      "goal_met": true
+    },
+    {
+      "date": "2025-11-09",
+      "total_steps": 4959,
+      "goal_steps": 13610,
+      "goal_met": false
+    },
+    {
+      "date": "2025-11-08",
+      "total_steps": 22004,
+      "goal_steps": 12670,
+      "goal_met": true
+    },
+    {
+      "date": "2025-11-07",
+      "total_steps": 8914,
+      "goal_steps": 13080,
+      "goal_met": false
+    },
+    {
+      "date": "2025-11-06",
+      "total_steps": 16320,
+      "goal_steps": 12260,
+      "goal_met": true
+    },
+    {
+      "date": "2025-11-05",
+      "total_steps": 18608,
+      "goal_steps": 11550,
+      "goal_met": true
+    },
+    {
+      "date": "2025-11-04",
+      "total_steps": 5787,
+      "goal_steps": 12190,
+      "goal_met": false
+    },
+    {
+      "date": "2025-11-03",
+      "total_steps": 17881,
+      "goal_steps": 11550,
+      "goal_met": true
+    },
+    {
+      "date": "2025-11-02",
+      "total_steps": 6123,
+      "goal_steps": 12150,
+      "goal_met": false
     }
   ],
   "progress_summary": {
-    "start_date": "2025-11-25",
+    "start_date": "2025-11-02",
     "end_date": "2025-12-02",
     "acute_training_load": null,
     "chronic_training_load": null,
