@@ -307,6 +307,26 @@ bash bin/open_morning_report.sh         # Open existing HTML report
 
 ### Planned Workouts Management
 
+**CRITICAL: Workout Priority Rules**
+
+Coaches must prioritize workouts in this order:
+
+1. **FinalSurge Scheduled Workouts** (Priority 1 - ALWAYS use these)
+   - Location: `data/health/health_data_cache.json` → `scheduled_workouts` array
+   - Source: `"source": "ics_calendar"` indicates from FinalSurge ICS feed
+   - These are the athlete's current training plan decisions
+
+2. **Baseline Plan Workouts** (Priority 2 - fallback only)
+   - Location: `data/plans/planned_workouts.json`
+   - Use ONLY when no FinalSurge workout exists for that date
+   - Represents general training framework, not current decisions
+
+**When checking today's workout:**
+- First check `health_data_cache.json` → `scheduled_workouts` for FinalSurge entry
+- If FinalSurge workout found → use it, baseline plan is superseded
+- If no FinalSurge workout → check `planned_workouts.json` for baseline plan
+- Document deviations when FinalSurge differs from baseline plan
+
 **View Scheduled Workouts**
 ```bash
 # Today's workouts
@@ -362,11 +382,13 @@ python3 src/extract_baseline_plan.py
 ```
 
 Coaching agents should use planned workouts to:
-- Check today's scheduled workout at session start
+- Check today's scheduled workout at session start (FinalSurge first, then baseline plan)
 - Review weekly adherence and completion rates
 - Mark workouts complete with actual performance data
 - Document adjustments with clear reasoning
 - Track plan vs actual execution over time
+
+**Important:** FinalSurge workouts always take priority. The baseline plan is a fallback reference only.
 
 ### Testing
 
