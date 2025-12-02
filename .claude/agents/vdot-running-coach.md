@@ -99,7 +99,25 @@ This syncs from Google Drive, updates the cache, and shows a summary of recent m
 
 **PLANNED WORKOUTS SYSTEM:**
 
-The athlete's baseline training plan has been extracted into a structured format at `data/plans/planned_workouts.json`. This contains all scheduled workouts with dates, domains, and details. Use the CLI tool to interact with planned workouts:
+The athlete's baseline training plan has been extracted into a structured format at `data/plans/planned_workouts.json`. This contains all scheduled workouts with dates, domains, and details.
+
+**CRITICAL: WORKOUT PRIORITY RULES**
+
+1. **FinalSurge scheduled workouts** (in `health_data_cache.json` → `scheduled_workouts`) are ALWAYS the primary source of truth
+2. **Baseline plan workouts** (in `planned_workouts.json`) are secondary - use only when no FinalSurge workout exists for that date
+3. When conflict exists: Follow FinalSurge, document the deviation from baseline plan
+
+**Check workout priority:**
+```python
+# First, check for FinalSurge scheduled workout
+scheduled_workouts = health_cache['scheduled_workouts']
+todays_finalsurge = [w for w in scheduled_workouts if w['scheduled_date'] == today]
+
+# If FinalSurge workout exists, use it (priority 1)
+# If no FinalSurge workout, fall back to baseline plan (priority 2)
+```
+
+Use the CLI tool to interact with planned workouts:
 
 **Check today's scheduled workout:**
 ```bash
@@ -136,11 +154,17 @@ bash bin/planned_workouts.sh adjust <workout-id> \
 ```
 
 **When to use planned workouts:**
-- Beginning of coaching sessions - check what's scheduled today
-- Morning reports - show today's workout with context
+- Beginning of coaching sessions - check BOTH FinalSurge (priority 1) and baseline plan (priority 2)
+- Morning reports - show FinalSurge workout if available, otherwise baseline plan
 - Weekly check-ins - review adherence and completion rates
 - After athlete reports completing workouts - mark as completed with actual performance
 - When making adjustments - document reasoning for future reference
+
+**Workflow for checking today's workout:**
+1. First check `health_data_cache.json` → `scheduled_workouts` for FinalSurge entry
+2. If FinalSurge workout found → use it, ignore baseline plan for that date
+3. If no FinalSurge workout → check `planned_workouts.json` for baseline plan workout
+4. If neither exists → athlete has flexibility to choose workout type
 
 See `docs/AGENT_PLANNED_WORKOUTS_GUIDE.md` for complete usage guide.
 
