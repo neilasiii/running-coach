@@ -2481,3 +2481,344 @@ Last updated: 2025-11-30T15:05:22.691659+00:00
 
 ✓ Sync complete!
 ---
+[2025-12-01 08:21:11] Sync attempt (exit code: 0)
+API call failed for path '/wellness-service/wellness/dailyHeartRate/None': Error in request: 403 Client Error: Forbidden for url: https://connectapi.garmin.com/wellness-service/wellness/dailyHeartRate/None?date=2025-11-01 (status=403)
+  Warning: Error fetching RHR for 2025-11-01: GarminConnectConnectionError
+API call failed for path '/wellness-service/wellness/dailyHeartRate/None': Error in request: 403 Client Error: Forbidden for url: https://connectapi.garmin.com/wellness-service/wellness/dailyHeartRate/None?date=2025-11-02 (status=403)
+  Warning: Error fetching RHR for 2025-11-02: GarminConnectConnectionError
+API call failed for path '/wellness-service/wellness/dailyHeartRate/None': Error in request: 403 Client Error: Forbidden for url: https://connectapi.garmin.com/wellness-service/wellness/dailyHeartRate/None?date=2025-11-03 (status=403)
+  Warning: Error fetching RHR for 2025-11-03: GarminConnectConnectionError
+API call failed for path '/wellness-service/wellness/dailyHeartRate/None': Error in request: 403 Client Error: Forbidden for url: https://connectapi.garmin.com/wellness-service/wellness/dailyHeartRate/None?date=2025-11-04 (status=403)
+  Warning: Error fetching RHR for 2025-11-04: GarminConnectConnectionError
+API call failed for path '/wellness-service/wellness/dailyHeartRate/None': Error in request: 403 Client Error: Forbidden for url: https://connectapi.garmin.com/wellness-service/wellness/dailyHeartRate/None?date=2025-11-05 (status=403)
+  Warning: Error fetching RHR for 2025-11-05: GarminConnectConnectionError
+API call failed for path '/wellness-service/wellness/dailyHeartRate/None': Error in request: 403 Client Error: Forbidden for url: https://connectapi.garmin.com/wellness-service/wellness/dailyHeartRate/None?date=2025-11-06 (status=403)
+  Warning: Error fetching RHR for 2025-11-06: GarminConnectConnectionError
+API call failed for path '/wellness-service/wellness/dailyHeartRate/None': Error in request: 403 Client Error: Forbidden for url: https://connectapi.garmin.com/wellness-service/wellness/dailyHeartRate/None?date=2025-11-07 (status=403)
+  Warning: Error fetching RHR for 2025-11-07: GarminConnectConnectionError
+API call failed for path '/wellness-service/wellness/dailyHeartRate/None': Error in request: 403 Client Error: Forbidden for url: https://connectapi.garmin.com/wellness-service/wellness/dailyHeartRate/None?date=2025-11-08 (status=403)
+  Warning: Error fetching RHR for 2025-11-08: GarminConnectConnectionError
+API call failed for path '/wellness-service/wellness/dailyHeartRate/None': Error in request: 403 Client Error: Forbidden for url: https://connectapi.garmin.com/wellness-service/wellness/dailyHeartRate/None?date=2025-11-09 (status=403)
+  Warning: Error fetching RHR for 2025-11-09: GarminConnectConnectionError
+API call failed for path '/wellness-service/wellness/dailyHeartRate/None': Error in request: 403 Client Error: Forbidden for url: https://connectapi.garmin.com/wellness-service/wellness/dailyHeartRate/None?date=2025-11-10 (status=403)
+  Warning: Error fetching RHR for 2025-11-10: GarminConnectConnectionError
+API call failed for path '/wellness-service/wellness/dailyHeartRate/None': Error in request: 403 Client Error: Forbidden for url: https://connectapi.garmin.com/wellness-service/wellness/dailyHeartRate/None?date=2025-11-11 (status=403)
+  Warning: Error fetching RHR for 2025-11-11: GarminConnectConnectionError
+API call failed for path '/wellness-service/wellness/dailyHeartRate/None': Error in request: 403 Client Error: Forbidden for url: https://connectapi.garmin.com/wellness-service/wellness/dailyHeartRate/None?date=2025-11-12 (status=403)
+  Warning: Error fetching RHR for 2025-11-12: GarminConnectConnectionError
+API call failed for path '/wellness-service/wellness/dailyHeartRate/None': Error in request: 403 Client Error: Forbidden for url: https://connectapi.garmin.com/wellness-service/wellness/dailyHeartRate/None?date=2025-11-13 (status=403)
+  Warning: Error fetching RHR for 2025-11-13: GarminConnectConnectionError
+API call failed for path '/wellness-service/wellness/dailyHeartRate/None': Error in request: 403 Client Error: Forbidden for url: https://connectapi.garmin.com/wellness-service/wellness/dailyHeartRate/None?date=2025-11-14 (status=403)
+  Warning: Error fetching RHR for 2025-11-14: GarminConnectConnectionError
+API call failed for path '/wellness-service/wellness/dailyHeartRate/None': Error in request: 403 Client Error: Forbidden for url: https://connectapi.garmin.com/wellness-service/wellness/dailyHeartRate/None?date=2025-11-15 (status=403)
+  Warning: Error fetching RHR for 2025-11-15: GarminConnectConnectionError
+API call failed for path '/wellness-service/wellness/dailyHeartRate/None': Error in request: 403 Client Error: Forbidden for url: https://connectapi.garmin.com/wellness-service/wellness/dailyHeartRate/None?date=2025-11-16 (status=403)
+  Warning: Error fetching RHR for 2025-11-16: GarminConnectConnectionError
+API call failed for path '/wellness-service/wellness/dailyHeartRate/None': Error in request: 403 Client Error: Forbidden for url: https://connectapi.garmin.com/wellness-service/wellness/dailyHeartRate/None?date=2025-11-17 (status=403)
+  Warning: Error fetching RHR for 2025-11-17: GarminConnectConnectionError
+API call failed for path '/wellness-service/wellness/dailyHeartRate/None': Error in request: 403 Client Error: Forbidden for url: https://connectapi.garmin.com/wellness-service/wellness/dailyHeartRate/None?date=2025-11-18 (status=403)
+  Warning: Error fetching RHR for 2025-11-18: GarminConnectConnectionError
+API call failed for path '/wellness-service/wellness/dailyHeartRate/None': Error in request: 403 Client Error: Forbidden for url: https://connectapi.garmin.com/wellness-service/wellness/dailyHeartRate/None?date=2025-11-19 (status=403)
+  Warning: Error fetching RHR for 2025-11-19: GarminConnectConnectionError
+API call failed for path '/wellness-service/wellness/dailyHeartRate/None': Error in request: 403 Client Error: Forbidden for url: https://connectapi.garmin.com/wellness-service/wellness/dailyHeartRate/None?date=2025-11-20 (status=403)
+  Warning: Error fetching RHR for 2025-11-20: GarminConnectConnectionError
+API call failed for path '/wellness-service/wellness/dailyHeartRate/None': Error in request: 403 Client Error: Forbidden for url: https://connectapi.garmin.com/wellness-service/wellness/dailyHeartRate/None?date=2025-11-21 (status=403)
+  Warning: Error fetching RHR for 2025-11-21: GarminConnectConnectionError
+API call failed for path '/wellness-service/wellness/dailyHeartRate/None': Error in request: 403 Client Error: Forbidden for url: https://connectapi.garmin.com/wellness-service/wellness/dailyHeartRate/None?date=2025-11-22 (status=403)
+  Warning: Error fetching RHR for 2025-11-22: GarminConnectConnectionError
+API call failed for path '/wellness-service/wellness/dailyHeartRate/None': Error in request: 403 Client Error: Forbidden for url: https://connectapi.garmin.com/wellness-service/wellness/dailyHeartRate/None?date=2025-11-23 (status=403)
+  Warning: Error fetching RHR for 2025-11-23: GarminConnectConnectionError
+API call failed for path '/wellness-service/wellness/dailyHeartRate/None': Error in request: 403 Client Error: Forbidden for url: https://connectapi.garmin.com/wellness-service/wellness/dailyHeartRate/None?date=2025-11-24 (status=403)
+  Warning: Error fetching RHR for 2025-11-24: GarminConnectConnectionError
+API call failed for path '/wellness-service/wellness/dailyHeartRate/None': Error in request: 403 Client Error: Forbidden for url: https://connectapi.garmin.com/wellness-service/wellness/dailyHeartRate/None?date=2025-11-25 (status=403)
+  Warning: Error fetching RHR for 2025-11-25: GarminConnectConnectionError
+API call failed for path '/wellness-service/wellness/dailyHeartRate/None': Error in request: 403 Client Error: Forbidden for url: https://connectapi.garmin.com/wellness-service/wellness/dailyHeartRate/None?date=2025-11-26 (status=403)
+  Warning: Error fetching RHR for 2025-11-26: GarminConnectConnectionError
+API call failed for path '/wellness-service/wellness/dailyHeartRate/None': Error in request: 403 Client Error: Forbidden for url: https://connectapi.garmin.com/wellness-service/wellness/dailyHeartRate/None?date=2025-11-27 (status=403)
+  Warning: Error fetching RHR for 2025-11-27: GarminConnectConnectionError
+API call failed for path '/wellness-service/wellness/dailyHeartRate/None': Error in request: 403 Client Error: Forbidden for url: https://connectapi.garmin.com/wellness-service/wellness/dailyHeartRate/None?date=2025-11-28 (status=403)
+  Warning: Error fetching RHR for 2025-11-28: GarminConnectConnectionError
+API call failed for path '/wellness-service/wellness/dailyHeartRate/None': Error in request: 403 Client Error: Forbidden for url: https://connectapi.garmin.com/wellness-service/wellness/dailyHeartRate/None?date=2025-11-29 (status=403)
+  Warning: Error fetching RHR for 2025-11-29: GarminConnectConnectionError
+API call failed for path '/wellness-service/wellness/dailyHeartRate/None': Error in request: 403 Client Error: Forbidden for url: https://connectapi.garmin.com/wellness-service/wellness/dailyHeartRate/None?date=2025-11-30 (status=403)
+  Warning: Error fetching RHR for 2025-11-30: GarminConnectConnectionError
+API call failed for path '/wellness-service/wellness/dailyHeartRate/None': Error in request: 403 Client Error: Forbidden for url: https://connectapi.garmin.com/wellness-service/wellness/dailyHeartRate/None?date=2025-12-01 (status=403)
+  Warning: Error fetching RHR for 2025-12-01: GarminConnectConnectionError
+API call failed for path '/wellness-service/wellness/dailySummaryChart/None': Error in request: 403 Client Error: Forbidden for url: https://connectapi.garmin.com/wellness-service/wellness/dailySummaryChart/None?date=2025-11-01 (status=403)
+  Warning: Could not fetch steps for 2025-11-01: API client error (403): Error in request: 403 Client Error: Forbidden for url: https://connectapi.garmin.com/wellness-service/wellness/dailySummaryChart/None?date=2025-11-01
+API call failed for path '/wellness-service/wellness/dailySummaryChart/None': Error in request: 403 Client Error: Forbidden for url: https://connectapi.garmin.com/wellness-service/wellness/dailySummaryChart/None?date=2025-11-02 (status=403)
+  Warning: Could not fetch steps for 2025-11-02: API client error (403): Error in request: 403 Client Error: Forbidden for url: https://connectapi.garmin.com/wellness-service/wellness/dailySummaryChart/None?date=2025-11-02
+API call failed for path '/wellness-service/wellness/dailySummaryChart/None': Error in request: 403 Client Error: Forbidden for url: https://connectapi.garmin.com/wellness-service/wellness/dailySummaryChart/None?date=2025-11-03 (status=403)
+  Warning: Could not fetch steps for 2025-11-03: API client error (403): Error in request: 403 Client Error: Forbidden for url: https://connectapi.garmin.com/wellness-service/wellness/dailySummaryChart/None?date=2025-11-03
+API call failed for path '/wellness-service/wellness/dailySummaryChart/None': Error in request: 403 Client Error: Forbidden for url: https://connectapi.garmin.com/wellness-service/wellness/dailySummaryChart/None?date=2025-11-04 (status=403)
+  Warning: Could not fetch steps for 2025-11-04: API client error (403): Error in request: 403 Client Error: Forbidden for url: https://connectapi.garmin.com/wellness-service/wellness/dailySummaryChart/None?date=2025-11-04
+API call failed for path '/wellness-service/wellness/dailySummaryChart/None': Error in request: 403 Client Error: Forbidden for url: https://connectapi.garmin.com/wellness-service/wellness/dailySummaryChart/None?date=2025-11-05 (status=403)
+  Warning: Could not fetch steps for 2025-11-05: API client error (403): Error in request: 403 Client Error: Forbidden for url: https://connectapi.garmin.com/wellness-service/wellness/dailySummaryChart/None?date=2025-11-05
+API call failed for path '/wellness-service/wellness/dailySummaryChart/None': Error in request: 403 Client Error: Forbidden for url: https://connectapi.garmin.com/wellness-service/wellness/dailySummaryChart/None?date=2025-11-06 (status=403)
+  Warning: Could not fetch steps for 2025-11-06: API client error (403): Error in request: 403 Client Error: Forbidden for url: https://connectapi.garmin.com/wellness-service/wellness/dailySummaryChart/None?date=2025-11-06
+API call failed for path '/wellness-service/wellness/dailySummaryChart/None': Error in request: 403 Client Error: Forbidden for url: https://connectapi.garmin.com/wellness-service/wellness/dailySummaryChart/None?date=2025-11-07 (status=403)
+  Warning: Could not fetch steps for 2025-11-07: API client error (403): Error in request: 403 Client Error: Forbidden for url: https://connectapi.garmin.com/wellness-service/wellness/dailySummaryChart/None?date=2025-11-07
+API call failed for path '/wellness-service/wellness/dailySummaryChart/None': Error in request: 403 Client Error: Forbidden for url: https://connectapi.garmin.com/wellness-service/wellness/dailySummaryChart/None?date=2025-11-08 (status=403)
+  Warning: Could not fetch steps for 2025-11-08: API client error (403): Error in request: 403 Client Error: Forbidden for url: https://connectapi.garmin.com/wellness-service/wellness/dailySummaryChart/None?date=2025-11-08
+API call failed for path '/wellness-service/wellness/dailySummaryChart/None': Error in request: 403 Client Error: Forbidden for url: https://connectapi.garmin.com/wellness-service/wellness/dailySummaryChart/None?date=2025-11-09 (status=403)
+  Warning: Could not fetch steps for 2025-11-09: API client error (403): Error in request: 403 Client Error: Forbidden for url: https://connectapi.garmin.com/wellness-service/wellness/dailySummaryChart/None?date=2025-11-09
+API call failed for path '/wellness-service/wellness/dailySummaryChart/None': Error in request: 403 Client Error: Forbidden for url: https://connectapi.garmin.com/wellness-service/wellness/dailySummaryChart/None?date=2025-11-10 (status=403)
+  Warning: Could not fetch steps for 2025-11-10: API client error (403): Error in request: 403 Client Error: Forbidden for url: https://connectapi.garmin.com/wellness-service/wellness/dailySummaryChart/None?date=2025-11-10
+API call failed for path '/wellness-service/wellness/dailySummaryChart/None': Error in request: 403 Client Error: Forbidden for url: https://connectapi.garmin.com/wellness-service/wellness/dailySummaryChart/None?date=2025-11-11 (status=403)
+  Warning: Could not fetch steps for 2025-11-11: API client error (403): Error in request: 403 Client Error: Forbidden for url: https://connectapi.garmin.com/wellness-service/wellness/dailySummaryChart/None?date=2025-11-11
+API call failed for path '/wellness-service/wellness/dailySummaryChart/None': Error in request: 403 Client Error: Forbidden for url: https://connectapi.garmin.com/wellness-service/wellness/dailySummaryChart/None?date=2025-11-12 (status=403)
+  Warning: Could not fetch steps for 2025-11-12: API client error (403): Error in request: 403 Client Error: Forbidden for url: https://connectapi.garmin.com/wellness-service/wellness/dailySummaryChart/None?date=2025-11-12
+API call failed for path '/wellness-service/wellness/dailySummaryChart/None': Error in request: 403 Client Error: Forbidden for url: https://connectapi.garmin.com/wellness-service/wellness/dailySummaryChart/None?date=2025-11-13 (status=403)
+  Warning: Could not fetch steps for 2025-11-13: API client error (403): Error in request: 403 Client Error: Forbidden for url: https://connectapi.garmin.com/wellness-service/wellness/dailySummaryChart/None?date=2025-11-13
+API call failed for path '/wellness-service/wellness/dailySummaryChart/None': Error in request: 403 Client Error: Forbidden for url: https://connectapi.garmin.com/wellness-service/wellness/dailySummaryChart/None?date=2025-11-14 (status=403)
+  Warning: Could not fetch steps for 2025-11-14: API client error (403): Error in request: 403 Client Error: Forbidden for url: https://connectapi.garmin.com/wellness-service/wellness/dailySummaryChart/None?date=2025-11-14
+API call failed for path '/wellness-service/wellness/dailySummaryChart/None': Error in request: 403 Client Error: Forbidden for url: https://connectapi.garmin.com/wellness-service/wellness/dailySummaryChart/None?date=2025-11-15 (status=403)
+  Warning: Could not fetch steps for 2025-11-15: API client error (403): Error in request: 403 Client Error: Forbidden for url: https://connectapi.garmin.com/wellness-service/wellness/dailySummaryChart/None?date=2025-11-15
+API call failed for path '/wellness-service/wellness/dailySummaryChart/None': Error in request: 403 Client Error: Forbidden for url: https://connectapi.garmin.com/wellness-service/wellness/dailySummaryChart/None?date=2025-11-16 (status=403)
+  Warning: Could not fetch steps for 2025-11-16: API client error (403): Error in request: 403 Client Error: Forbidden for url: https://connectapi.garmin.com/wellness-service/wellness/dailySummaryChart/None?date=2025-11-16
+API call failed for path '/wellness-service/wellness/dailySummaryChart/None': Error in request: 403 Client Error: Forbidden for url: https://connectapi.garmin.com/wellness-service/wellness/dailySummaryChart/None?date=2025-11-17 (status=403)
+  Warning: Could not fetch steps for 2025-11-17: API client error (403): Error in request: 403 Client Error: Forbidden for url: https://connectapi.garmin.com/wellness-service/wellness/dailySummaryChart/None?date=2025-11-17
+API call failed for path '/wellness-service/wellness/dailySummaryChart/None': Error in request: 403 Client Error: Forbidden for url: https://connectapi.garmin.com/wellness-service/wellness/dailySummaryChart/None?date=2025-11-18 (status=403)
+  Warning: Could not fetch steps for 2025-11-18: API client error (403): Error in request: 403 Client Error: Forbidden for url: https://connectapi.garmin.com/wellness-service/wellness/dailySummaryChart/None?date=2025-11-18
+API call failed for path '/wellness-service/wellness/dailySummaryChart/None': Error in request: 403 Client Error: Forbidden for url: https://connectapi.garmin.com/wellness-service/wellness/dailySummaryChart/None?date=2025-11-19 (status=403)
+  Warning: Could not fetch steps for 2025-11-19: API client error (403): Error in request: 403 Client Error: Forbidden for url: https://connectapi.garmin.com/wellness-service/wellness/dailySummaryChart/None?date=2025-11-19
+API call failed for path '/wellness-service/wellness/dailySummaryChart/None': Error in request: 403 Client Error: Forbidden for url: https://connectapi.garmin.com/wellness-service/wellness/dailySummaryChart/None?date=2025-11-20 (status=403)
+  Warning: Could not fetch steps for 2025-11-20: API client error (403): Error in request: 403 Client Error: Forbidden for url: https://connectapi.garmin.com/wellness-service/wellness/dailySummaryChart/None?date=2025-11-20
+API call failed for path '/wellness-service/wellness/dailySummaryChart/None': Error in request: 403 Client Error: Forbidden for url: https://connectapi.garmin.com/wellness-service/wellness/dailySummaryChart/None?date=2025-11-21 (status=403)
+  Warning: Could not fetch steps for 2025-11-21: API client error (403): Error in request: 403 Client Error: Forbidden for url: https://connectapi.garmin.com/wellness-service/wellness/dailySummaryChart/None?date=2025-11-21
+API call failed for path '/wellness-service/wellness/dailySummaryChart/None': Error in request: 403 Client Error: Forbidden for url: https://connectapi.garmin.com/wellness-service/wellness/dailySummaryChart/None?date=2025-11-22 (status=403)
+  Warning: Could not fetch steps for 2025-11-22: API client error (403): Error in request: 403 Client Error: Forbidden for url: https://connectapi.garmin.com/wellness-service/wellness/dailySummaryChart/None?date=2025-11-22
+API call failed for path '/wellness-service/wellness/dailySummaryChart/None': Error in request: 403 Client Error: Forbidden for url: https://connectapi.garmin.com/wellness-service/wellness/dailySummaryChart/None?date=2025-11-23 (status=403)
+  Warning: Could not fetch steps for 2025-11-23: API client error (403): Error in request: 403 Client Error: Forbidden for url: https://connectapi.garmin.com/wellness-service/wellness/dailySummaryChart/None?date=2025-11-23
+API call failed for path '/wellness-service/wellness/dailySummaryChart/None': Error in request: 403 Client Error: Forbidden for url: https://connectapi.garmin.com/wellness-service/wellness/dailySummaryChart/None?date=2025-11-24 (status=403)
+  Warning: Could not fetch steps for 2025-11-24: API client error (403): Error in request: 403 Client Error: Forbidden for url: https://connectapi.garmin.com/wellness-service/wellness/dailySummaryChart/None?date=2025-11-24
+API call failed for path '/wellness-service/wellness/dailySummaryChart/None': Error in request: 403 Client Error: Forbidden for url: https://connectapi.garmin.com/wellness-service/wellness/dailySummaryChart/None?date=2025-11-25 (status=403)
+  Warning: Could not fetch steps for 2025-11-25: API client error (403): Error in request: 403 Client Error: Forbidden for url: https://connectapi.garmin.com/wellness-service/wellness/dailySummaryChart/None?date=2025-11-25
+API call failed for path '/wellness-service/wellness/dailySummaryChart/None': Error in request: 403 Client Error: Forbidden for url: https://connectapi.garmin.com/wellness-service/wellness/dailySummaryChart/None?date=2025-11-26 (status=403)
+  Warning: Could not fetch steps for 2025-11-26: API client error (403): Error in request: 403 Client Error: Forbidden for url: https://connectapi.garmin.com/wellness-service/wellness/dailySummaryChart/None?date=2025-11-26
+API call failed for path '/wellness-service/wellness/dailySummaryChart/None': Error in request: 403 Client Error: Forbidden for url: https://connectapi.garmin.com/wellness-service/wellness/dailySummaryChart/None?date=2025-11-27 (status=403)
+  Warning: Could not fetch steps for 2025-11-27: API client error (403): Error in request: 403 Client Error: Forbidden for url: https://connectapi.garmin.com/wellness-service/wellness/dailySummaryChart/None?date=2025-11-27
+API call failed for path '/wellness-service/wellness/dailySummaryChart/None': Error in request: 403 Client Error: Forbidden for url: https://connectapi.garmin.com/wellness-service/wellness/dailySummaryChart/None?date=2025-11-28 (status=403)
+  Warning: Could not fetch steps for 2025-11-28: API client error (403): Error in request: 403 Client Error: Forbidden for url: https://connectapi.garmin.com/wellness-service/wellness/dailySummaryChart/None?date=2025-11-28
+API call failed for path '/wellness-service/wellness/dailySummaryChart/None': Error in request: 403 Client Error: Forbidden for url: https://connectapi.garmin.com/wellness-service/wellness/dailySummaryChart/None?date=2025-11-29 (status=403)
+  Warning: Could not fetch steps for 2025-11-29: API client error (403): Error in request: 403 Client Error: Forbidden for url: https://connectapi.garmin.com/wellness-service/wellness/dailySummaryChart/None?date=2025-11-29
+API call failed for path '/wellness-service/wellness/dailySummaryChart/None': Error in request: 403 Client Error: Forbidden for url: https://connectapi.garmin.com/wellness-service/wellness/dailySummaryChart/None?date=2025-11-30 (status=403)
+  Warning: Could not fetch steps for 2025-11-30: API client error (403): Error in request: 403 Client Error: Forbidden for url: https://connectapi.garmin.com/wellness-service/wellness/dailySummaryChart/None?date=2025-11-30
+API call failed for path '/wellness-service/wellness/dailySummaryChart/None': Error in request: 403 Client Error: Forbidden for url: https://connectapi.garmin.com/wellness-service/wellness/dailySummaryChart/None?date=2025-12-01 (status=403)
+  Warning: Could not fetch steps for 2025-12-01: API client error (403): Error in request: 403 Client Error: Forbidden for url: https://connectapi.garmin.com/wellness-service/wellness/dailySummaryChart/None?date=2025-12-01
+Garmin Connect Health Data Sync
+============================================================
+Date range: 2025-11-01 to 2025-12-01
+============================================================
+
+Authenticating with Garmin Connect...
+✓ Loaded valid tokens from /data/data/com.termux/files/home/.garminconnect
+  ✓ Authentication successful
+
+Fetching activities from 2025-11-01 to 2025-12-01...
+  Found 25 activities
+Fetching sleep data from 2025-11-01 to 2025-12-01...
+  Found 31 sleep sessions
+Fetching VO2 max data...
+  Found 1 VO2 max readings
+Fetching weight data...
+  Found 5 weight readings
+Fetching resting heart rate data...
+  Found 0 resting HR readings
+Fetching HRV data...
+  Found 31 HRV readings
+Fetching training readiness data...
+  Found 31 readiness readings
+Fetching stress data...
+  Found 31 stress readings
+Fetching SpO2 data...
+  Found 31 SpO2 readings
+Fetching body battery data...
+  Found 31 body battery readings
+Fetching race predictions...
+  Found race predictions for 2025-12-01
+Fetching lactate threshold data...
+  Found lactate threshold data
+Fetching training status...
+  Found training status
+Fetching scheduled workouts...
+  Found 80 workout templates
+Fetching gear stats...
+  Warning: Could not get user profile ID
+Fetching daily steps from 2025-11-01 to 2025-12-01...
+  Found 0 days of step data
+Fetching progress summary from 2025-11-01 to 2025-12-01...
+  Found progress summary (ATL: None, CTL: None, TSB: None)
+
+Downloading ICS calendars from URLs...
+  Fetching: FinalSurge Training Calendar
+    URL: https://log.finalsurge.com/delivery/ical/YGV6PZINYVRWVCK
+    Found 3 total events, 3 in sync window
+
+Importing local ICS calendar files...
+  Reading finalsurge.ics...
+    Found 3 total events, 3 in sync window
+  Merging 6 calendar events with Garmin workout templates...
+  Created 6 scheduled workouts with dates
+
+============================================================
+Fetch Summary
+============================================================
+  ✓ Activities: 25 records
+  ✓ Sleep: 31 records
+  ✓ VO2 Max: 1 records
+  ✓ Weight: 5 records
+  ⚠ Resting HR: 0 records
+  ✓ HRV: 31 records
+  ✓ Training Readiness: 31 records
+  ✓ Stress: 31 records
+  ✓ SpO2: 31 records
+  ✓ Body Battery: 31 records
+  ✓ Race Predictions: Yes
+  ✓ Lactate Threshold: Yes
+  ✓ Training Status: Yes
+  ✓ Scheduled Workouts: 6 workouts
+  ⚠ Gear Stats: 0 gear items
+  ⚠ Daily Steps: 0 days
+  ✓ Progress Summary: Yes
+============================================================
+
+
+Merging with existing cache...
+
+Cache updated: /data/data/com.termux/files/home/running-coach/data/health/health_data_cache.json
+
+============================================================
+Health Data Summary (Last 14 Days)
+============================================================
+
+Activities: 6 total
+  Running: 2 runs, 29.5 miles, 5.1 hrs
+           Avg pace: 10:09/mile
+  Walking: 4 walks, 5.4 miles
+
+Sleep: 15 nights
+  Avg duration: 6.8 hrs
+  Avg sleep score: 56/100
+
+VO2 Max: 50.6 ml/kg/min (most recent)
+
+Weight: 170.1 lbs (most recent)
+
+Resting HR: 45 bpm (most recent), 44 bpm avg
+
+============================================================
+Last updated: 2025-12-01T13:21:10.827161+00:00
+============================================================
+
+✓ Sync complete!
+---
+[2025-12-02 02:48:38] Sync attempt (exit code: 0)
+  Warning: Error fetching sleep for 2025-12-02: TypeError
+Garmin Connect Health Data Sync
+============================================================
+Date range: 2025-12-01 to 2025-12-02
+============================================================
+
+Authenticating with Garmin Connect...
+✓ Loaded valid tokens from /data/data/com.termux/files/home/.garminconnect
+  ✓ Authentication successful
+
+Fetching activities from 2025-12-01 to 2025-12-02...
+  Found 0 activities
+Fetching sleep data from 2025-12-01 to 2025-12-02...
+  Found 1 sleep sessions
+Fetching VO2 max data...
+  Found 0 VO2 max readings
+Fetching weight data...
+  Found 0 weight readings
+Fetching resting heart rate data...
+  Found 2 resting HR readings
+Fetching HRV data...
+  Found 1 HRV readings
+Fetching training readiness data...
+  Found 2 readiness readings
+Fetching stress data...
+  Found 2 stress readings
+Fetching SpO2 data...
+  Found 2 SpO2 readings
+Fetching body battery data...
+  Found 2 body battery readings
+Fetching race predictions...
+  Found race predictions for 2025-12-02
+Fetching lactate threshold data...
+  Found lactate threshold data
+Fetching training status...
+  Found training status
+Fetching scheduled workouts...
+  Found 80 workout templates
+Fetching gear stats...
+  Found 6 gear items
+Fetching daily steps from 2025-12-01 to 2025-12-02...
+  Found 2 days of step data
+Fetching progress summary from 2025-12-01 to 2025-12-02...
+  Found progress summary (ATL: None, CTL: None, TSB: None)
+
+Downloading ICS calendars from URLs...
+  Fetching: FinalSurge Training Calendar
+    URL: https://log.finalsurge.com/delivery/ical/YGV6PZINYVRWVCK
+    Found 3 total events, 3 in sync window
+
+Importing local ICS calendar files...
+  Reading finalsurge.ics...
+    Found 3 total events, 3 in sync window
+  Merging 6 calendar events with Garmin workout templates...
+  Created 6 scheduled workouts with dates
+
+============================================================
+Fetch Summary
+============================================================
+  ⚠ Activities: 0 records
+  ✓ Sleep: 1 records
+  ⚠ VO2 Max: 0 records
+  ⚠ Weight: 0 records
+  ✓ Resting HR: 2 records
+  ✓ HRV: 1 records
+  ✓ Training Readiness: 2 records
+  ✓ Stress: 2 records
+  ✓ SpO2: 2 records
+  ✓ Body Battery: 2 records
+  ✓ Race Predictions: Yes
+  ✓ Lactate Threshold: Yes
+  ✓ Training Status: Yes
+  ✓ Scheduled Workouts: 6 workouts
+  ✓ Gear Stats: 6 gear items
+  ✓ Daily Steps: 2 days
+  ✓ Progress Summary: Yes
+============================================================
+
+
+Merging with existing cache...
+
+Cache updated: /data/data/com.termux/files/home/running-coach/data/health/health_data_cache.json
+
+============================================================
+Health Data Summary (Last 14 Days)
+============================================================
+
+Activities: 6 total
+  Running: 2 runs, 29.5 miles, 5.1 hrs
+           Avg pace: 10:09/mile
+  Walking: 4 walks, 5.4 miles
+
+Sleep: 14 nights
+  Avg duration: 6.9 hrs
+  Avg sleep score: 56/100
+
+VO2 Max: 50.6 ml/kg/min (most recent)
+
+Weight: 170.1 lbs (most recent)
+
+Resting HR: 49 bpm (most recent), 47 bpm avg
+
+============================================================
+Last updated: 2025-12-02T07:48:38.258268+00:00
+============================================================
+
+✓ Sync complete!
+---

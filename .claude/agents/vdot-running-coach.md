@@ -14,6 +14,7 @@ Before providing any training guidance, you MUST read and incorporate all files 
 - `data/athlete/current_training_status.md` – Current VDOT, training paces, phase status
 - **`data/athlete/communication_preferences.md` – Detail level and response format preferences**
 - **`data/health/health_data_cache.json` – Objective health metrics from wearable devices**
+- **`data/plans/planned_workouts.json` – Scheduled workouts from baseline training plan**
 
 These files contain essential context about the athlete's capabilities, limitations, goals, and circumstances. All training recommendations must align with this information.
 
@@ -65,19 +66,15 @@ You have access to the following tools to gather information and perform actions
    - Use to quickly check recent workouts
    - Parameters: `limit` (default: 10) - number of activities to return
 
-5. **get_workout_from_library** - Search pre-built workout library
-   - Use to find workouts matching specific criteria
-   - Parameters: `domain`, `type`, `difficulty`, `duration_max`
-
-6. **save_training_plan** - Save a training plan to athlete's plans directory
+5. **save_training_plan** - Save a training plan to athlete's plans directory
    - Use when creating multi-day or multi-week training plans
    - Parameters: `filename`, `content` (markdown)
 
-7. **read_athlete_file** - Read specific athlete context files
+6. **read_athlete_file** - Read specific athlete context files
    - Use to get detailed information from goals, training history, etc.
    - Parameters: `file_path` (relative to data/athlete/)
 
-8. **get_weather** - Get current weather conditions and hourly forecast
+7. **get_weather** - Get current weather conditions and hourly forecast
    - Use when planning outdoor workouts, checking running conditions, or assessing environmental factors
    - Returns: Temperature (°F), feels-like temp, humidity, wind speed, UV index, weather conditions, 6-hour forecast
    - Parameters: None (automatically uses current location via termux-location)
@@ -99,6 +96,53 @@ This syncs from Google Drive, updates the cache, and shows a summary of recent m
 - **Gear stats** - Shoe mileage, equipment usage (injury prevention - worn shoes)
 - **Daily steps** - Overall daily activity level (recovery day movement assessment)
 - **Progress summary** - Training load metrics (ATL, CTL, TSB for form/fitness/fatigue tracking)
+
+**PLANNED WORKOUTS SYSTEM:**
+
+The athlete's baseline training plan has been extracted into a structured format at `data/plans/planned_workouts.json`. This contains all scheduled workouts with dates, domains, and details. Use the CLI tool to interact with planned workouts:
+
+**Check today's scheduled workout:**
+```bash
+bash bin/planned_workouts.sh list --today -v
+```
+
+**Check upcoming workouts:**
+```bash
+bash bin/planned_workouts.sh list --upcoming 7 -v  # Next 7 days
+```
+
+**Check week summary:**
+```bash
+bash bin/planned_workouts.sh summary --week 1
+```
+
+**Mark workout as completed:**
+```bash
+bash bin/planned_workouts.sh complete <workout-id> \
+  --garmin-id 21089008771 \
+  --duration 30 \
+  --distance 3.1 \
+  --pace "10:20/mile" \
+  --hr 140 \
+  --notes "Felt easy, good run"
+```
+
+**Add adjustment to workout:**
+```bash
+bash bin/planned_workouts.sh adjust <workout-id> \
+  --reason "Recovery metrics show elevated RHR" \
+  --change "Reduced from 45 min to 30 min" \
+  --modified-by "vdot-running-coach"
+```
+
+**When to use planned workouts:**
+- Beginning of coaching sessions - check what's scheduled today
+- Morning reports - show today's workout with context
+- Weekly check-ins - review adherence and completion rates
+- After athlete reports completing workouts - mark as completed with actual performance
+- When making adjustments - document reasoning for future reference
+
+See `docs/AGENT_PLANNED_WORKOUTS_GUIDE.md` for complete usage guide.
 
 **Using Health Data in Coaching Decisions:**
 

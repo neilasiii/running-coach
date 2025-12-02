@@ -305,6 +305,69 @@ bash bin/open_morning_report.sh         # Open existing HTML report
 
 **Note**: Termux cron may not survive device restarts. Add `crond` to your `.bashrc` to auto-start on Termux launch.
 
+### Planned Workouts Management
+
+**View Scheduled Workouts**
+```bash
+# Today's workouts
+bash bin/planned_workouts.sh list --today -v
+
+# Upcoming workouts (next 7 days)
+bash bin/planned_workouts.sh list --upcoming 7 -v
+
+# Specific week
+bash bin/planned_workouts.sh list --week 3 -v
+
+# By training phase
+bash bin/planned_workouts.sh list --phase recovery -v
+bash bin/planned_workouts.sh list --phase base_building -v
+```
+
+**Update Workout Status**
+```bash
+# Mark workout as completed
+bash bin/planned_workouts.sh complete <workout-id> \
+  --garmin-id 21089008771 \
+  --duration 30 \
+  --distance 3.1 \
+  --pace "10:20/mile" \
+  --hr 140 \
+  --notes "Felt great"
+
+# Mark workout as skipped
+bash bin/planned_workouts.sh skip <workout-id> \
+  --reason "Poor sleep, prioritized recovery"
+
+# Add adjustment to workout
+bash bin/planned_workouts.sh adjust <workout-id> \
+  --reason "Recovery metrics show elevated RHR" \
+  --change "Reduced from 45 min to 30 min" \
+  --modified-by "vdot-running-coach"
+```
+
+**View Progress**
+```bash
+# Overall plan summary
+bash bin/planned_workouts.sh summary
+
+# Specific week summary
+bash bin/planned_workouts.sh summary --week 2
+```
+
+**Extract Baseline Plan**
+```bash
+# Re-extract workouts from baseline plan markdown
+# WARNING: This clears all completion/adjustment data!
+python3 src/extract_baseline_plan.py
+```
+
+Coaching agents should use planned workouts to:
+- Check today's scheduled workout at session start
+- Review weekly adherence and completion rates
+- Mark workouts complete with actual performance data
+- Document adjustments with clear reasoning
+- Track plan vs actual execution over time
+
 ### Testing
 
 **Verify Health Data System**
@@ -377,31 +440,36 @@ Coaching Agents (read JSON for decisions)
 - Includes `last_updated` timestamp and `last_sync_date` metadata
 - No file tracking needed (direct API access)
 
-**Workout Library System:**
+**Planned Workouts System:**
 
-**[src/workout_library.py](src/workout_library.py)**: Workout library manager with CRUD operations
-- Search and filter workouts by domain, type, difficulty, duration, tags, equipment
-- Add, update, delete workouts
-- Import/export workouts as JSON
-- Track workout statistics
+**[src/planned_workout_manager.py](src/planned_workout_manager.py)**: Workout plan manager with CRUD operations
+- Add, update, delete, and query planned workouts
+- Mark workouts as completed/skipped with actual performance data
+- Track adjustments with reasoning and history
+- Filter by date, week, phase, domain, status
+- Generate week and plan summaries
 
-**[src/workout_library_cli.py](src/workout_library_cli.py)**: Command-line interface for library
-- Browse and search workouts
-- View detailed workout information
-- Manage library contents
+**[src/planned_workout_cli.py](src/planned_workout_cli.py)**: Command-line interface for planned workouts
+- List workouts (today, upcoming, by week/phase/domain/status)
+- Mark workouts as completed or skipped
+- Add adjustments to workouts
+- View plan and week summaries
+- Export/import workouts as JSON
 
-**[src/seed_workout_library.py](src/seed_workout_library.py)**: Seed script for populating library
-- Pre-built templates across all coaching domains
-- 19+ workouts: running (10), strength (3), mobility (3), nutrition (3)
+**[src/extract_baseline_plan.py](src/extract_baseline_plan.py)**: Baseline plan extraction script
+- Parses training plan markdown files
+- Extracts workouts into structured JSON format
+- Populates planned_workouts.json with complete schedule
 
-**[bin/workout_library.sh](bin/workout_library.sh)**: Convenience wrapper for CLI
-- Primary command for agents to search library
-- Supports all search and filter operations
+**[bin/planned_workouts.sh](bin/planned_workouts.sh)**: Convenience wrapper for CLI
+- Primary command for agents to interact with planned workouts
+- Supports all CRUD and query operations
 
-**[data/library/workout_library.json](data/library/workout_library.json)**: Main workout database
+**[data/plans/planned_workouts.json](data/plans/planned_workouts.json)**: Main planned workouts database
 - JSON-based storage with metadata
-- Searchable by multiple criteria
-- Extensible for custom workouts
+- Contains all scheduled workouts from baseline plan
+- Tracks completion status and actual performance
+- Preserves adjustment history with reasoning
 
 ### Athlete Context Files
 
@@ -414,15 +482,15 @@ All coaching agents MUST read these files in [data/athlete/](data/athlete/) befo
 - **[upcoming_races.md](data/athlete/upcoming_races.md)** - Race schedule, time goals, taper timing
 - **[current_training_status.md](data/athlete/current_training_status.md)** - Current VDOT, training paces, phase status
 - **[health_data_cache.json](data/health/health_data_cache.json)** - Objective metrics from Garmin Connect
+- **[planned_workouts.json](data/plans/planned_workouts.json)** - Scheduled workouts from baseline training plan
 
 ### Documentation
 
 - **[docs/HEALTH_DATA_SYSTEM.md](docs/HEALTH_DATA_SYSTEM.md)** - Complete technical documentation for health data system
 - **[docs/AGENT_HEALTH_DATA_GUIDE.md](docs/AGENT_HEALTH_DATA_GUIDE.md)** - Quick reference for agents on using health data
-- **[docs/AGENT_WORKOUT_LIBRARY_GUIDE.md](docs/AGENT_WORKOUT_LIBRARY_GUIDE.md)** - Guide for agents on using the workout library
+- **[docs/AGENT_PLANNED_WORKOUTS_GUIDE.md](docs/AGENT_PLANNED_WORKOUTS_GUIDE.md)** - Guide for agents on using the planned workouts system
 - **[docs/COMMUNICATION_PREFERENCES_GUIDE.md](docs/COMMUNICATION_PREFERENCES_GUIDE.md)** - Guide to BRIEF/STANDARD/DETAILED response modes
 - **[data/athlete/health_profile.md](data/athlete/health_profile.md)** - Human-readable health summary
-- **[data/library/workout_library_schema.md](data/library/workout_library_schema.md)** - Workout library data structure and schema
 
 ## Health Data Integration
 

@@ -1,0 +1,1783 @@
+{
+  "metadata": {
+    "plan_name": "Gasparilla Half Marathon Baseline Plan",
+    "plan_id": "gasparilla_half_2026",
+    "race_date": "2026-02-22",
+    "plan_start_date": "2025-11-30",
+    "plan_end_date": "2026-02-22",
+    "created_date": "2025-12-02T09:33:18.732385",
+    "last_modified": "2025-12-02T09:34:02.729412",
+    "athlete": "Neil Stagner",
+    "version": "1.0"
+  },
+  "planned_workouts": [
+    {
+      "id": "398a519a-747c-4058-872d-0b8813256252",
+      "date": "2025-11-30",
+      "week_number": 1,
+      "phase": "recovery",
+      "domain": "running",
+      "workout": {
+        "type": "running",
+        "description": "**Mobility:** 30 min gentle comprehensive session 10 min light foam rolling (calves, hamstrings, glutes) 15 min gentle stretching (focus: recovery) 5 min PTT drills (towel scrunches, toe yoga)",
+        "duration_minutes": 30
+      },
+      "status": "planned",
+      "actual_performance": null,
+      "adjustments": []
+    },
+    {
+      "id": "397c5fa2-0e52-4230-91d0-2cf954e22e25",
+      "date": "2025-11-30",
+      "week_number": 1,
+      "phase": "recovery",
+      "domain": "mobility",
+      "workout": {
+        "type": "ptt_exercises",
+        "description": "10 min light foam rolling (calves, hamstrings, glutes) 15 min gentle stretching (focus: recovery) 5 min PTT drills (towel scrunches, toe yoga)",
+        "duration_minutes": 10
+      },
+      "status": "planned",
+      "actual_performance": null,
+      "adjustments": []
+    },
+    {
+      "id": "20c0071d-93e5-4401-bbfe-180f9a721988",
+      "date": "2025-12-01",
+      "week_number": 1,
+      "phase": "recovery",
+      "domain": "running",
+      "workout": {
+        "type": "running",
+        "description": "**Mobility:** 10 min PTT exercises (ankle inversions, arch doming)",
+        "duration_minutes": 10
+      },
+      "status": "planned",
+      "actual_performance": null,
+      "adjustments": []
+    },
+    {
+      "id": "2b71985b-76cb-4355-bd98-ba7f7010caa9",
+      "date": "2025-12-02",
+      "week_number": 1,
+      "phase": "recovery",
+      "domain": "strength",
+      "workout": {
+        "type": "full_body",
+        "description": "**Mobility:** 10 min post-run routine (foam roll calves, hamstrings, glutes)",
+        "duration_minutes": 10
+      },
+      "status": "planned",
+      "actual_performance": null,
+      "adjustments": []
+    },
+    {
+      "id": "33163ddb-1c27-4b3b-ae9d-d39dccc4c500",
+      "date": "2025-12-03",
+      "week_number": 1,
+      "phase": "recovery",
+      "domain": "running",
+      "workout": {
+        "type": "running",
+        "description": "**Mobility:** 10 min gentle mobility (standing calf stretch, hip flexor stretch)",
+        "duration_minutes": 10
+      },
+      "status": "planned",
+      "actual_performance": null,
+      "adjustments": []
+    },
+    {
+      "id": "acca06c0-35b6-40c6-8c44-95fd49a63897",
+      "date": "2025-12-04",
+      "week_number": 1,
+      "phase": "recovery",
+      "domain": "running",
+      "workout": {
+        "type": "running",
+        "description": "**Mobility:** 10 min post-run routine (foam rolling + stretching)",
+        "duration_minutes": 10
+      },
+      "status": "planned",
+      "actual_performance": null,
+      "adjustments": []
+    },
+    {
+      "id": "82524e60-9f56-4349-9053-7fafd4431ed0",
+      "date": "2025-12-05",
+      "week_number": 1,
+      "phase": "recovery",
+      "domain": "strength",
+      "workout": {
+        "type": "full_body",
+        "description": "**Mobility:** 15 min evening mobility (PTT drills + gentle stretching)",
+        "duration_minutes": 15
+      },
+      "status": "planned",
+      "actual_performance": null,
+      "adjustments": []
+    },
+    {
+      "id": "7d2c6bc9-63e0-408e-8663-d5ce264ef553",
+      "date": "2025-12-06",
+      "week_number": 1,
+      "phase": "recovery",
+      "domain": "running",
+      "workout": {
+        "type": "running",
+        "description": "**Mobility:** 15 min post-run recovery (foam rolling + stretching sequence)",
+        "duration_minutes": 15
+      },
+      "status": "planned",
+      "actual_performance": null,
+      "adjustments": []
+    },
+    {
+      "id": "7e2c7254-c7dd-4b06-90d1-9663e78fc522",
+      "date": "2025-12-07",
+      "week_number": 2,
+      "phase": "recovery",
+      "domain": "running",
+      "workout": {
+        "type": "running",
+        "description": "**Mobility:** 40 min comprehensive session 15 min foam rolling (full body sequence) 20 min static stretching (calves, hip flexors, hamstrings, glutes, piriformis) 5 min PTT-specific work (heel raises, arch doming)",
+        "duration_minutes": 40
+      },
+      "status": "planned",
+      "actual_performance": null,
+      "adjustments": []
+    },
+    {
+      "id": "4f4b4646-dd53-405c-9d89-9cfeaac35c75",
+      "date": "2025-12-07",
+      "week_number": 2,
+      "phase": "recovery",
+      "domain": "mobility",
+      "workout": {
+        "type": "ptt_exercises",
+        "description": "15 min foam rolling (full body sequence) 20 min static stretching (calves, hip flexors, hamstrings, glutes, piriformis) 5 min PTT-specific work (heel raises, arch doming)",
+        "duration_minutes": 15
+      },
+      "status": "planned",
+      "actual_performance": null,
+      "adjustments": []
+    },
+    {
+      "id": "96bb291f-4705-4259-9f93-a3c75dbecf69",
+      "date": "2025-12-08",
+      "week_number": 2,
+      "phase": "recovery",
+      "domain": "running",
+      "workout": {
+        "type": "running",
+        "description": "**Mobility:** 10 min PTT exercises",
+        "duration_minutes": 10
+      },
+      "status": "planned",
+      "actual_performance": null,
+      "adjustments": []
+    },
+    {
+      "id": "6110a9e4-b04d-49b4-8eeb-69d2f6446b4b",
+      "date": "2025-12-09",
+      "week_number": 2,
+      "phase": "recovery",
+      "domain": "strength",
+      "workout": {
+        "type": "full_body",
+        "description": "**Mobility:** 12 min PTT-focused session (banded inversions, toe yoga, heel raises)",
+        "duration_minutes": 12
+      },
+      "status": "planned",
+      "actual_performance": null,
+      "adjustments": []
+    },
+    {
+      "id": "18e0d7bc-dce5-49e1-8e40-34c5dd5ebcbb",
+      "date": "2025-12-10",
+      "week_number": 2,
+      "phase": "recovery",
+      "domain": "running",
+      "workout": {
+        "type": "running",
+        "description": "**Mobility:** 10 min post-run routine (foam roll + calf/hamstring stretches)",
+        "duration_minutes": 10
+      },
+      "status": "planned",
+      "actual_performance": null,
+      "adjustments": []
+    },
+    {
+      "id": "ed2d8c43-9774-4f72-afd4-f08661d885a3",
+      "date": "2025-12-11",
+      "week_number": 2,
+      "phase": "recovery",
+      "domain": "running",
+      "workout": {
+        "type": "running",
+        "description": "**Mobility:** 10 min light mobility (hip circles, leg swings, gentle stretches)",
+        "duration_minutes": 10
+      },
+      "status": "planned",
+      "actual_performance": null,
+      "adjustments": []
+    },
+    {
+      "id": "ffb5a42b-6952-4af3-926d-990bdfacdbdd",
+      "date": "2025-12-12",
+      "week_number": 2,
+      "phase": "recovery",
+      "domain": "strength",
+      "workout": {
+        "type": "full_body",
+        "description": "**Mobility:** 10 min post-run routine",
+        "duration_minutes": 10
+      },
+      "status": "planned",
+      "actual_performance": null,
+      "adjustments": []
+    },
+    {
+      "id": "a2517111-8200-4019-a41f-4a083aa1d9cc",
+      "date": "2025-12-13",
+      "week_number": 2,
+      "phase": "recovery",
+      "domain": "running",
+      "workout": {
+        "type": "long_run",
+        "description": "**Mobility:** 15 min post-long-run recovery (foam rolling + static stretching)",
+        "duration_minutes": 15,
+        "intensity": "moderate"
+      },
+      "status": "planned",
+      "actual_performance": null,
+      "adjustments": []
+    },
+    {
+      "id": "ee7fc030-1947-4349-9ac7-d2ffc4075fc3",
+      "date": "2025-12-14",
+      "week_number": 3,
+      "phase": "base_building",
+      "domain": "running",
+      "workout": {
+        "type": "running",
+        "description": "**Mobility:** 45 min comprehensive session 15 min foam rolling (comprehensive sequence) 25 min static stretching (full lower body + thoracic spine) 5 min PTT drills",
+        "duration_minutes": 45
+      },
+      "status": "planned",
+      "actual_performance": null,
+      "adjustments": []
+    },
+    {
+      "id": "2d69876a-41ac-447d-9551-fe8faf1de71a",
+      "date": "2025-12-14",
+      "week_number": 3,
+      "phase": "base_building",
+      "domain": "mobility",
+      "workout": {
+        "type": "ptt_exercises",
+        "description": "15 min foam rolling (comprehensive sequence) 25 min static stretching (full lower body + thoracic spine) 5 min PTT drills",
+        "duration_minutes": 15
+      },
+      "status": "planned",
+      "actual_performance": null,
+      "adjustments": []
+    },
+    {
+      "id": "bbb81b9c-8a84-451d-ab8d-58bb7750b17d",
+      "date": "2025-12-15",
+      "week_number": 3,
+      "phase": "base_building",
+      "domain": "running",
+      "workout": {
+        "type": "running",
+        "description": "**Mobility:** 10 min PTT exercises",
+        "duration_minutes": 10
+      },
+      "status": "planned",
+      "actual_performance": null,
+      "adjustments": []
+    },
+    {
+      "id": "13ed91c8-98b2-41b7-90a7-4f18aeda8df8",
+      "date": "2025-12-16",
+      "week_number": 3,
+      "phase": "base_building",
+      "domain": "running",
+      "workout": {
+        "type": "rest_or_walk",
+        "description": "**Strength:** PRIMARY Session #1 - Lower Body + Core (45-50 min) Warmup: 10 min (bike/walk, hip circles, leg swings, bodyweight squats) A1. Goblet Squat: 3 \u00d7 12-15 reps A2. Single-Leg RDL: 3 \u00d7 10-12 per leg B1. Bulgarian Split Squat: 3 \u00d7 10-12 per leg B2. Forearm Plank: 3 \u00d7 30-45 sec C1. Pallof Press: 3 \u00d7 12-15 per side C2. Single-Leg Calf Raise: 3 \u00d7 15-20 per leg **Mobility:** 10 min evening PTT session",
+        "duration_minutes": 50,
+        "intensity": "recovery"
+      },
+      "status": "planned",
+      "actual_performance": null,
+      "adjustments": []
+    },
+    {
+      "id": "948b00ab-4289-4110-bec6-f57fd0a44519",
+      "date": "2025-12-16",
+      "week_number": 3,
+      "phase": "base_building",
+      "domain": "strength",
+      "workout": {
+        "type": "full_body",
+        "description": "Warmup: 10 min (bike/walk, hip circles, leg swings, bodyweight squats) A1. Goblet Squat: 3 \u00d7 12-15 reps A2. Single-Leg RDL: 3 \u00d7 10-12 per leg B1. Bulgarian Split Squat: 3 \u00d7 10-12 per leg B2. Forearm Plank: 3 \u00d7 30-45 sec C1. Pallof Press: 3 \u00d7 12-15 per side C2. Single-Leg Calf Raise: 3 \u00d7 15-20 per leg **Mobility:** 10 min evening PTT session",
+        "duration_minutes": 10
+      },
+      "status": "planned",
+      "actual_performance": null,
+      "adjustments": []
+    },
+    {
+      "id": "7e94617e-5360-42e6-86df-f74e1ce37e1c",
+      "date": "2025-12-17",
+      "week_number": 3,
+      "phase": "base_building",
+      "domain": "running",
+      "workout": {
+        "type": "running",
+        "description": "**Mobility:** 10 min post-run routine (foam roll + stretches)",
+        "duration_minutes": 10
+      },
+      "status": "planned",
+      "actual_performance": null,
+      "adjustments": []
+    },
+    {
+      "id": "f41dc608-f2fd-48e3-b815-5714ca83db0d",
+      "date": "2025-12-18",
+      "week_number": 3,
+      "phase": "base_building",
+      "domain": "running",
+      "workout": {
+        "type": "running",
+        "description": "**Mobility:** 10 min post-run routine (focus: calves, hamstrings)",
+        "duration_minutes": 10
+      },
+      "status": "planned",
+      "actual_performance": null,
+      "adjustments": []
+    },
+    {
+      "id": "69e0131f-ed63-4c7b-9161-500274e4fe18",
+      "date": "2025-12-19",
+      "week_number": 3,
+      "phase": "base_building",
+      "domain": "running",
+      "workout": {
+        "type": "easy_run",
+        "description": "**Strength:** LIGHT Session #1 - Upper Body + Core (30-35 min) Warmup: 5 min easy movement A1. Bent-Over Row (dumbbells): 3 \u00d7 12-15 reps A2. Goblet Squat (light): 3 \u00d7 12 reps B1. Dead Bug: 3 \u00d7 10 per side B2. Bird Dog: 3 \u00d7 10 per side C1. Glute Bridge: 3 \u00d7 15 reps C2. Standing Calf Raise: 3 \u00d7 20 reps **Mobility:** 10 min evening mobility",
+        "duration_minutes": 35,
+        "intensity": "easy"
+      },
+      "status": "planned",
+      "actual_performance": null,
+      "adjustments": []
+    },
+    {
+      "id": "cc944a66-5fb9-49d5-8bb8-09b2d8a0015e",
+      "date": "2025-12-19",
+      "week_number": 3,
+      "phase": "base_building",
+      "domain": "strength",
+      "workout": {
+        "type": "maintenance",
+        "description": "Warmup: 5 min easy movement A1. Bent-Over Row (dumbbells): 3 \u00d7 12-15 reps A2. Goblet Squat (light): 3 \u00d7 12 reps B1. Dead Bug: 3 \u00d7 10 per side B2. Bird Dog: 3 \u00d7 10 per side C1. Glute Bridge: 3 \u00d7 15 reps C2. Standing Calf Raise: 3 \u00d7 20 reps **Mobility:** 10 min evening mobility",
+        "duration_minutes": 5
+      },
+      "status": "planned",
+      "actual_performance": null,
+      "adjustments": []
+    },
+    {
+      "id": "2824e45d-83b4-4b40-a508-c59f7b239231",
+      "date": "2025-12-20",
+      "week_number": 3,
+      "phase": "base_building",
+      "domain": "running",
+      "workout": {
+        "type": "long_run",
+        "description": "**Mobility:** 15 min post-long-run recovery (foam rolling + stretching)",
+        "duration_minutes": 15,
+        "intensity": "moderate"
+      },
+      "status": "planned",
+      "actual_performance": null,
+      "adjustments": []
+    },
+    {
+      "id": "e534e158-c19d-40fd-a7e4-cdf6031faf6d",
+      "date": "2025-12-21",
+      "week_number": 4,
+      "phase": "base_building",
+      "domain": "running",
+      "workout": {
+        "type": "running",
+        "description": "**Mobility:** 50 min comprehensive session 15 min foam rolling (full body) 30 min static stretching + yoga (emphasis: hips, hamstrings, calves) 5 min PTT drills",
+        "duration_minutes": 50
+      },
+      "status": "planned",
+      "actual_performance": null,
+      "adjustments": []
+    },
+    {
+      "id": "e5f2b1ac-8a28-4920-856d-04d4052220c5",
+      "date": "2025-12-21",
+      "week_number": 4,
+      "phase": "base_building",
+      "domain": "mobility",
+      "workout": {
+        "type": "ptt_exercises",
+        "description": "15 min foam rolling (full body) 30 min static stretching + yoga (emphasis: hips, hamstrings, calves) 5 min PTT drills",
+        "duration_minutes": 15
+      },
+      "status": "planned",
+      "actual_performance": null,
+      "adjustments": []
+    },
+    {
+      "id": "ffaf261d-137f-474c-8781-dc6b23e6adef",
+      "date": "2025-12-22",
+      "week_number": 4,
+      "phase": "base_building",
+      "domain": "running",
+      "workout": {
+        "type": "running",
+        "description": "**Mobility:** 10 min PTT exercises",
+        "duration_minutes": 10
+      },
+      "status": "planned",
+      "actual_performance": null,
+      "adjustments": []
+    },
+    {
+      "id": "8d954082-69e6-4a4e-a488-1752ccc10631",
+      "date": "2025-12-23",
+      "week_number": 4,
+      "phase": "base_building",
+      "domain": "running",
+      "workout": {
+        "type": "rest_or_walk",
+        "description": "**Strength:** PRIMARY Session #2 - Lower Body + Core (45-50 min) Warmup: 10 min A1. Goblet Squat: 3 \u00d7 12-15 reps (slight load increase from last week) A2. Single-Leg RDL: 3 \u00d7 10-12 per leg B1. Walking Lunge: 3 \u00d7 12 per leg B2. Side Plank (forearms): 3 \u00d7 30 sec per side C1. Pallof Press: 3 \u00d7 12-15 per side C2. Eccentric Calf Raise: 3 \u00d7 8-10 per leg (3 sec lower) **Mobility:** 10 min evening PTT session",
+        "duration_minutes": 50,
+        "intensity": "recovery"
+      },
+      "status": "planned",
+      "actual_performance": null,
+      "adjustments": []
+    },
+    {
+      "id": "8baeee33-6c4f-4bd7-a706-49b40c3762dc",
+      "date": "2025-12-23",
+      "week_number": 4,
+      "phase": "base_building",
+      "domain": "strength",
+      "workout": {
+        "type": "maintenance",
+        "description": "Warmup: 10 min A1. Goblet Squat: 3 \u00d7 12-15 reps (slight load increase from last week) A2. Single-Leg RDL: 3 \u00d7 10-12 per leg B1. Walking Lunge: 3 \u00d7 12 per leg B2. Side Plank (forearms): 3 \u00d7 30 sec per side C1. Pallof Press: 3 \u00d7 12-15 per side C2. Eccentric Calf Raise: 3 \u00d7 8-10 per leg (3 sec lower) **Mobility:** 10 min evening PTT session",
+        "duration_minutes": 10
+      },
+      "status": "planned",
+      "actual_performance": null,
+      "adjustments": []
+    },
+    {
+      "id": "00c8c6b4-fb55-4e7b-b081-7ad6ac91f1ee",
+      "date": "2025-12-24",
+      "week_number": 4,
+      "phase": "base_building",
+      "domain": "running",
+      "workout": {
+        "type": "running",
+        "description": "**Mobility:** 10 min post-run routine",
+        "duration_minutes": 10
+      },
+      "status": "planned",
+      "actual_performance": null,
+      "adjustments": []
+    },
+    {
+      "id": "0019c996-4c70-48da-b8c0-2f9d47c561ac",
+      "date": "2025-12-25",
+      "week_number": 4,
+      "phase": "base_building",
+      "domain": "running",
+      "workout": {
+        "type": "running",
+        "description": "**Mobility:** 10 min light mobility",
+        "duration_minutes": 10
+      },
+      "status": "planned",
+      "actual_performance": null,
+      "adjustments": []
+    },
+    {
+      "id": "6cad5ff7-ef81-42af-b7af-0f79e8f97e50",
+      "date": "2025-12-26",
+      "week_number": 4,
+      "phase": "base_building",
+      "domain": "running",
+      "workout": {
+        "type": "running",
+        "description": "**Strength:** LIGHT Session #2 - Upper Body + Core (30-35 min) Warmup: 5 min A1. Bent-Over Row: 3 \u00d7 12-15 reps A2. Step-Up: 3 \u00d7 10 per leg B1. Dead Bug: 3 \u00d7 12 per side B2. Quadruped Hip Extension: 3 \u00d7 12 per side C1. Glute Bridge (single-leg): 3 \u00d7 10 per leg C2. Calf Raise: 3 \u00d7 20 reps **Mobility:** 10 min evening mobility",
+        "duration_minutes": 35
+      },
+      "status": "planned",
+      "actual_performance": null,
+      "adjustments": []
+    },
+    {
+      "id": "bf5c6c85-da30-4b84-8786-d6623f75ae63",
+      "date": "2025-12-26",
+      "week_number": 4,
+      "phase": "base_building",
+      "domain": "strength",
+      "workout": {
+        "type": "full_body",
+        "description": "Warmup: 5 min A1. Bent-Over Row: 3 \u00d7 12-15 reps A2. Step-Up: 3 \u00d7 10 per leg B1. Dead Bug: 3 \u00d7 12 per side B2. Quadruped Hip Extension: 3 \u00d7 12 per side C1. Glute Bridge (single-leg): 3 \u00d7 10 per leg C2. Calf Raise: 3 \u00d7 20 reps **Mobility:** 10 min evening mobility",
+        "duration_minutes": 5
+      },
+      "status": "planned",
+      "actual_performance": null,
+      "adjustments": []
+    },
+    {
+      "id": "2ed47693-6e35-4445-9eb3-b08fabb76d53",
+      "date": "2025-12-27",
+      "week_number": 4,
+      "phase": "base_building",
+      "domain": "running",
+      "workout": {
+        "type": "long_run",
+        "description": "**Mobility:** 15 min post-long-run recovery",
+        "duration_minutes": 15,
+        "intensity": "moderate"
+      },
+      "status": "planned",
+      "actual_performance": null,
+      "adjustments": []
+    },
+    {
+      "id": "08fe16bc-8deb-4e3a-a714-85c9529df14f",
+      "date": "2025-12-28",
+      "week_number": 5,
+      "phase": "base_building",
+      "domain": "running",
+      "workout": {
+        "type": "long_run",
+        "description": "**Mobility:** 50 min comprehensive session 15 min foam rolling 30 min stretching/yoga (emphasis: recovery from long run) 5 min PTT drills",
+        "duration_minutes": 50,
+        "intensity": "moderate"
+      },
+      "status": "planned",
+      "actual_performance": null,
+      "adjustments": []
+    },
+    {
+      "id": "6f7799bf-1494-4dd7-912a-7d43590e7196",
+      "date": "2025-12-28",
+      "week_number": 5,
+      "phase": "base_building",
+      "domain": "mobility",
+      "workout": {
+        "type": "ptt_exercises",
+        "description": "15 min foam rolling 30 min stretching/yoga (emphasis: recovery from long run) 5 min PTT drills",
+        "duration_minutes": 15
+      },
+      "status": "planned",
+      "actual_performance": null,
+      "adjustments": []
+    },
+    {
+      "id": "c6276399-7e18-471b-af26-91bfc0bd67b6",
+      "date": "2025-12-29",
+      "week_number": 5,
+      "phase": "base_building",
+      "domain": "running",
+      "workout": {
+        "type": "running",
+        "description": "**Mobility:** 10 min PTT exercises",
+        "duration_minutes": 10
+      },
+      "status": "planned",
+      "actual_performance": null,
+      "adjustments": []
+    },
+    {
+      "id": "e534b425-86f8-4303-a07c-fc4e1bd22911",
+      "date": "2025-12-30",
+      "week_number": 5,
+      "phase": "base_building",
+      "domain": "running",
+      "workout": {
+        "type": "running",
+        "description": "**Strength:** PRIMARY Session #3 - Lower Body + Core (45-50 min) Warmup: 10 min A1. Goblet Squat: 3 \u00d7 12-15 reps A2. Single-Leg RDL: 3 \u00d7 10-12 per leg B1. Bulgarian Split Squat: 3 \u00d7 10-12 per leg B2. Forearm Plank (with hip extension): 3 \u00d7 40 sec C1. Pallof Press (with step): 3 \u00d7 12 per side C2. Single-Leg Eccentric Calf: 3 \u00d7 10 per leg **Mobility:** 10 min evening PTT session",
+        "duration_minutes": 50
+      },
+      "status": "planned",
+      "actual_performance": null,
+      "adjustments": []
+    },
+    {
+      "id": "93dc934e-167f-42b5-9ead-25f391a914cf",
+      "date": "2025-12-30",
+      "week_number": 5,
+      "phase": "base_building",
+      "domain": "strength",
+      "workout": {
+        "type": "full_body",
+        "description": "Warmup: 10 min A1. Goblet Squat: 3 \u00d7 12-15 reps A2. Single-Leg RDL: 3 \u00d7 10-12 per leg B1. Bulgarian Split Squat: 3 \u00d7 10-12 per leg B2. Forearm Plank (with hip extension): 3 \u00d7 40 sec C1. Pallof Press (with step): 3 \u00d7 12 per side C2. Single-Leg Eccentric Calf: 3 \u00d7 10 per leg **Mobility:** 10 min evening PTT session",
+        "duration_minutes": 10
+      },
+      "status": "planned",
+      "actual_performance": null,
+      "adjustments": []
+    },
+    {
+      "id": "a73288fc-40ef-4330-b6b1-347e5824e43a",
+      "date": "2025-12-31",
+      "week_number": 5,
+      "phase": "base_building",
+      "domain": "running",
+      "workout": {
+        "type": "running",
+        "description": "**Mobility:** 10 min post-run routine",
+        "duration_minutes": 10
+      },
+      "status": "planned",
+      "actual_performance": null,
+      "adjustments": []
+    },
+    {
+      "id": "e877fe8a-fd9b-401f-a9c0-c82132916bb3",
+      "date": "2026-01-01",
+      "week_number": 5,
+      "phase": "base_building",
+      "domain": "running",
+      "workout": {
+        "type": "running",
+        "description": "**Mobility:** 10 min light mobility",
+        "duration_minutes": 10
+      },
+      "status": "planned",
+      "actual_performance": null,
+      "adjustments": []
+    },
+    {
+      "id": "d6d77fbb-7a6b-4e66-ae6f-6401a1a20cef",
+      "date": "2026-01-02",
+      "week_number": 5,
+      "phase": "base_building",
+      "domain": "running",
+      "workout": {
+        "type": "running",
+        "description": "**Strength:** LIGHT Session #3 - Upper Body + Core (30-35 min) Warmup: 5 min A1. Bent-Over Row: 3 \u00d7 12-15 reps A2. Goblet Squat: 3 \u00d7 12 reps B1. Dead Bug (with leg extension): 3 \u00d7 12 per side B2. Bird Dog (with hold): 3 \u00d7 10 per side (3 sec hold) C1. Glute Bridge (single-leg): 3 \u00d7 12 per leg C2. Calf Raise: 3 \u00d7 20 reps **Mobility:** 10 min evening mobility",
+        "duration_minutes": 35
+      },
+      "status": "planned",
+      "actual_performance": null,
+      "adjustments": []
+    },
+    {
+      "id": "e9d5b96a-a0e3-47fb-961e-5727034ec06e",
+      "date": "2026-01-02",
+      "week_number": 5,
+      "phase": "base_building",
+      "domain": "strength",
+      "workout": {
+        "type": "full_body",
+        "description": "Warmup: 5 min A1. Bent-Over Row: 3 \u00d7 12-15 reps A2. Goblet Squat: 3 \u00d7 12 reps B1. Dead Bug (with leg extension): 3 \u00d7 12 per side B2. Bird Dog (with hold): 3 \u00d7 10 per side (3 sec hold) C1. Glute Bridge (single-leg): 3 \u00d7 12 per leg C2. Calf Raise: 3 \u00d7 20 reps **Mobility:** 10 min evening mobility",
+        "duration_minutes": 5
+      },
+      "status": "planned",
+      "actual_performance": null,
+      "adjustments": []
+    },
+    {
+      "id": "02f72d58-1897-4838-b0f5-f7420889c846",
+      "date": "2026-01-03",
+      "week_number": 5,
+      "phase": "base_building",
+      "domain": "running",
+      "workout": {
+        "type": "long_run",
+        "description": "**Mobility:** 15 min post-long-run recovery",
+        "duration_minutes": 15,
+        "intensity": "moderate"
+      },
+      "status": "planned",
+      "actual_performance": null,
+      "adjustments": []
+    },
+    {
+      "id": "da612fd9-54e6-4891-be41-429ab0706883",
+      "date": "2026-01-04",
+      "week_number": 6,
+      "phase": "early_quality",
+      "domain": "running",
+      "workout": {
+        "type": "running",
+        "description": "**Mobility:** 50 min comprehensive session 15 min foam rolling 30 min stretching/yoga 5 min PTT drills",
+        "duration_minutes": 50
+      },
+      "status": "planned",
+      "actual_performance": null,
+      "adjustments": []
+    },
+    {
+      "id": "2fc747c6-93d3-4c76-acea-8421c5635f4f",
+      "date": "2026-01-04",
+      "week_number": 6,
+      "phase": "early_quality",
+      "domain": "mobility",
+      "workout": {
+        "type": "ptt_exercises",
+        "description": "15 min foam rolling 30 min stretching/yoga 5 min PTT drills",
+        "duration_minutes": 15
+      },
+      "status": "planned",
+      "actual_performance": null,
+      "adjustments": []
+    },
+    {
+      "id": "a2052c76-5f51-4376-9391-435e3d6079fb",
+      "date": "2026-01-05",
+      "week_number": 6,
+      "phase": "early_quality",
+      "domain": "running",
+      "workout": {
+        "type": "running",
+        "description": "**Mobility:** 10 min PTT exercises",
+        "duration_minutes": 10
+      },
+      "status": "planned",
+      "actual_performance": null,
+      "adjustments": []
+    },
+    {
+      "id": "8890382e-bdb7-4b3b-9812-05aaa749754b",
+      "date": "2026-01-06",
+      "week_number": 6,
+      "phase": "early_quality",
+      "domain": "running",
+      "workout": {
+        "type": "running",
+        "description": "**Strength:** PRIMARY Session #4 - Lower + Core (45-50 min) Move to 8-12 rep range, increased load Warmup: 10 min A1. Goblet Squat: 4 \u00d7 8-10 reps (heavier) A2. Single-Leg RDL: 4 \u00d7 8-10 per leg (heavier) B1. Bulgarian Split Squat: 3 \u00d7 10 per leg B2. Side Plank with Leg Raise: 3 \u00d7 25 sec per side C1. Pallof Press (with rotation): 3 \u00d7 10 per side C2. Single-Leg Eccentric Calf: 3 \u00d7 10 per leg **Mobility:** 10 min evening PTT session",
+        "duration_minutes": 50
+      },
+      "status": "planned",
+      "actual_performance": null,
+      "adjustments": []
+    },
+    {
+      "id": "add47381-bc93-417b-9442-65d673b9d1da",
+      "date": "2026-01-06",
+      "week_number": 6,
+      "phase": "early_quality",
+      "domain": "strength",
+      "workout": {
+        "type": "full_body",
+        "description": "Move to 8-12 rep range, increased load Warmup: 10 min A1. Goblet Squat: 4 \u00d7 8-10 reps (heavier) A2. Single-Leg RDL: 4 \u00d7 8-10 per leg (heavier) B1. Bulgarian Split Squat: 3 \u00d7 10 per leg B2. Side Plank with Leg Raise: 3 \u00d7 25 sec per side C1. Pallof Press (with rotation): 3 \u00d7 10 per side C2. Single-Leg Eccentric Calf: 3 \u00d7 10 per leg **Mobility:** 10 min evening PTT session",
+        "duration_minutes": 10
+      },
+      "status": "planned",
+      "actual_performance": null,
+      "adjustments": []
+    },
+    {
+      "id": "26951ba9-a6fd-48ca-ad2d-e60e2cad9d76",
+      "date": "2026-01-07",
+      "week_number": 6,
+      "phase": "early_quality",
+      "domain": "running",
+      "workout": {
+        "type": "running",
+        "description": "**Mobility:** 10 min post-run routine",
+        "duration_minutes": 10
+      },
+      "status": "planned",
+      "actual_performance": null,
+      "adjustments": []
+    },
+    {
+      "id": "16dc0c5c-df07-40b4-8a20-19f7d0e08fb6",
+      "date": "2026-01-08",
+      "week_number": 6,
+      "phase": "early_quality",
+      "domain": "running",
+      "workout": {
+        "type": "easy_run",
+        "description": "10 min Easy warmup 20 min build from E pace to M pace (finish at 9:10/mile) 10 min Easy cooldown **Mobility:** 10 min post-run routine (focus: legs, gentle stretching)",
+        "duration_minutes": 10,
+        "intensity": "easy"
+      },
+      "status": "planned",
+      "actual_performance": null,
+      "adjustments": []
+    },
+    {
+      "id": "26ffea4c-f881-4f59-9ab4-fc19860553cf",
+      "date": "2026-01-09",
+      "week_number": 6,
+      "phase": "early_quality",
+      "domain": "running",
+      "workout": {
+        "type": "tempo",
+        "description": "**Strength:** LIGHT Session #4 - Upper + Core (30-35 min) Warmup: 5 min A1. Bent-Over Row: 3 \u00d7 10-12 reps A2. Step-Up (tempo): 3 \u00d7 8 per leg B1. Dead Bug (extended): 3 \u00d7 12 per side B2. Bird Dog (opposite reach): 3 \u00d7 10 per side C1. Single-Leg Glute Bridge: 3 \u00d7 12 per leg C2. Calf Raise: 3 \u00d7 20 reps **Mobility:** 10 min evening mobility",
+        "duration_minutes": 35,
+        "intensity": "threshold"
+      },
+      "status": "planned",
+      "actual_performance": null,
+      "adjustments": []
+    },
+    {
+      "id": "91193546-9f04-43c1-939d-98d90560f7c3",
+      "date": "2026-01-09",
+      "week_number": 6,
+      "phase": "early_quality",
+      "domain": "strength",
+      "workout": {
+        "type": "full_body",
+        "description": "Warmup: 5 min A1. Bent-Over Row: 3 \u00d7 10-12 reps A2. Step-Up (tempo): 3 \u00d7 8 per leg B1. Dead Bug (extended): 3 \u00d7 12 per side B2. Bird Dog (opposite reach): 3 \u00d7 10 per side C1. Single-Leg Glute Bridge: 3 \u00d7 12 per leg C2. Calf Raise: 3 \u00d7 20 reps **Mobility:** 10 min evening mobility",
+        "duration_minutes": 5
+      },
+      "status": "planned",
+      "actual_performance": null,
+      "adjustments": []
+    },
+    {
+      "id": "983a8a88-8fd2-40cf-9d00-4b7f58f0d556",
+      "date": "2026-01-10",
+      "week_number": 6,
+      "phase": "early_quality",
+      "domain": "running",
+      "workout": {
+        "type": "long_run",
+        "description": "**Mobility:** 15 min post-long-run recovery",
+        "duration_minutes": 15,
+        "intensity": "moderate"
+      },
+      "status": "planned",
+      "actual_performance": null,
+      "adjustments": []
+    },
+    {
+      "id": "864899a7-b431-42c2-9de6-57fe5cf2bbf8",
+      "date": "2026-01-11",
+      "week_number": 7,
+      "phase": "early_quality",
+      "domain": "running",
+      "workout": {
+        "type": "running",
+        "description": "**Mobility:** 55 min comprehensive session 20 min foam rolling (comprehensive sequence) 30 min stretching/yoga (recovery-focused) 5 min PTT drills",
+        "duration_minutes": 55
+      },
+      "status": "planned",
+      "actual_performance": null,
+      "adjustments": []
+    },
+    {
+      "id": "41e1041a-486c-4b0b-8880-155fa0bf0670",
+      "date": "2026-01-11",
+      "week_number": 7,
+      "phase": "early_quality",
+      "domain": "mobility",
+      "workout": {
+        "type": "ptt_exercises",
+        "description": "20 min foam rolling (comprehensive sequence) 30 min stretching/yoga (recovery-focused) 5 min PTT drills",
+        "duration_minutes": 20
+      },
+      "status": "planned",
+      "actual_performance": null,
+      "adjustments": []
+    },
+    {
+      "id": "aa17082c-83a2-43b7-8e0e-094ea6fb182a",
+      "date": "2026-01-12",
+      "week_number": 7,
+      "phase": "early_quality",
+      "domain": "running",
+      "workout": {
+        "type": "running",
+        "description": "**Mobility:** 10 min PTT exercises",
+        "duration_minutes": 10
+      },
+      "status": "planned",
+      "actual_performance": null,
+      "adjustments": []
+    },
+    {
+      "id": "35ebcfd6-555a-48b2-a1a8-42a241b59d87",
+      "date": "2026-01-13",
+      "week_number": 7,
+      "phase": "early_quality",
+      "domain": "running",
+      "workout": {
+        "type": "rest_or_walk",
+        "description": "**Strength:** PRIMARY Session #5 - Lower + Core (45-50 min) Warmup: 10 min A1. Goblet Squat: 4 \u00d7 8-10 reps A2. Single-Leg RDL: 4 \u00d7 8-10 per leg B1. Walking Lunge (weighted): 3 \u00d7 12 per leg B2. Forearm Plank (with alternating leg lift): 3 \u00d7 40 sec C1. Pallof Press (with step): 3 \u00d7 10 per side C2. Eccentric Calf Raise: 3 \u00d7 10 per leg **Mobility:** 10 min evening PTT session",
+        "duration_minutes": 50,
+        "intensity": "recovery"
+      },
+      "status": "planned",
+      "actual_performance": null,
+      "adjustments": []
+    },
+    {
+      "id": "bc79dda5-018c-4740-b71f-86dffd24ad40",
+      "date": "2026-01-13",
+      "week_number": 7,
+      "phase": "early_quality",
+      "domain": "strength",
+      "workout": {
+        "type": "full_body",
+        "description": "Warmup: 10 min A1. Goblet Squat: 4 \u00d7 8-10 reps A2. Single-Leg RDL: 4 \u00d7 8-10 per leg B1. Walking Lunge (weighted): 3 \u00d7 12 per leg B2. Forearm Plank (with alternating leg lift): 3 \u00d7 40 sec C1. Pallof Press (with step): 3 \u00d7 10 per side C2. Eccentric Calf Raise: 3 \u00d7 10 per leg **Mobility:** 10 min evening PTT session",
+        "duration_minutes": 10
+      },
+      "status": "planned",
+      "actual_performance": null,
+      "adjustments": []
+    },
+    {
+      "id": "ceb7fff9-fc57-46ec-9d40-07836d2e740e",
+      "date": "2026-01-14",
+      "week_number": 7,
+      "phase": "early_quality",
+      "domain": "running",
+      "workout": {
+        "type": "running",
+        "description": "**Mobility:** 10 min post-run routine",
+        "duration_minutes": 10
+      },
+      "status": "planned",
+      "actual_performance": null,
+      "adjustments": []
+    },
+    {
+      "id": "9d268f3b-2a6c-43c4-b147-a546583b7aaa",
+      "date": "2026-01-15",
+      "week_number": 7,
+      "phase": "early_quality",
+      "domain": "running",
+      "workout": {
+        "type": "easy_run",
+        "description": "10 min Easy warmup 2 \u00d7 8 min at T pace (8:27/mile, HR 160-170 bpm) 3 min Easy recovery jog between reps 10 min Easy cooldown **Total:** 45 min **Mobility:** 12 min post-run routine (extra recovery attention)",
+        "duration_minutes": 10,
+        "hr_target": "HR 160-170 bpm",
+        "intensity": "easy"
+      },
+      "status": "planned",
+      "actual_performance": null,
+      "adjustments": []
+    },
+    {
+      "id": "4011e789-14e5-45e5-a7ad-6d78c2f1092f",
+      "date": "2026-01-16",
+      "week_number": 7,
+      "phase": "early_quality",
+      "domain": "running",
+      "workout": {
+        "type": "running",
+        "description": "**Strength:** LIGHT Session #5 - Upper + Core (30-35 min) Warmup: 5 min A1. Bent-Over Row: 3 \u00d7 10-12 reps A2. Goblet Squat (light): 3 \u00d7 10 reps B1. Dead Bug: 3 \u00d7 12 per side B2. Bird Dog: 3 \u00d7 10 per side C1. Single-Leg Glute Bridge: 3 \u00d7 12 per leg C2. Calf Raise: 3 \u00d7 20 reps **Mobility:** 10 min evening mobility",
+        "duration_minutes": 35
+      },
+      "status": "planned",
+      "actual_performance": null,
+      "adjustments": []
+    },
+    {
+      "id": "c3ceab27-a1b3-4760-a464-e0843867576e",
+      "date": "2026-01-16",
+      "week_number": 7,
+      "phase": "early_quality",
+      "domain": "strength",
+      "workout": {
+        "type": "maintenance",
+        "description": "Warmup: 5 min A1. Bent-Over Row: 3 \u00d7 10-12 reps A2. Goblet Squat (light): 3 \u00d7 10 reps B1. Dead Bug: 3 \u00d7 12 per side B2. Bird Dog: 3 \u00d7 10 per side C1. Single-Leg Glute Bridge: 3 \u00d7 12 per leg C2. Calf Raise: 3 \u00d7 20 reps **Mobility:** 10 min evening mobility",
+        "duration_minutes": 5
+      },
+      "status": "planned",
+      "actual_performance": null,
+      "adjustments": []
+    },
+    {
+      "id": "16bbd798-eb36-4b15-83de-af13f1fe7f26",
+      "date": "2026-01-17",
+      "week_number": 7,
+      "phase": "early_quality",
+      "domain": "running",
+      "workout": {
+        "type": "long_run",
+        "description": "**Mobility:** 15 min post-long-run recovery",
+        "duration_minutes": 15,
+        "intensity": "moderate"
+      },
+      "status": "planned",
+      "actual_performance": null,
+      "adjustments": []
+    },
+    {
+      "id": "fe6aa70c-751d-41a1-81f6-3fa40f426b10",
+      "date": "2026-01-18",
+      "week_number": 8,
+      "phase": "early_quality",
+      "domain": "running",
+      "workout": {
+        "type": "tempo",
+        "description": "**Mobility:** 55 min comprehensive session 20 min foam rolling 30 min stretching/yoga (recovery emphasis after tempo week) 5 min PTT drills",
+        "duration_minutes": 55,
+        "intensity": "threshold"
+      },
+      "status": "planned",
+      "actual_performance": null,
+      "adjustments": []
+    },
+    {
+      "id": "f8dbda28-02c5-404b-adfc-6d0a76e3f4c7",
+      "date": "2026-01-18",
+      "week_number": 8,
+      "phase": "early_quality",
+      "domain": "mobility",
+      "workout": {
+        "type": "ptt_exercises",
+        "description": "20 min foam rolling 30 min stretching/yoga (recovery emphasis after tempo week) 5 min PTT drills",
+        "duration_minutes": 20
+      },
+      "status": "planned",
+      "actual_performance": null,
+      "adjustments": []
+    },
+    {
+      "id": "5d8912b8-5c4b-4821-b2fa-e23936fff58c",
+      "date": "2026-01-19",
+      "week_number": 8,
+      "phase": "early_quality",
+      "domain": "running",
+      "workout": {
+        "type": "running",
+        "description": "**Mobility:** 10 min PTT exercises",
+        "duration_minutes": 10
+      },
+      "status": "planned",
+      "actual_performance": null,
+      "adjustments": []
+    },
+    {
+      "id": "4dfe9c4b-088e-4ea1-8164-e13c38143863",
+      "date": "2026-01-20",
+      "week_number": 8,
+      "phase": "early_quality",
+      "domain": "running",
+      "workout": {
+        "type": "running",
+        "description": "**Strength:** PRIMARY Session #6 - Lower + Core (45-50 min) Warmup: 10 min A1. Goblet Squat: 4 \u00d7 8-10 reps A2. Single-Leg RDL: 4 \u00d7 8-10 per leg B1. Bulgarian Split Squat: 3 \u00d7 10 per leg B2. Side Plank (weighted): 3 \u00d7 30 sec per side C1. Pallof Press (with rotation): 3 \u00d7 10 per side C2. Single-Leg Eccentric Calf: 3 \u00d7 10 per leg **Mobility:** 10 min evening PTT session",
+        "duration_minutes": 50
+      },
+      "status": "planned",
+      "actual_performance": null,
+      "adjustments": []
+    },
+    {
+      "id": "bfcdeb60-40e3-441d-aeb8-0b72b6db9417",
+      "date": "2026-01-20",
+      "week_number": 8,
+      "phase": "early_quality",
+      "domain": "strength",
+      "workout": {
+        "type": "full_body",
+        "description": "Warmup: 10 min A1. Goblet Squat: 4 \u00d7 8-10 reps A2. Single-Leg RDL: 4 \u00d7 8-10 per leg B1. Bulgarian Split Squat: 3 \u00d7 10 per leg B2. Side Plank (weighted): 3 \u00d7 30 sec per side C1. Pallof Press (with rotation): 3 \u00d7 10 per side C2. Single-Leg Eccentric Calf: 3 \u00d7 10 per leg **Mobility:** 10 min evening PTT session",
+        "duration_minutes": 10
+      },
+      "status": "planned",
+      "actual_performance": null,
+      "adjustments": []
+    },
+    {
+      "id": "85bbedd0-cb40-4331-bab3-29d7d6f3dd39",
+      "date": "2026-01-21",
+      "week_number": 8,
+      "phase": "early_quality",
+      "domain": "running",
+      "workout": {
+        "type": "running",
+        "description": "**Mobility:** 10 min post-run routine",
+        "duration_minutes": 10
+      },
+      "status": "planned",
+      "actual_performance": null,
+      "adjustments": []
+    },
+    {
+      "id": "689a3cc9-0e78-439c-a440-b2f6fa963e08",
+      "date": "2026-01-22",
+      "week_number": 8,
+      "phase": "early_quality",
+      "domain": "running",
+      "workout": {
+        "type": "easy_run",
+        "description": "10 min Easy warmup 3 \u00d7 7 min at T pace (8:27/mile, HR 160-170) 2.5 min Easy recovery between reps 10 min Easy cooldown **Total:** 46 min **Mobility:** 12 min post-run routine",
+        "duration_minutes": 10,
+        "intensity": "easy"
+      },
+      "status": "planned",
+      "actual_performance": null,
+      "adjustments": []
+    },
+    {
+      "id": "52dd76b1-4629-4892-8979-e8cf14b408f8",
+      "date": "2026-01-23",
+      "week_number": 8,
+      "phase": "early_quality",
+      "domain": "running",
+      "workout": {
+        "type": "running",
+        "description": "**Strength:** LIGHT Session #6 - Upper + Core (30-35 min) Warmup: 5 min A1. Bent-Over Row: 3 \u00d7 10-12 reps A2. Step-Up: 3 \u00d7 8 per leg B1. Dead Bug (extended): 3 \u00d7 12 per side B2. Bird Dog (with hold): 3 \u00d7 10 per side C1. Single-Leg Glute Bridge: 3 \u00d7 12 per leg C2. Calf Raise: 3 \u00d7 20 reps **Mobility:** 10 min evening mobility",
+        "duration_minutes": 35
+      },
+      "status": "planned",
+      "actual_performance": null,
+      "adjustments": []
+    },
+    {
+      "id": "24a16218-6e7a-4e80-9de0-771c32ecbdcf",
+      "date": "2026-01-23",
+      "week_number": 8,
+      "phase": "early_quality",
+      "domain": "strength",
+      "workout": {
+        "type": "full_body",
+        "description": "Warmup: 5 min A1. Bent-Over Row: 3 \u00d7 10-12 reps A2. Step-Up: 3 \u00d7 8 per leg B1. Dead Bug (extended): 3 \u00d7 12 per side B2. Bird Dog (with hold): 3 \u00d7 10 per side C1. Single-Leg Glute Bridge: 3 \u00d7 12 per leg C2. Calf Raise: 3 \u00d7 20 reps **Mobility:** 10 min evening mobility",
+        "duration_minutes": 5
+      },
+      "status": "planned",
+      "actual_performance": null,
+      "adjustments": []
+    },
+    {
+      "id": "d7738ed2-1c85-4f71-98a5-0bca8594b27e",
+      "date": "2026-01-24",
+      "week_number": 8,
+      "phase": "early_quality",
+      "domain": "running",
+      "workout": {
+        "type": "long_run",
+        "description": "**Mobility:** 20 min post-long-run recovery (extended for longer run)",
+        "duration_minutes": 20,
+        "intensity": "moderate"
+      },
+      "status": "planned",
+      "actual_performance": null,
+      "adjustments": []
+    },
+    {
+      "id": "c1fff374-07bd-44f9-b4f7-5a413da64af6",
+      "date": "2026-01-25",
+      "week_number": 9,
+      "phase": "early_quality",
+      "domain": "running",
+      "workout": {
+        "type": "running",
+        "description": "**Mobility:** 60 min comprehensive session (extra recovery for peak phase) 20 min foam rolling (thorough full body) 35 min stretching/yoga (emphasis: recovery) 5 min PTT drills",
+        "duration_minutes": 60
+      },
+      "status": "planned",
+      "actual_performance": null,
+      "adjustments": []
+    },
+    {
+      "id": "15c10c73-0b8c-46b2-b63a-74347f513321",
+      "date": "2026-01-25",
+      "week_number": 9,
+      "phase": "early_quality",
+      "domain": "mobility",
+      "workout": {
+        "type": "ptt_exercises",
+        "description": "20 min foam rolling (thorough full body) 35 min stretching/yoga (emphasis: recovery) 5 min PTT drills",
+        "duration_minutes": 20
+      },
+      "status": "planned",
+      "actual_performance": null,
+      "adjustments": []
+    },
+    {
+      "id": "fe7c483a-b5f5-45b6-90d4-b91ceb12efef",
+      "date": "2026-01-26",
+      "week_number": 9,
+      "phase": "early_quality",
+      "domain": "running",
+      "workout": {
+        "type": "running",
+        "description": "**Mobility:** 10 min PTT exercises",
+        "duration_minutes": 10
+      },
+      "status": "planned",
+      "actual_performance": null,
+      "adjustments": []
+    },
+    {
+      "id": "4b9e15d7-4528-4ed9-9e58-f026460bc16a",
+      "date": "2026-01-27",
+      "week_number": 9,
+      "phase": "early_quality",
+      "domain": "running",
+      "workout": {
+        "type": "running",
+        "description": "**Strength:** PRIMARY Session #7 - Maintenance (35-40 min) Warmup: 8 min A1. Goblet Squat: 3 \u00d7 8 reps (maintain load, reduce volume) A2. Single-Leg RDL: 3 \u00d7 8 per leg B1. Bulgarian Split Squat: 2 \u00d7 8 per leg B2. Forearm Plank: 2 \u00d7 40 sec C1. Pallof Press: 2 \u00d7 10 per side C2. Single-Leg Calf: 2 \u00d7 10 per leg **Mobility:** 12 min evening PTT session (extra attention with increased running load)",
+        "duration_minutes": 40
+      },
+      "status": "planned",
+      "actual_performance": null,
+      "adjustments": []
+    },
+    {
+      "id": "8897288e-f21b-49cd-ae07-2e2ffbe16d8c",
+      "date": "2026-01-27",
+      "week_number": 9,
+      "phase": "early_quality",
+      "domain": "strength",
+      "workout": {
+        "type": "full_body",
+        "description": "Warmup: 8 min A1. Goblet Squat: 3 \u00d7 8 reps (maintain load, reduce volume) A2. Single-Leg RDL: 3 \u00d7 8 per leg B1. Bulgarian Split Squat: 2 \u00d7 8 per leg B2. Forearm Plank: 2 \u00d7 40 sec C1. Pallof Press: 2 \u00d7 10 per side C2. Single-Leg Calf: 2 \u00d7 10 per leg **Mobility:** 12 min evening PTT session (extra attention with increased running load)",
+        "duration_minutes": 8
+      },
+      "status": "planned",
+      "actual_performance": null,
+      "adjustments": []
+    },
+    {
+      "id": "4354e6ea-c34a-45a1-979c-919bc33ead61",
+      "date": "2026-01-28",
+      "week_number": 9,
+      "phase": "early_quality",
+      "domain": "running",
+      "workout": {
+        "type": "running",
+        "description": "**Mobility:** 10 min post-run routine",
+        "duration_minutes": 10
+      },
+      "status": "planned",
+      "actual_performance": null,
+      "adjustments": []
+    },
+    {
+      "id": "6a9d3040-de83-4fa8-9a9d-f538855435f1",
+      "date": "2026-01-29",
+      "week_number": 9,
+      "phase": "early_quality",
+      "domain": "running",
+      "workout": {
+        "type": "easy_run",
+        "description": "10 min Easy warmup 20 min continuous at T pace (8:27/mile, HR 160-170) 10 min Easy cooldown **Total:** 40 min **Mobility:** 12 min post-run routine",
+        "duration_minutes": 10,
+        "intensity": "easy"
+      },
+      "status": "planned",
+      "actual_performance": null,
+      "adjustments": []
+    },
+    {
+      "id": "6fe340e3-4087-4826-b1d2-1c330f74fe8b",
+      "date": "2026-01-30",
+      "week_number": 9,
+      "phase": "early_quality",
+      "domain": "running",
+      "workout": {
+        "type": "running",
+        "description": "**Strength:** LIGHT Session #7 - Minimal (20-25 min) Warmup: 5 min A1. Bent-Over Row: 2 \u00d7 10 reps A2. Goblet Squat: 2 \u00d7 8 reps B1. Dead Bug: 2 \u00d7 10 per side B2. Glute Bridge: 2 \u00d7 12 reps C1. Calf Raise: 2 \u00d7 15 reps **Mobility:** 10 min evening mobility",
+        "duration_minutes": 25
+      },
+      "status": "planned",
+      "actual_performance": null,
+      "adjustments": []
+    },
+    {
+      "id": "731a3606-6fef-4a60-9ea2-298c11d3bd86",
+      "date": "2026-01-30",
+      "week_number": 9,
+      "phase": "early_quality",
+      "domain": "strength",
+      "workout": {
+        "type": "full_body",
+        "description": "Warmup: 5 min A1. Bent-Over Row: 2 \u00d7 10 reps A2. Goblet Squat: 2 \u00d7 8 reps B1. Dead Bug: 2 \u00d7 10 per side B2. Glute Bridge: 2 \u00d7 12 reps C1. Calf Raise: 2 \u00d7 15 reps **Mobility:** 10 min evening mobility",
+        "duration_minutes": 5
+      },
+      "status": "planned",
+      "actual_performance": null,
+      "adjustments": []
+    },
+    {
+      "id": "450317b3-34d1-46fd-b65f-0cdf09bdb56f",
+      "date": "2026-01-31",
+      "week_number": 9,
+      "phase": "early_quality",
+      "domain": "running",
+      "workout": {
+        "type": "easy_run",
+        "description": "**Critical:** Maintain E pace (10:20-10:40/mile range) throughout Should finish feeling like you could continue Take walk breaks if needed **Mobility:** 20 min post-long-run recovery (extended time for peak volume)",
+        "duration_minutes": 20,
+        "intensity": "easy"
+      },
+      "status": "planned",
+      "actual_performance": null,
+      "adjustments": []
+    },
+    {
+      "id": "9b6de2a0-3ec4-4a49-a866-0e7c52b6c77f",
+      "date": "2026-02-01",
+      "week_number": 10,
+      "phase": "early_quality",
+      "domain": "running",
+      "workout": {
+        "type": "running",
+        "description": "**Mobility:** 60 min comprehensive session 20 min foam rolling 35 min stretching/yoga (prepare for HM pace work) 5 min PTT drills",
+        "duration_minutes": 60
+      },
+      "status": "planned",
+      "actual_performance": null,
+      "adjustments": []
+    },
+    {
+      "id": "36c31ca4-8489-4314-9a54-370ce32aafcb",
+      "date": "2026-02-01",
+      "week_number": 10,
+      "phase": "early_quality",
+      "domain": "mobility",
+      "workout": {
+        "type": "ptt_exercises",
+        "description": "20 min foam rolling 35 min stretching/yoga (prepare for HM pace work) 5 min PTT drills",
+        "duration_minutes": 20
+      },
+      "status": "planned",
+      "actual_performance": null,
+      "adjustments": []
+    },
+    {
+      "id": "668f8494-46d8-4a7d-8dd4-836bc1fd632a",
+      "date": "2026-02-02",
+      "week_number": 10,
+      "phase": "early_quality",
+      "domain": "running",
+      "workout": {
+        "type": "running",
+        "description": "**Mobility:** 10 min PTT exercises",
+        "duration_minutes": 10
+      },
+      "status": "planned",
+      "actual_performance": null,
+      "adjustments": []
+    },
+    {
+      "id": "8fdb36c3-7862-433c-af57-b7d6ecaa7dce",
+      "date": "2026-02-03",
+      "week_number": 10,
+      "phase": "early_quality",
+      "domain": "running",
+      "workout": {
+        "type": "rest_or_walk",
+        "description": "**Strength:** PRIMARY Session #8 - Maintenance (35-40 min) Warmup: 8 min A1. Goblet Squat: 3 \u00d7 8 reps A2. Single-Leg RDL: 3 \u00d7 8 per leg B1. Walking Lunge: 2 \u00d7 10 per leg B2. Side Plank: 2 \u00d7 30 sec per side C1. Pallof Press: 2 \u00d7 10 per side C2. Eccentric Calf: 2 \u00d7 10 per leg **Mobility:** 12 min evening PTT session",
+        "duration_minutes": 40,
+        "intensity": "recovery"
+      },
+      "status": "planned",
+      "actual_performance": null,
+      "adjustments": []
+    },
+    {
+      "id": "ce8c582f-cd76-4e92-8c13-8216742b09b1",
+      "date": "2026-02-03",
+      "week_number": 10,
+      "phase": "early_quality",
+      "domain": "strength",
+      "workout": {
+        "type": "full_body",
+        "description": "Warmup: 8 min A1. Goblet Squat: 3 \u00d7 8 reps A2. Single-Leg RDL: 3 \u00d7 8 per leg B1. Walking Lunge: 2 \u00d7 10 per leg B2. Side Plank: 2 \u00d7 30 sec per side C1. Pallof Press: 2 \u00d7 10 per side C2. Eccentric Calf: 2 \u00d7 10 per leg **Mobility:** 12 min evening PTT session",
+        "duration_minutes": 8
+      },
+      "status": "planned",
+      "actual_performance": null,
+      "adjustments": []
+    },
+    {
+      "id": "bc06d2d4-7dae-44c4-a102-92f6efc33ecd",
+      "date": "2026-02-04",
+      "week_number": 10,
+      "phase": "early_quality",
+      "domain": "running",
+      "workout": {
+        "type": "running",
+        "description": "**Mobility:** 10 min post-run routine",
+        "duration_minutes": 10
+      },
+      "status": "planned",
+      "actual_performance": null,
+      "adjustments": []
+    },
+    {
+      "id": "a3048de4-6bc5-4f51-b5ab-3d9f97f349a7",
+      "date": "2026-02-05",
+      "week_number": 10,
+      "phase": "early_quality",
+      "domain": "running",
+      "workout": {
+        "type": "easy_run",
+        "description": "10 min Easy warmup 2 \u00d7 12 min at B-goal HM pace (8:33/mile, HR 155-165) 3 min Easy recovery jog between reps 10 min Easy cooldown **Total:** 47 min **Purpose:** Practice race pace, assess readiness **Mobility:** 12 min post-run routine",
+        "duration_minutes": 10,
+        "intensity": "easy"
+      },
+      "status": "planned",
+      "actual_performance": null,
+      "adjustments": []
+    },
+    {
+      "id": "0c36ec1b-c13b-4119-8950-99e098653ffb",
+      "date": "2026-02-06",
+      "week_number": 10,
+      "phase": "early_quality",
+      "domain": "running",
+      "workout": {
+        "type": "running",
+        "description": "**Strength:** LIGHT Session #8 - Minimal (20-25 min) Warmup: 5 min A1. Bent-Over Row: 2 \u00d7 10 reps A2. Step-Up: 2 \u00d7 8 per leg B1. Dead Bug: 2 \u00d7 10 per side B2. Single-Leg Glute Bridge: 2 \u00d7 10 per leg C1. Calf Raise: 2 \u00d7 15 reps **Mobility:** 10 min evening mobility",
+        "duration_minutes": 25
+      },
+      "status": "planned",
+      "actual_performance": null,
+      "adjustments": []
+    },
+    {
+      "id": "8622167b-e91e-45d6-8577-3dbaf6e9b368",
+      "date": "2026-02-06",
+      "week_number": 10,
+      "phase": "early_quality",
+      "domain": "strength",
+      "workout": {
+        "type": "full_body",
+        "description": "Warmup: 5 min A1. Bent-Over Row: 2 \u00d7 10 reps A2. Step-Up: 2 \u00d7 8 per leg B1. Dead Bug: 2 \u00d7 10 per side B2. Single-Leg Glute Bridge: 2 \u00d7 10 per leg C1. Calf Raise: 2 \u00d7 15 reps **Mobility:** 10 min evening mobility",
+        "duration_minutes": 5
+      },
+      "status": "planned",
+      "actual_performance": null,
+      "adjustments": []
+    },
+    {
+      "id": "73e8db77-06a2-4331-a2a6-a986adb317ad",
+      "date": "2026-02-07",
+      "week_number": 10,
+      "phase": "early_quality",
+      "domain": "running",
+      "workout": {
+        "type": "easy_run",
+        "description": "**Strategy:** First 80-90 min at comfortable E pace (10:20-10:40/mile) **Optional:** Final 20-30 min can progress to M pace (9:10/mile) as race simulation This is 2 weeks before race - perfect timing for peak long run Stay controlled, finish strong but not exhausted **Mobility:** 20 min post-long-run recovery",
+        "duration_minutes": 90,
+        "intensity": "easy"
+      },
+      "status": "planned",
+      "actual_performance": null,
+      "adjustments": []
+    },
+    {
+      "id": "645c57a3-4aa6-469c-a31c-95c0e5547e7f",
+      "date": "2026-02-08",
+      "week_number": 11,
+      "phase": "early_quality",
+      "domain": "running",
+      "workout": {
+        "type": "running",
+        "description": "**Mobility:** 60 min comprehensive session 20 min foam rolling 35 min stretching/yoga (begin preparing for taper) 5 min PTT drills",
+        "duration_minutes": 60
+      },
+      "status": "planned",
+      "actual_performance": null,
+      "adjustments": []
+    },
+    {
+      "id": "90598375-2d9a-453c-a35f-4821debd70f9",
+      "date": "2026-02-08",
+      "week_number": 11,
+      "phase": "early_quality",
+      "domain": "mobility",
+      "workout": {
+        "type": "ptt_exercises",
+        "description": "20 min foam rolling 35 min stretching/yoga (begin preparing for taper) 5 min PTT drills",
+        "duration_minutes": 20
+      },
+      "status": "planned",
+      "actual_performance": null,
+      "adjustments": []
+    },
+    {
+      "id": "b32faf12-ea24-409f-9289-008edfdb9b09",
+      "date": "2026-02-09",
+      "week_number": 11,
+      "phase": "early_quality",
+      "domain": "running",
+      "workout": {
+        "type": "running",
+        "description": "**Mobility:** 10 min PTT exercises",
+        "duration_minutes": 10
+      },
+      "status": "planned",
+      "actual_performance": null,
+      "adjustments": []
+    },
+    {
+      "id": "bc0b507c-27f2-4582-9ebe-971e0433d01a",
+      "date": "2026-02-10",
+      "week_number": 11,
+      "phase": "early_quality",
+      "domain": "running",
+      "workout": {
+        "type": "running",
+        "description": "**Strength:** PRIMARY Session #9 - Maintenance (35-40 min) Warmup: 8 min A1. Goblet Squat: 3 \u00d7 8 reps A2. Single-Leg RDL: 3 \u00d7 8 per leg B1. Bulgarian Split Squat: 2 \u00d7 8 per leg B2. Forearm Plank: 2 \u00d7 40 sec C1. Pallof Press: 2 \u00d7 10 per side C2. Single-Leg Calf: 2 \u00d7 10 per leg **Mobility:** 12 min evening PTT session",
+        "duration_minutes": 40
+      },
+      "status": "planned",
+      "actual_performance": null,
+      "adjustments": []
+    },
+    {
+      "id": "661bf699-dca9-4650-ad1d-cbf0ffe5ae0b",
+      "date": "2026-02-10",
+      "week_number": 11,
+      "phase": "early_quality",
+      "domain": "strength",
+      "workout": {
+        "type": "full_body",
+        "description": "Warmup: 8 min A1. Goblet Squat: 3 \u00d7 8 reps A2. Single-Leg RDL: 3 \u00d7 8 per leg B1. Bulgarian Split Squat: 2 \u00d7 8 per leg B2. Forearm Plank: 2 \u00d7 40 sec C1. Pallof Press: 2 \u00d7 10 per side C2. Single-Leg Calf: 2 \u00d7 10 per leg **Mobility:** 12 min evening PTT session",
+        "duration_minutes": 8
+      },
+      "status": "planned",
+      "actual_performance": null,
+      "adjustments": []
+    },
+    {
+      "id": "67dec49c-2a02-4696-9f67-ba394f84d807",
+      "date": "2026-02-11",
+      "week_number": 11,
+      "phase": "early_quality",
+      "domain": "running",
+      "workout": {
+        "type": "running",
+        "description": "**Mobility:** 10 min post-run routine",
+        "duration_minutes": 10
+      },
+      "status": "planned",
+      "actual_performance": null,
+      "adjustments": []
+    },
+    {
+      "id": "a5857c48-7315-452e-9b78-87126d3c1354",
+      "date": "2026-02-12",
+      "week_number": 11,
+      "phase": "early_quality",
+      "domain": "running",
+      "workout": {
+        "type": "easy_run",
+        "description": "10 min Easy warmup 6 \u00d7 3 min at I pace (7:55/mile, HR 170-180) 2 min Easy recovery jog between reps 10 min Easy cooldown **Total:** 44 min **Purpose:** Sharpen speed, VO2 max stimulus **Mobility:** 12 min post-run routine",
+        "duration_minutes": 10,
+        "intensity": "easy"
+      },
+      "status": "planned",
+      "actual_performance": null,
+      "adjustments": []
+    },
+    {
+      "id": "c600ec72-1979-4e51-8e76-ddfeede87ef5",
+      "date": "2026-02-13",
+      "week_number": 11,
+      "phase": "early_quality",
+      "domain": "running",
+      "workout": {
+        "type": "running",
+        "description": "**Strength:** LIGHT Session #9 - Minimal (20-25 min) Warmup: 5 min A1. Bent-Over Row: 2 \u00d7 10 reps A2. Goblet Squat: 2 \u00d7 8 reps B1. Dead Bug: 2 \u00d7 10 per side B2. Glute Bridge: 2 \u00d7 12 reps C1. Calf Raise: 2 \u00d7 15 reps **Mobility:** 10 min evening mobility",
+        "duration_minutes": 25
+      },
+      "status": "planned",
+      "actual_performance": null,
+      "adjustments": []
+    },
+    {
+      "id": "be138446-3516-4ca5-aced-d029b45cb529",
+      "date": "2026-02-13",
+      "week_number": 11,
+      "phase": "early_quality",
+      "domain": "strength",
+      "workout": {
+        "type": "full_body",
+        "description": "Warmup: 5 min A1. Bent-Over Row: 2 \u00d7 10 reps A2. Goblet Squat: 2 \u00d7 8 reps B1. Dead Bug: 2 \u00d7 10 per side B2. Glute Bridge: 2 \u00d7 12 reps C1. Calf Raise: 2 \u00d7 15 reps **Mobility:** 10 min evening mobility",
+        "duration_minutes": 5
+      },
+      "status": "planned",
+      "actual_performance": null,
+      "adjustments": []
+    },
+    {
+      "id": "25184091-6f11-4f46-9096-bb843c0030cb",
+      "date": "2026-02-14",
+      "week_number": 11,
+      "phase": "early_quality",
+      "domain": "running",
+      "workout": {
+        "type": "easy_run",
+        "description": "E pace (10:20-10:40/mile), stay relaxed This cutback allows recovery from last week's peak while maintaining fitness 1 week before race - perfect for final long effort **Mobility:** 20 min post-long-run recovery",
+        "duration_minutes": 20,
+        "intensity": "easy"
+      },
+      "status": "planned",
+      "actual_performance": null,
+      "adjustments": []
+    },
+    {
+      "id": "c483b36a-d59c-4cef-b487-3faf688ce793",
+      "date": "2026-02-15",
+      "week_number": 12,
+      "phase": "taper",
+      "domain": "running",
+      "workout": {
+        "type": "race_pace",
+        "description": "**Mobility:** 45 min comprehensive session (final major mobility before race) 15 min foam rolling (gentle, no deep work) 25 min stretching/yoga (focus: relaxation, flexibility) 5 min PTT drills",
+        "duration_minutes": 45,
+        "intensity": "hard"
+      },
+      "status": "planned",
+      "actual_performance": null,
+      "adjustments": []
+    },
+    {
+      "id": "0f2149cc-48d9-4d13-9d70-698f8a2275ba",
+      "date": "2026-02-15",
+      "week_number": 12,
+      "phase": "taper",
+      "domain": "mobility",
+      "workout": {
+        "type": "ptt_exercises",
+        "description": "15 min foam rolling (gentle, no deep work) 25 min stretching/yoga (focus: relaxation, flexibility) 5 min PTT drills",
+        "duration_minutes": 15
+      },
+      "status": "planned",
+      "actual_performance": null,
+      "adjustments": []
+    },
+    {
+      "id": "80e5a18f-8b02-4670-ad7b-1b3e9b19bbeb",
+      "date": "2026-02-16",
+      "week_number": 12,
+      "phase": "taper",
+      "domain": "running",
+      "workout": {
+        "type": "running",
+        "description": "**Mobility:** 10 min PTT exercises",
+        "duration_minutes": 10
+      },
+      "status": "planned",
+      "actual_performance": null,
+      "adjustments": []
+    },
+    {
+      "id": "1eeecca4-d1af-4d11-a47f-4f3dbde9e0c1",
+      "date": "2026-02-17",
+      "week_number": 12,
+      "phase": "taper",
+      "domain": "running",
+      "workout": {
+        "type": "race_pace",
+        "description": "**Strength:** NO STRENGTH - allow full recovery for race week **Mobility:** 15 min gentle mobility + PTT drills",
+        "duration_minutes": 15,
+        "intensity": "hard"
+      },
+      "status": "planned",
+      "actual_performance": null,
+      "adjustments": []
+    },
+    {
+      "id": "70b532c1-5e69-4a39-ad44-5400fb1a4c1d",
+      "date": "2026-02-17",
+      "week_number": 12,
+      "phase": "taper",
+      "domain": "strength",
+      "workout": {
+        "type": "full_body",
+        "description": "**Mobility:** 15 min gentle mobility + PTT drills",
+        "duration_minutes": 15
+      },
+      "status": "planned",
+      "actual_performance": null,
+      "adjustments": []
+    },
+    {
+      "id": "b950d108-f42c-4b5d-8f31-cb151b0241c7",
+      "date": "2026-02-18",
+      "week_number": 12,
+      "phase": "taper",
+      "domain": "running",
+      "workout": {
+        "type": "running",
+        "description": "**Mobility:** 10 min light stretching",
+        "duration_minutes": 10
+      },
+      "status": "planned",
+      "actual_performance": null,
+      "adjustments": []
+    },
+    {
+      "id": "dc52f52c-2ff7-4367-ae18-98bb9e3f4648",
+      "date": "2026-02-19",
+      "week_number": 12,
+      "phase": "taper",
+      "domain": "running",
+      "workout": {
+        "type": "easy_run",
+        "description": "10 min Easy warmup 6 \u00d7 30 sec at I pace (7:55/mile) with 90 sec jog recovery 10 min Easy cooldown **Total:** 25 min **Purpose:** Activate legs, practice race speed feel **Mobility:** 10 min gentle post-run routine",
+        "duration_minutes": 10,
+        "intensity": "easy"
+      },
+      "status": "planned",
+      "actual_performance": null,
+      "adjustments": []
+    },
+    {
+      "id": "e3b4bcc3-0194-49aa-af5e-9c3224165123",
+      "date": "2026-02-20",
+      "week_number": 12,
+      "phase": "taper",
+      "domain": "running",
+      "workout": {
+        "type": "running",
+        "description": "**Strength:** NO STRENGTH **Mobility:** 15 min gentle stretching + PTT drills (keep relaxed)",
+        "duration_minutes": 15
+      },
+      "status": "planned",
+      "actual_performance": null,
+      "adjustments": []
+    },
+    {
+      "id": "e0631dda-e97a-4512-b149-181fe30dadf9",
+      "date": "2026-02-20",
+      "week_number": 12,
+      "phase": "taper",
+      "domain": "strength",
+      "workout": {
+        "type": "full_body",
+        "description": "**Mobility:** 15 min gentle stretching + PTT drills (keep relaxed)",
+        "duration_minutes": 15
+      },
+      "status": "planned",
+      "actual_performance": null,
+      "adjustments": []
+    },
+    {
+      "id": "572fc1ec-5695-4ec4-b719-593591237a69",
+      "date": "2026-02-21",
+      "week_number": 12,
+      "phase": "taper",
+      "domain": "running",
+      "workout": {
+        "type": "running",
+        "description": "Very light effort, just activate legs Keep HR below 140 bpm **Mobility:** 10 min gentle mobility (hip circles, leg swings, light stretches)",
+        "duration_minutes": 10
+      },
+      "status": "planned",
+      "actual_performance": null,
+      "adjustments": []
+    }
+  ]
+}
