@@ -2,7 +2,7 @@
 
 An AI-powered training guidance system that provides personalized coaching across four domains: running, strength, mobility, and nutrition.
 
-**Data Philosophy:** Your Garmin device collects the data. This system makes intelligent coaching decisions based on that data. We leverage Garmin's expertise in biometric tracking (HR zones, lactate threshold, HRV, training readiness, VO2 max) and focus on what AI does best: interpreting those metrics to provide personalized training guidance.
+**Data Philosophy:** Your Garmin device collects the data. This system makes intelligent coaching decisions based on that data.
 
 Designed to work with [Claude Code](https://docs.claude.com/en/docs/claude-code) or as a standalone CLI tool.
 
@@ -10,377 +10,138 @@ Designed to work with [Claude Code](https://docs.claude.com/en/docs/claude-code)
 
 ### 🏃 Specialized Coaching Domains
 
-- **Running Coach** - VDOT-based training using Jack Daniels methodology with periodized workout planning
+- **Running Coach** - VDOT-based training using Jack Daniels methodology
 - **Strength Coach** - Runner-specific strength training coordinated with running schedule
-- **Mobility Coach** - Recovery protocols and flexibility work for distance running
-- **Nutrition Coach** - Fueling strategies for endurance training with dietary customization
+- **Mobility Coach** - Recovery protocols and flexibility work
+- **Nutrition Coach** - Fueling strategies with dietary customization (gluten-free, dairy-free)
 
 ### 📊 Health Data Integration
 
-The system uses objective metrics from your Garmin device to inform coaching decisions:
-
 - **Direct Garmin Connect Sync** - Automatic import of activities, sleep, HR, VO2 max, and biometric data
-- **VDOT Calculator** - Official Jack Daniels formulas for accurate training pace calculations from race performances
-- **Garmin-Provided Analytics** - Leverages Garmin's HR zone analysis, lactate threshold detection, HRV, and training readiness scores
-- **Calendar Integration** - Import scheduled workouts from FinalSurge, TrainingPeaks, or any ICS calendar
-- **Data-Informed Coaching** - AI coaches interpret Garmin metrics to adjust training intensity, volume, and recovery
-
-*The app focuses on making intelligent coaching decisions based on data from your Garmin device, not on collecting or analyzing metrics.*
+- **VDOT Calculator** - Official Jack Daniels formulas for training pace calculations
+- **Garmin-Provided Analytics** - HR zone analysis, lactate threshold, HRV, training readiness scores
+- **Calendar Integration** - Import/export workouts from FinalSurge, TrainingPeaks, or any ICS calendar
 
 ### 📚 Workout Library
 
-- **Searchable Database** - 19+ pre-built workout templates across all coaching domains
-- **Smart Filtering** - Search by domain, type, difficulty, duration, VDOT range, equipment, and tags
-- **Easy Customization** - Import workouts as templates and adapt to athlete-specific needs
-- **Command-Line Access** - Simple CLI for browsing and managing workouts
-
-### 🎯 Personalized Training
-
-- Athlete-specific context files for goals, preferences, and constraints
-- Data-driven coaching decisions based on objective metrics
-- Conservative adjustments when recovery is compromised
-- Coordination across all coaching domains
+- 19+ pre-built workout templates across all coaching domains
+- Smart filtering by domain, type, difficulty, duration, VDOT range
+- Command-line access for easy browsing and customization
 
 ### 💬 Flexible Communication
 
-- **Adjustable Detail Levels** - Choose BRIEF, STANDARD, or DETAILED response modes
-- **BRIEF Mode** (default) - Quick, scannable workouts with just time/intensity/pace
-- **STANDARD Mode** - Balanced guidance with context and rationale
+- **BRIEF Mode** (default) - Quick, scannable workouts
+- **STANDARD Mode** - Balanced guidance with context
 - **DETAILED Mode** - Comprehensive explanations with physiological reasoning
-- **Dynamic Switching** - Change detail level anytime during coaching sessions
 
 ### 📱 Enhanced Morning Reports
 
-- **AI-Powered Notifications** - Daily training recommendations via Termux notifications
-- **Terminal Dashboard** - Comprehensive text report with visual indicators and recovery metrics
-- **HTML Dashboard** - Beautiful mobile-friendly report with charts and gauges
-- **Recovery Analytics** - Sleep quality, RHR trends, training readiness scoring
-- **Training Load Tracking** - ATL/CTL/TSB visualization (acute/chronic/balance)
-- **Weather Integration** - Pace adjustments and timing recommendations for heat/humidity
-- **Gear Tracking** - Shoe mileage alerts for injury prevention
+- **AI-Powered Notifications** - Daily training recommendations
+- **Terminal Dashboard** - Comprehensive text report with recovery metrics
+- **HTML Dashboard** - Beautiful mobile-friendly report with charts
+- **Recovery Analytics** - Sleep quality, RHR trends, training readiness
+- **Weather Integration** - Pace adjustments for heat/humidity
 
 ## Quick Start
 
-### Using Claude Code (Recommended)
+See **[QUICKSTART.md](docs/QUICKSTART.md)** for detailed setup instructions.
 
-Use this project directly in [Claude Code](https://docs.claude.com/en/docs/claude-code):
+### Using Claude Code (Recommended)
 
 1. Clone the repository and open in Claude Code
 2. Set Garmin credentials: `export GARMIN_EMAIL=...` and `export GARMIN_PASSWORD=...`
 3. Install dependencies: `pip install -r requirements.txt`
 4. Sync health data: `bash bin/sync_garmin_data.sh --days 90`
-5. Interact with the coaching agents directly in Claude Code
+5. Interact with the coaching agents in `.claude/agents/`
 
-The agents in `.claude/agents/` will automatically load your athlete profile and health data.
-
-### Customize Your Athlete Profile
+### Customize Your Profile
 
 Edit the files in `data/athlete/` to personalize your coaching:
-
-- `goals.md` - Your performance goals and training objectives
+- `goals.md` - Performance goals and training objectives
 - `training_preferences.md` - Schedule constraints and workout preferences
-- `training_history.md` - Injury history and past training patterns
-- `upcoming_races.md` - Race schedule and goal times
-- `current_training_status.md` - Current VDOT and training phase
-- `communication_preferences.md` - Detail level for coaching responses (BRIEF/STANDARD/DETAILED)
+- `communication_preferences.md` - Detail level (BRIEF/STANDARD/DETAILED)
 
-## Usage
+## Common Commands
 
-### Sync Health Data
-
+### Health Data & Sync
 ```bash
-# Standard sync (last 30 days) with summary
+# Sync from Garmin Connect (last 30 days)
 bash bin/sync_garmin_data.sh
 
-# Sync specific number of days
-bash bin/sync_garmin_data.sh --days 60
-
-# Preview what would be synced without updating
-bash bin/sync_garmin_data.sh --check-only
-```
-
-### Calculate VDOT & Training Paces
-
-Calculate VDOT and training paces from race performances using Jack Daniels' official formulas:
-
-```bash
-# Run standalone calculator
+# Calculate VDOT and training paces from race performance
 python3 src/vdot_calculator.py
 
-# Or import in Python
-from src.vdot_calculator import calculate_vdot_from_race, format_pace
-
-# Example: Half marathon in 1:55:04
-vdot, paces = calculate_vdot_from_race('half', 1, 55, 4)
-# Returns: VDOT 38.3 with all training paces (E, M, T, I, R)
-```
-
-**Features:**
-- Accurate calculations using Jack Daniels' Percent Max and VO2 formulas
-- Training paces for all zones: Easy, Marathon, Threshold, Interval, Repetition
-- Supports 5K, 10K, half marathon, and marathon distances
-- Verified accuracy: Half marathon 1:55:04 correctly calculates to VDOT 38.3
-
-**Coaching agents use this tool to:**
-- Calculate training paces from race results
-- Adjust workout prescriptions to current fitness level
-- Validate pace recommendations against VDOT system
-
-### Check Weather Conditions
-
-Get current weather and hourly forecast to inform training decisions:
-
-```bash
-# Get current conditions and 6-hour forecast
+# Get current weather and forecast
 python3 src/get_weather.py
 ```
 
-**Output includes:**
-- Current temperature and feels-like temperature (°F)
-- Humidity percentage and wind speed
-- UV index (for sun exposure considerations)
-- Weather conditions (clear, cloudy, rain, etc.)
-- Next 6 hours forecast with temps and conditions
-
-**Coaching agents automatically use weather data to:**
-- Adjust pacing recommendations for heat/humidity
-- Modify hydration and electrolyte strategies
-- Provide clothing recommendations
-- Consider UV protection needs
-
-*Requires `termux-api` package for location access. Uses Open-Meteo API (free, no API key needed).*
-
-### Work with Coaching Agents
-
-The system uses specialized AI coaching agents defined in `.claude/agents/`:
-
-- `vdot-running-coach.md` - Running workouts and pacing
-- `runner-strength-coach.md` - Strength programming
-- `mobility-coach-runner.md` - Mobility and recovery
-- `endurance-nutrition-coach.md` - Nutrition and fueling
-
-When using Claude Code, these agents automatically access your athlete profile and health data. Simply open this repository in Claude Code and interact with the agents conversationally.
-
-### Control Response Detail Level
-
-Choose how much detail you want in coaching responses:
-
+### Workout Management
 ```bash
-# View current detail setting
-head -5 data/athlete/communication_preferences.md
-
-# Or just ask the coach to switch modes:
-# "Switch to brief mode"
-# "Give me detailed explanations"
-# "Use standard detail level"
-```
-
-**Example Outputs:**
-
-**BRIEF Mode** (default - quick execution):
-```
-Tomorrow: 45 min E (10:00-11:10)
-Tuesday: 15 min E warmup, 3x10 min T (8:35) w/ 2 min jog, 10 min E cooldown
-```
-
-**STANDARD Mode** (balanced context):
-```
-Tomorrow: 45 min E (10:00-11:10) for recovery
-Tuesday: Threshold - 15 min E, 3x10 min T (8:35) w/ 2 min jog, 10 min E
-Purpose: lactate threshold development
-```
-
-**DETAILED Mode** (comprehensive):
-```
-Full workout with warmup/cooldown, physiological reasoning,
-modification options, integration notes with other training
-```
-
-See [COMMUNICATION_PREFERENCES_GUIDE.md](docs/COMMUNICATION_PREFERENCES_GUIDE.md) for complete guide and examples.
-
-### Workout Library
-
-**Browse Pre-Built Workouts**
-
-Access the searchable workout library:
-
-```bash
-# View library statistics
+# Browse workout library
 bash bin/workout_library.sh stats
-
-# List all workouts (or filter by domain)
-bash bin/workout_library.sh list
-bash bin/workout_library.sh list --domain running
-
-# Search for specific workouts
 bash bin/workout_library.sh search --domain running --type tempo
-bash bin/workout_library.sh search --difficulty beginner --duration-max 30
-bash bin/workout_library.sh search --tags vo2_max intervals
 
-# Get detailed workout information
-bash bin/workout_library.sh get <workout-id>
+# View scheduled workouts
+bash bin/planned_workouts.sh list --upcoming 7 -v
 
-# Export a workout as JSON
-bash bin/workout_library.sh export <workout-id> --output my_workout.json
-
-# Import a custom workout
-bash bin/workout_library.sh import my_custom_workout.json
+# Export workouts to calendar
+bash bin/export_calendar.sh --days 14
 ```
-
-The library contains 19+ workouts:
-- **Running** (10): Intervals, tempo runs, long runs, recovery runs
-- **Strength** (3): Foundation, power, core workouts for runners
-- **Mobility** (3): Pre-run, post-run, hip mobility routines
-- **Nutrition** (3): Race day, long run fueling, recovery nutrition
-
-All workouts include detailed instructions, duration, difficulty, equipment needs, and searchable metadata.
-
-### Calendar Integration
-
-**Import Workouts (from external sources)**
-
-Using a Calendar URL (Recommended):
-```bash
-# 1. Configure your calendar source
-cp config/calendar_sources.json.example config/calendar_sources.json
-# Edit with your calendar URL (e.g., FinalSurge ICS feed)
-
-# 2. Sync - automatically downloads and imports calendar
-bash bin/sync_garmin_data.sh
-```
-
-Using a Local ICS File:
-```bash
-# 1. Save your exported .ics file to data/calendar/
-mkdir -p data/calendar
-# Place training_calendar.ics in this directory
-
-# 2. Run sync
-bash bin/sync_garmin_data.sh
-```
-
-The system merges calendar events (dates) with Garmin workout templates (details) to create a complete 14-day scheduled workout plan.
-
-**Export Workouts (to external calendars)**
-
-Export scheduled workouts to ICS format for Google Calendar, Outlook, Apple Calendar, etc.:
-
-```bash
-# Export next 14 days (default)
-bash bin/export_calendar.sh
-
-# Export next 30 days
-bash bin/export_calendar.sh --days 30
-
-# Export to custom location
-bash bin/export_calendar.sh --output ~/Downloads/workouts.ics
-
-# Export automatically during sync
-python3 src/garmin_sync.py --export-calendar --export-days 21
-```
-
-Import the generated .ics file:
-- **Google Calendar**: Settings → Import & Export → Import
-- **Outlook**: File → Import/Export → Import an iCalendar file
-- **Apple Calendar**: File → Import
 
 ### Morning Reports
-
-Get your daily training overview in three formats:
-
-**1. AI-Powered Brief Report** (Notification):
 ```bash
+# AI-powered brief report (notification)
 bash bin/morning_report.sh
-```
-- Uses Claude Code AI for intelligent recommendations
-- Concise notification (~300 chars) for quick glance
-- Includes recovery status and today's workout
-- Clickable "View Details" button for full report
-- Perfect for automated daily cron jobs
 
-**2. Enhanced Text Report** (Terminal):
-```bash
+# Enhanced text report (terminal)
 bash bin/show_detailed_report.sh
-```
-- Comprehensive terminal dashboard with visual indicators (✓ ⚡ ⚠️)
-- **Recovery status**: Sleep quality, RHR trend, readiness score
-- **Training load**: ATL/CTL/TSB metrics (when available)
-- **Weekly summary**: Last 7 days activity breakdown
-- **Gear alerts**: Shoe mileage warnings (>350mi tracked)
-- **Weather-adjusted pacing**: Heat/humidity compensations
-- **Today's workout**: With timing recommendations
 
-**3. Enhanced HTML Report** (Browser):
+# HTML dashboard (browser)
+bash bin/view_morning_report.sh
+```
+
+### Automation (Termux)
 ```bash
-bash bin/view_morning_report.sh  # Generate and open new report
-bash bin/open_morning_report.sh  # Open existing report
-```
-- Beautiful mobile-friendly dashboard
-- **Recovery gauge**: Visual 0-100 status indicator
-- **Interactive chart**: 7-day activity chart (Chart.js)
-- **Training stress balance**: TSB visualization with status
-- **Metric cards**: Sleep, RHR, training load at-a-glance
-- **Weather conditions**: Current + 6-hour forecast
-- Opens in browser via `termux-share` (most reliable method)
-- Saved to Downloads folder for easy re-access
+# Setup automated sync with cron
+bash bin/setup_cron.sh
 
-All reports include:
-- Current recovery metrics (sleep, RHR, readiness)
-- Days since last hard effort
-- Weather conditions and workout timing guidance
-- Scheduled workout for today
+# Manual sync with notification
+bash bin/sync_with_notification.sh
+```
 
 ## Architecture
 
-### Key Components
-
-**Coaching Agents:**
-- **`.claude/agents/`** - AI coaching agent configurations
-- Specialized agents for running, strength, mobility, and nutrition
+**Coaching Agents** (`.claude/agents/`)
+- AI agents for running, strength, mobility, and nutrition
 - Auto-loaded by Claude Code
 - Access athlete context and health data automatically
 
-**Health Data System:**
-- **`src/garmin_sync.py`** - Garmin Connect API sync
-- **`src/ics_parser.py`** - ICS calendar import
-- **`src/ics_exporter.py`** - ICS calendar export
-- **`src/get_weather.py`** - Weather conditions and forecast
-- **`bin/sync_garmin_data.sh`** - Sync wrapper script
-- **`data/health/health_data_cache.json`** - Cached health metrics
+**Health Data System**
+- `src/garmin_sync.py` - Garmin Connect API sync
+- `data/health/health_data_cache.json` - Cached health metrics
+- Direct API access with OAuth authentication
 
-**Workout Library:**
-- **`src/workout_library.py`** - Library manager (CRUD)
-- **`src/workout_library_cli.py`** - CLI interface
-- **`bin/workout_library.sh`** - CLI wrapper
-- **`data/library/workout_library.json`** - Workout database
+**Athlete Context**
+- `data/athlete/` - Profile, goals, preferences, status
+- Read by all coaching agents for personalized guidance
 
-**Athlete Context:**
-- **`data/athlete/`** - Profile, goals, preferences, status
-- **`.claude/agents/`** - Agent configurations
-
-**See [ARCHITECTURE.md](docs/ARCHITECTURE.md) for complete technical details.**
-
-### Health Data from Garmin Connect
-
-The system consumes metrics directly from Garmin Connect (no manual data entry required):
-
-- **Activities** - All activity types (running, cycling, swimming, strength, walking, yoga, etc.)
-  - Metrics: Distance, duration, pace/speed, heart rate, calories, HR zones (time-in-zone), splits
-  - Activity type normalization for consistency
-- **Sleep** - Total duration, sleep stages, efficiency, sleep score
-- **Recovery Metrics** - Resting heart rate (RHR), HRV, training readiness score
-- **Fitness Indicators** - VO2 max estimates, lactate threshold (HR & pace)
-- **Body Composition** - Weight, body fat %, muscle mass (when available)
-
-These metrics inform coaching decisions but are calculated by Garmin devices, not by this application.
+See **[ARCHITECTURE.md](docs/ARCHITECTURE.md)** for complete technical details.
 
 ## Documentation
 
+**Getting Started:**
+- **[QUICKSTART.md](docs/QUICKSTART.md)** - Step-by-step setup guide
+- **[COMMUNICATION_PREFERENCES_GUIDE.md](docs/COMMUNICATION_PREFERENCES_GUIDE.md)** - Choose your detail level
+
 **System Documentation:**
-- **[HEALTH_DATA_SYSTEM.md](docs/HEALTH_DATA_SYSTEM.md)** - Technical documentation for health data
-- **[AGENT_HEALTH_DATA_GUIDE.md](docs/AGENT_HEALTH_DATA_GUIDE.md)** - Quick reference for agents on health data
-- **[AGENT_WORKOUT_LIBRARY_GUIDE.md](docs/AGENT_WORKOUT_LIBRARY_GUIDE.md)** - Workout library integration guide
-- **[COMMUNICATION_PREFERENCES_GUIDE.md](docs/COMMUNICATION_PREFERENCES_GUIDE.md)** - BRIEF/STANDARD/DETAILED response modes
+- **[ARCHITECTURE.md](docs/ARCHITECTURE.md)** - System design and components
+- **[HEALTH_DATA_SYSTEM.md](docs/HEALTH_DATA_SYSTEM.md)** - Health data technical documentation
+- **[GARMIN_TOKEN_AUTH.md](docs/GARMIN_TOKEN_AUTH.md)** - Authentication setup guide
+
+**Agent Documentation:**
+- **[AGENT_HEALTH_DATA_GUIDE.md](docs/AGENT_HEALTH_DATA_GUIDE.md)** - Using health data in agents
+- **[AGENT_WORKOUT_LIBRARY_GUIDE.md](docs/AGENT_WORKOUT_LIBRARY_GUIDE.md)** - Workout library integration
+- **[AGENT_PLANNED_WORKOUTS_GUIDE.md](docs/AGENT_PLANNED_WORKOUTS_GUIDE.md)** - Managing planned workouts
 
 **Development:**
 - **[CLAUDE.md](CLAUDE.md)** - Development guide for Claude Code integration
@@ -390,22 +151,8 @@ These metrics inform coaching decisions but are calculated by Garmin devices, no
 ```
 running-coach/
 ├── src/                       # Python source code
-│   ├── garmin_sync.py         # Garmin Connect sync
-│   ├── ics_parser.py          # Calendar import
-│   ├── ics_exporter.py        # Calendar export
-│   ├── get_weather.py         # Weather conditions & forecast
-│   ├── workout_library.py     # Workout library CRUD
-│   ├── workout_library_cli.py # Workout CLI
-│   └── seed_workout_library.py
 ├── bin/                       # Executable scripts
-│   ├── sync_garmin_data.sh    # Health data sync
-│   ├── export_calendar.sh     # Calendar export
-│   └── workout_library.sh     # Workout CLI
 ├── docs/                      # Documentation
-│   ├── HEALTH_DATA_SYSTEM.md
-│   ├── AGENT_HEALTH_DATA_GUIDE.md
-│   ├── AGENT_WORKOUT_LIBRARY_GUIDE.md
-│   └── COMMUNICATION_PREFERENCES_GUIDE.md
 ├── data/
 │   ├── athlete/               # Athlete profile & context
 │   ├── health/                # Health data cache
@@ -414,26 +161,23 @@ running-coach/
 │   └── calendar/              # Calendar files
 ├── .claude/agents/            # AI coaching agents
 ├── config/                    # Configuration files
-├── requirements.txt           # Python dependencies
-└── README.md                  # This file
+└── requirements.txt           # Python dependencies
 ```
 
 ## Troubleshooting
 
-### Authentication Issues
-
+**Authentication Issues:**
 ```bash
-# Verify credentials are set
+# Verify credentials
 echo $GARMIN_EMAIL
 echo $GARMIN_PASSWORD
 
-# Clear token cache and re-authenticate
+# Clear cache and re-authenticate
 rm -rf ~/.garminconnect
 bash bin/sync_garmin_data.sh
 ```
 
-### Health Data Not Updating
-
+**Health Data Not Updating:**
 ```bash
 # Run with verbose output
 python3 src/garmin_sync.py --days 7 --summary
@@ -442,77 +186,36 @@ python3 src/garmin_sync.py --days 7 --summary
 python3 -c "import json; print(json.load(open('data/health/health_data_cache.json'))['last_updated'])"
 ```
 
-### Reset Cache
-
+**Reset Cache:**
 ```bash
-# Delete cached data
 rm data/health/health_data_cache.json
-
-# Re-sync historical data
 bash bin/sync_garmin_data.sh --days 90
 ```
 
-## Features in Detail
-
-### Garmin Connect Integration
-
-- **OAuth Authentication** - Secure token-based authentication (tokens valid ~1 year)
-- **Incremental Sync** - Only fetch new data since last sync
-- **Atomic Updates** - Safe concurrent access with atomic file writes
-- **De-duplication** - Automatically handles overlapping date ranges
-
-### Training Methodology
-
-- **Jack Daniels VDOT** - Science-based training paces
-- **Periodization** - Base → Early Quality → Race-Specific → Taper
-- **Recovery-Based Adjustments** - Conservative modifications based on RHR and sleep
-- **Multi-Domain Coordination** - Strength, mobility, and nutrition aligned with running
-
-### Dietary Support
-
-The nutrition coach respects dietary requirements configured in `data/athlete/training_preferences.md`:
-- Gluten-free meal planning
-- Dairy-free alternatives
-- Customizable restrictions
+See **[QUICKSTART.md](docs/QUICKSTART.md)** for more troubleshooting tips.
 
 ## Roadmap
 
-This project is actively evolving. Current development priorities:
-
 ### Enhanced Features
-- [x] **Workout Library** - Searchable database of workouts and training blocks
-- [x] **Adjustable Communication Detail** - BRIEF/STANDARD/DETAILED response modes for coaching agents
-- [ ] **Automated Plan Generation** - Generate multi-week training plans based on race goals
-- [ ] **Email/SMS Notifications** - Workout reminders and recovery alerts
-- [ ] **Integration Testing** - Comprehensive test suite for all coaching domains
-- [ ] **Additional Wearables** - Support for Strava, Polar, Wahoo, etc.
+- [x] Workout Library - Searchable database of workouts and training blocks
+- [x] Adjustable Communication Detail - BRIEF/STANDARD/DETAILED modes
+- [x] Calendar Sync Export - ICS format for Google Calendar, Outlook, Apple Calendar
+- [x] Garmin Metrics Integration - HR zones, lactate threshold, HRV, training readiness
+- [ ] Automated Plan Generation - Multi-week training plans based on race goals
+- [ ] Email/SMS Notifications - Workout reminders and recovery alerts
+- [ ] Additional Wearables - Strava, Polar, Wahoo support
 
 ### Enhanced Coaching Intelligence
-- [x] **Garmin Metrics Integration** - HR zones, lactate threshold, HRV, training readiness, and VO2 max all available to coaching agents
-- [ ] **Contextual Recovery Recommendations** - Suggest workout adjustments based on sleep quality, RHR trends, and training readiness
-- [ ] **Workout Adaptation Engine** - Automatically modify prescribed workouts based on recent performance and recovery data
-- [ ] **Race Strategy Planning** - Generate race-day pacing and fueling strategies using historical performance data
-
-### Mobile & Offline Support
-- [ ] **Native iOS/Android Apps** - Full-featured mobile applications
-- [ ] **Offline Mode** - Access plans and log workouts without internet connection
-- [ ] **Watch App Integration** - Apple Watch, Garmin Connect IQ companion apps
-- [ ] **Push Notifications** - Workout reminders and recovery alerts on mobile devices
+- [ ] Contextual Recovery Recommendations - Workout adjustments based on sleep/RHR/readiness
+- [ ] Workout Adaptation Engine - Auto-modify workouts based on recent performance
+- [ ] Race Strategy Planning - Race-day pacing and fueling strategies
 
 ### Extended Integrations
-- [ ] **Strava Sync** - Two-way sync of activities and training data
-- [ ] **TrainingPeaks Integration** - Import/export structured workouts and plans
-- [ ] **Zwift Integration** - Indoor training workouts and structured plans
-- [ ] **Weather API** - Real-time weather data for workout planning and race day
-- [x] **Calendar Sync Export** - Export workouts to Google Calendar, Outlook, Apple Calendar (ICS format)
+- [ ] Strava Sync - Two-way sync of activities
+- [ ] TrainingPeaks Integration - Import/export structured workouts
+- [ ] Zwift Integration - Indoor training workouts
 
-### Race Day Features
-- [ ] **Race Strategy Generator** - Custom pacing plan based on course elevation profile
-- [ ] **Pre-race Checklist** - Equipment, nutrition, logistics planning tools
-- [ ] **Race Day Weather** - Location-specific forecasts and gear recommendations
-- [ ] **Multi-Race Season Planning** - Coordinate multiple goal races throughout the year
-
-Contributions welcome! See [Contributing](#contributing) section for guidelines.
+Contributions welcome!
 
 ## License
 
