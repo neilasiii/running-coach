@@ -6,6 +6,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This is a **running coach system** that provides personalized training guidance across four coaching domains: running, strength, mobility, and nutrition. The system integrates objective health data directly from **Garmin Connect** to inform coaching decisions with real metrics.
 
+**For new users:** See [docs/QUICKSTART.md](docs/QUICKSTART.md) for setup instructions.
+**For system architecture:** See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for technical details.
+
 ## CRITICAL: Date/Day-of-Week Verification
 
 **MANDATORY FOR CLAUDE AND ALL AGENTS:**
@@ -574,10 +577,19 @@ All coaching agents MUST read these files in [data/athlete/](data/athlete/) befo
 
 ### Documentation
 
-- **[docs/HEALTH_DATA_SYSTEM.md](docs/HEALTH_DATA_SYSTEM.md)** - Complete technical documentation for health data system
+**For Users:**
+- **[docs/QUICKSTART.md](docs/QUICKSTART.md)** - Complete setup guide for new users
+- **[docs/COMMUNICATION_PREFERENCES_GUIDE.md](docs/COMMUNICATION_PREFERENCES_GUIDE.md)** - Guide to BRIEF/STANDARD/DETAILED response modes
+- **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)** - System design and components
+
+**For Agents:**
 - **[docs/AGENT_HEALTH_DATA_GUIDE.md](docs/AGENT_HEALTH_DATA_GUIDE.md)** - Quick reference for agents on using health data
 - **[docs/AGENT_PLANNED_WORKOUTS_GUIDE.md](docs/AGENT_PLANNED_WORKOUTS_GUIDE.md)** - Guide for agents on using the planned workouts system
-- **[docs/COMMUNICATION_PREFERENCES_GUIDE.md](docs/COMMUNICATION_PREFERENCES_GUIDE.md)** - Guide to BRIEF/STANDARD/DETAILED response modes
+- **[docs/AGENT_WORKOUT_LIBRARY_GUIDE.md](docs/AGENT_WORKOUT_LIBRARY_GUIDE.md)** - Workout library integration guide
+
+**Technical References:**
+- **[docs/HEALTH_DATA_SYSTEM.md](docs/HEALTH_DATA_SYSTEM.md)** - Complete technical documentation for health data system
+- **[docs/GARMIN_TOKEN_AUTH.md](docs/GARMIN_TOKEN_AUTH.md)** - Advanced authentication setup
 - **[data/athlete/health_profile.md](data/athlete/health_profile.md)** - Human-readable health summary
 
 ## Health Data Integration
@@ -786,50 +798,32 @@ running-coach/
 
 ## Troubleshooting
 
-### Authentication Issues
-1. Verify environment variables are set:
-   ```bash
-   echo $GARMIN_EMAIL
-   echo $GARMIN_PASSWORD
-   ```
-2. Try re-authenticating by removing token cache:
-   ```bash
-   rm -rf ~/.garminconnect
-   bash bin/sync_garmin_data.sh
-   ```
-3. Check Garmin Connect account status (ensure not locked)
+For comprehensive troubleshooting, see [docs/QUICKSTART.md](docs/QUICKSTART.md#troubleshooting).
 
-### Health Data Not Updating
-1. Check authentication (see above)
-2. Run with verbose output to see errors:
-   ```bash
-   python3 src/garmin_sync.py --days 7 --summary
-   ```
-3. Verify cache timestamp:
-   ```bash
-   python3 -c "import json; print(json.load(open('data/health/health_data_cache.json'))['last_updated'])"
-   ```
-4. Check Garmin Connect API status (may be temporarily unavailable)
+**Quick Fixes:**
 
-### Duplicate Entries
-- System automatically de-duplicates by timestamp
-- Re-syncing same date range is safe (won't create duplicates)
-- Data merged by date/timestamp keys
-
-### Resetting Cache
+**Authentication Issues:**
 ```bash
-# Complete reset (deletes all cached data)
-rm data/health/health_data_cache.json
+# Verify credentials
+echo $GARMIN_EMAIL && echo $GARMIN_PASSWORD
 
-# Then re-sync (e.g., 90 days of history)
+# Clear cache and re-authenticate
+rm -rf ~/.garminconnect && bash bin/sync_garmin_data.sh
+```
+
+**Health Data Not Updating:**
+```bash
+# Run with verbose output
+python3 src/garmin_sync.py --days 7 --summary
+```
+
+**Reset Cache:**
+```bash
+rm data/health/health_data_cache.json
 bash bin/sync_garmin_data.sh --days 90
 ```
 
-### Missing Data
-- Some data types may not be available on all days (e.g., weight, VO2 max)
-- Sleep data requires Garmin device with sleep tracking
-- VO2 max requires GPS activities with heart rate data
-- Check Garmin Connect web/app to verify data is actually available
+For detailed solutions, token-based authentication, and platform-specific issues, see [docs/QUICKSTART.md](docs/QUICKSTART.md#troubleshooting).
 
 ## Development Guidelines
 
