@@ -177,23 +177,30 @@ def parse_baseline_plan(plan_file):
                     i += 1
                     continue
 
-                # Get workout content (everything after the domain label)
-                workout_text = line.split('**:', 1)[1].strip() if '**:' in line else ''
+                # Get workout content (everything after the domain label "**Domain:** ")
+                parts = line.split(':** ', 1)
+                workout_text = parts[1].strip() if len(parts) == 2 else ''
 
-                # Check if workout continues on next lines (indented bullets)
+                # Check if workout continues on next lines (indented bullets or sub-bullets)
+                # But STOP if we encounter a new workout bullet (- **Domain:**)
                 j = i + 1
-                while j < len(lines) and (lines[j].strip().startswith('-') or lines[j].strip().startswith('•') or lines[j].startswith('  ')):
-                    if lines[j].strip():
-                        workout_text += ' ' + lines[j].strip().lstrip('-').lstrip('•').strip()
-                    j += 1
-
-                # Skip processing "REST" workouts - don't add them to planned workouts
-                if 'rest' in workout_text.lower() and domain == 'running' and len(workout_text) < 50:
-                    i += 1
-                    continue
+                while j < len(lines):
+                    next_line = lines[j].strip()
+                    # Stop if we hit a new workout bullet (- **...**:)
+                    if next_line.startswith('- **') and ':**' in next_line:
+                        break
+                    # Stop if we hit an empty line or a header
+                    if not next_line or next_line.startswith('#'):
+                        break
+                    # Include indented lines or sub-bullets
+                    if next_line.startswith('-') or next_line.startswith('•') or lines[j].startswith('  '):
+                        workout_text += ' ' + next_line.lstrip('-').lstrip('•').strip()
+                        j += 1
+                    else:
+                        break
 
                 # Only process non-empty workouts
-                if workout_text and 'rest' not in workout_text.lower()[:20]:
+                if workout_text:
                     # Extract workout based on domain
                     if domain == 'running':
                         workout = extract_running_workout(workout_text)
