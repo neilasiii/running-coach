@@ -604,12 +604,16 @@ All coaching agents MUST read these files in [data/athlete/](data/athlete/) befo
 
 - **[goals.md](data/athlete/goals.md)** - Performance goals, training objectives
 - **[communication_preferences.md](data/athlete/communication_preferences.md)** - Detail level (BRIEF/STANDARD/DETAILED) and response format preferences
-- **[training_history.md](data/athlete/training_history.md)** - Injury history, past training patterns
-- **[training_preferences.md](data/athlete/training_preferences.md)** - Schedule constraints (Mon-Thu workdays 0700-1730), preferred workout structure, dietary requirements (gluten-free, dairy-free)
-- **[upcoming_races.md](data/athlete/upcoming_races.md)** - Race schedule, time goals, taper timing
-- **[current_training_status.md](data/athlete/current_training_status.md)** - Current VDOT, training paces, phase status
-- **[health_data_cache.json](data/health/health_data_cache.json)** - Objective metrics from Garmin Connect
+- **[training_history.md](data/athlete/training_history.md)** - Injury history, past training patterns, equipment (single source of truth for injury details)
+- **[training_preferences.md](data/athlete/training_preferences.md)** - Schedule constraints, preferred workout structure, dietary requirements (gluten-free, dairy-free) (single source of truth for preferences)
+- **[upcoming_races.md](data/athlete/upcoming_races.md)** - Race schedule, time goals, taper timing, post-race reviews
+- **[current_training_status.md](data/athlete/current_training_status.md)** - Current VDOT, training paces, phase status, current plan details
+- **[health_data_cache.json](data/health/health_data_cache.json)** - Objective metrics from Garmin Connect (use this for all health data, not health_profile.md)
 - **[planned_workouts.json](data/plans/planned_workouts.json)** - Scheduled workouts from baseline training plan
+
+**File Organization:** Each file has a specific purpose to avoid redundancy. Files cross-reference each other instead of duplicating information. See [data/athlete/README.md](data/athlete/README.md) for complete organization principles.
+
+**Deprecated:** `health_profile.md` has been deprecated in favor of reading `health_data_cache.json` directly (more current, avoids staleness).
 
 ### Documentation
 
@@ -626,7 +630,6 @@ All coaching agents MUST read these files in [data/athlete/](data/athlete/) befo
 **Technical References:**
 - **[docs/HEALTH_DATA_SYSTEM.md](docs/HEALTH_DATA_SYSTEM.md)** - Complete technical documentation for health data system
 - **[docs/GARMIN_TOKEN_AUTH.md](docs/GARMIN_TOKEN_AUTH.md)** - Advanced authentication setup
-- **[data/athlete/health_profile.md](data/athlete/health_profile.md)** - Human-readable health summary
 
 ## Health Data Integration
 

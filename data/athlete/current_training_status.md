@@ -67,14 +67,12 @@ This file should be updated regularly as fitness evolves and new VDOT calculatio
 - Sleep quality improving but still suboptimal (54/100 score)
 - Early post-marathon recovery period (Day 7)
 - Managing newborn care with training
-- On parental leave through Jan 5, 2026 (flexible scheduling)
-- Return to work schedule Mon-Thu (0700-1730) starting Jan 6
+- Schedule: See training_preferences.md for current parental leave status and work schedule
 
 ### Health Status:
-- Posterior tibialis tendinopathy: currently manageable, no acute symptoms
-- Right wrist: post-surgery (June 2024), avoiding heavy wrist loading
 - Body weight: 170.1 lbs (stable, maintaining well during training)
 - Recovery trending positive: sleep duration improving, RHR stable at 45 bpm
+- Injury history: See training_history.md for PTT and wrist surgery details
 
 ---
 
@@ -100,17 +98,7 @@ This file should be updated regularly as fitness evolves and new VDOT calculatio
 
 ## Schedule Coordination
 
-**Parental Leave Period (Dec 1 - Jan 5):**
-- Flexible workout scheduling
-- Adjust based on sleep and recovery
-- Mon/Wed/Fri/Sat running pattern preferred
-
-**Work Period (Jan 6 - Feb 22):**
-- Mon/Wed: Early morning easy runs
-- Thu: Quality workout during work fitness time (~0715)
-- Sat: Long runs (morning)
-- Tue/Fri: Strength training (no running)
-- Sun: Mobility (no running)
+See `training_preferences.md` for complete schedule constraints. Current training plan accommodates parental leave flexibility through Jan 5, then returns to standard Mon-Thu work schedule.
 
 ---
 
