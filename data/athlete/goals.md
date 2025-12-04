@@ -58,13 +58,11 @@ Agents should use these goals to guide recommendations, maintain alignment acros
 
 ### Mobility Goals
 - Maintain healthy mobility in:
-  - ankles and feet  
-  - calves  
-  - hips  
-  - hamstrings  
-  - thoracic spine  
-
-- Prevent flare-ups of **Posterior Tibialis Tendinopathy** through regular targeted mobility and strengthening.
+  - ankles and feet
+  - calves
+  - hips
+  - hamstrings
+  - thoracic spine
 
 ---
 

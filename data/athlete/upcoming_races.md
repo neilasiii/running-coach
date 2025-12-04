@@ -7,13 +7,6 @@ Agents should use this information to align training phases, taper timing, and r
 
 ## Race Calendar
 
-### Central Florida Legends Skunk Ape Marathon ✓ COMPLETED
-- **Date:** November 23, 2025 (Completed)
-- **Location:** Central Florida
-- **Distance:** Marathon (26.2 miles)
-- **Race Priority:** A-race
-- **Status:** Race completed, in post-race recovery period (through Dec 14, 2025)
-
 ---
 
 ### 2026 Publix Gasparilla Distance Classic Half Marathon
@@ -92,6 +85,17 @@ Agents should reference this file when:
 ## Post-Race Review Section
 
 After each race, add brief notes here for future reference:
+
+### Central Florida Legends Skunk Ape Marathon – November 23, 2025
+- **Actual Finish Time:** 4:35:49 (10:24/mile average pace)
+- **Distance:** 26.49 miles
+- **Avg HR:** 163 bpm, Max HR: 175 bpm
+- **Race Priority:** A-race
+- **Goal Achievement:** Completed marathon despite challenging sleep conditions from newborn care
+- **What Worked Well:** Managed full marathon distance successfully, strong execution given circumstances
+- **What to Improve:** Performance significantly affected by sleep deprivation - marathon VDOT (31.9) much lower than half marathon VDOT (38.3)
+- **Recovery Notes:** 2-week full recovery period (Dec 1-14), return to easy running only
+- **Training Impact:** Use half marathon VDOT (38.3) as fitness baseline for Gasparilla training
 
 ### 2025 Publix Gasparilla Distance Classic Half Marathon – February 2025
 - **Actual Finish Time:** 1:55:04 (8:46/mile average)
