@@ -194,29 +194,6 @@ bash bin/sync_garmin_data.sh --days 90
 
 See **[QUICKSTART.md](docs/QUICKSTART.md)** for more troubleshooting tips.
 
-## Roadmap
-
-### Enhanced Features
-- [x] Workout Library - Searchable database of workouts and training blocks
-- [x] Adjustable Communication Detail - BRIEF/STANDARD/DETAILED modes
-- [x] Calendar Sync Export - ICS format for Google Calendar, Outlook, Apple Calendar
-- [x] Garmin Metrics Integration - HR zones, lactate threshold, HRV, training readiness
-- [ ] Automated Plan Generation - Multi-week training plans based on race goals
-- [ ] Email/SMS Notifications - Workout reminders and recovery alerts
-- [ ] Additional Wearables - Strava, Polar, Wahoo support
-
-### Enhanced Coaching Intelligence
-- [ ] Contextual Recovery Recommendations - Workout adjustments based on sleep/RHR/readiness
-- [ ] Workout Adaptation Engine - Auto-modify workouts based on recent performance
-- [ ] Race Strategy Planning - Race-day pacing and fueling strategies
-
-### Extended Integrations
-- [ ] Strava Sync - Two-way sync of activities
-- [ ] TrainingPeaks Integration - Import/export structured workouts
-- [ ] Zwift Integration - Indoor training workouts
-
-Contributions welcome!
-
 ## License
 
 [Add your license information here]
