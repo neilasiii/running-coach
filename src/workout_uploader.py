@@ -242,6 +242,51 @@ def upload_workout(client: Garmin, workout_json: Dict[str, Any],
         raise
 
 
+def schedule_workout(client: Garmin, workout_id: int, schedule_date: str, quiet: bool = False) -> bool:
+    """
+    Schedule a workout to a specific date on Garmin calendar.
+
+    Args:
+        client: Authenticated Garmin client
+        workout_id: Garmin workout ID (from upload_workout response)
+        schedule_date: Date to schedule in YYYY-MM-DD format
+        quiet: Suppress output messages
+
+    Returns:
+        True if scheduling successful
+
+    Raises:
+        Exception: If scheduling fails
+
+    Example:
+        >>> client = get_garmin_client()
+        >>> response = upload_workout(client, workout)
+        >>> schedule_workout(client, response['workoutId'], "2025-12-10")
+    """
+    if not quiet:
+        print(f"Scheduling workout {workout_id} to {schedule_date}...")
+
+    try:
+        response = client.garth.post(
+            "connectapi",
+            f"/workout-service/schedule/{workout_id}",
+            api=True,
+            json={"date": schedule_date}
+        )
+
+        if response.status_code == 200:
+            if not quiet:
+                print(f"✓ Scheduled workout {workout_id} to {schedule_date}")
+            return True
+        else:
+            raise Exception(f"Scheduling failed with status {response.status_code}")
+
+    except Exception as e:
+        if not quiet:
+            print(f"✗ Failed to schedule workout: {e}", file=sys.stderr)
+        raise
+
+
 def upload_workout_from_file(client: Garmin, file_path: str,
                              auto_clean: bool = True, quiet: bool = False) -> Dict[str, Any]:
     """
