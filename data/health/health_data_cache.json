@@ -1,5 +1,5 @@
 {
-  "last_updated": "2025-12-06T15:05:13.641689+00:00",
+  "last_updated": "2025-12-06T17:07:25.366075+00:00",
   "last_sync_date": "2025-12-06",
   "activities": [
     {
@@ -38690,8 +38690,8 @@
   "stress_readings": [
     {
       "date": "2025-12-06",
-      "avg_stress": 11,
-      "max_stress": 72
+      "avg_stress": 15,
+      "max_stress": 82
     },
     {
       "date": "2025-12-05",
@@ -42919,7 +42919,7 @@
     {
       "date": "2025-12-06",
       "charged": 50,
-      "drained": 9
+      "drained": 28
     },
     {
       "date": "2025-12-05",
@@ -45046,7 +45046,7 @@
   "daily_steps": [
     {
       "date": "2025-12-06",
-      "total_steps": 685,
+      "total_steps": 1391,
       "goal_steps": 11790,
       "goal_met": false
     },
@@ -45256,7 +45256,7 @@
     }
   ],
   "progress_summary": {
-    "start_date": "2025-12-05",
+    "start_date": "2025-11-06",
     "end_date": "2025-12-06",
     "acute_training_load": null,
     "chronic_training_load": null,
