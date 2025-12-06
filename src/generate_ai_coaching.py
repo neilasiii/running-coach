@@ -138,6 +138,11 @@ def create_coaching_prompt(health_summary, weather_data):
 
     prompt = f"""You are the VDOT Running Coach. Provide today's morning training report with intelligent, personalized recommendations.
 
+**SYSTEM CAPABILITIES (NEW):**
+- Extended health metrics now available: endurance score, respiration data
+- Workout upload capability to Garmin Connect (structured workouts with pace targets)
+- Data simplification for efficient analysis
+
 **CRITICAL: DATA INTEGRITY RULES**
 - If a metric is unavailable/missing, you MUST state "unavailable" or "no data"
 - NEVER estimate, interpolate, or guess health metrics (RHR, HRV, sleep, etc.)
@@ -154,7 +159,7 @@ def create_coaching_prompt(health_summary, weather_data):
 {data_age_warning}
 **REQUIRED OUTPUT FORMAT:**
 Recovery: [2-4 word status]
-Today: [specific workout recommendation]
+Today: [specific workout - MUST match scheduled workout if one exists]
 Weather: [time window + temp]
 Note: [1 key insight, <50 chars]
 
@@ -194,15 +199,19 @@ Analyze ALL the data above and provide:
    - If a metric is missing, acknowledge it's unavailable
 2. **Training Context**: Consider where athlete is in training plan and recent workload
 3. **Today's Recommendation**:
-   - If workout scheduled: Should they do it as-is, modify it, or skip it? Why?
-   - If no workout: What should they do based on training plan + recovery?
+   - CRITICAL: If a workout is scheduled (see "SCHEDULED WORKOUT" above), your "Today:" line MUST reference that exact workout
+   - Example: If scheduled workout is "Run: 25 min easy", write "Today: 25 min Easy (E pace 10:20-10:40/mi)"
+   - Don't create a completely different workout - interpret/adjust the scheduled one
+   - If no workout scheduled: Recommend based on training plan + recovery
+   - Should they do it as-is, modify it, or skip it? Why?
 4. **Weather Impact**: Timing, pacing adjustments, safety considerations
 5. **Rationale**: Explain WHY this recommendation today (the "why" is critical)
 6. **Confidence Assessment**: State your confidence level and what data supports it
 
 Output the BRIEF format (4 lines), then ---DETAILED---, then your full analysis.
 Be specific and actionable. Consider the FULL context, not just one factor.
-REMEMBER: Never fabricate or estimate metrics - only use what's provided."""
+REMEMBER: Never fabricate or estimate metrics - only use what's provided.
+CRITICAL: Your "Today:" recommendation MUST align with the scheduled workout shown in the HTML report."""
 
     return prompt
 
