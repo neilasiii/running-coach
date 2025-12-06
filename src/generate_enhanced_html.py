@@ -683,16 +683,22 @@ def generate_html_report(weather_data=None):
 
             <!-- AI Coaching Recommendations -->
             <section class="section">
-                <h2>🤖 AI Coaching Recommendations</h2>
+                <h2>🤖 Today's Training Guidance</h2>
                 <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 12px; margin: 20px 0;">
                     <pre style="background: transparent; color: white; padding: 0; margin: 0; white-space: pre-wrap; font-size: 1.05em; line-height: 1.8;">{ai_commentary}</pre>
                 </div>
+                <div style="background: #f0f7ff; border-left: 4px solid #667eea; padding: 15px; margin-top: 15px; border-radius: 8px;">
+                    <p style="margin: 0; color: #34495e; font-size: 0.95em;">
+                        <strong>💡 Note:</strong> This AI guidance interprets your scheduled workout based on current recovery metrics.
+                        The raw workout details from your calendar are shown below for reference.
+                    </p>
+                </div>
             </section>
 
-            <!-- Today's Workout -->
+            <!-- Today's Scheduled Workout (Calendar) -->
             <section class="section">
-                <h2>Today's Workout</h2>
-                <div class="workout-card">
+                <h2>📅 Scheduled Workout (from Calendar)</h2>
+                <div class="workout-card" style="background: #f8f9fa; border-left: 3px solid #95a5a6;">
                     {workout_html}
                 </div>
             </section>
