@@ -96,10 +96,13 @@ def get_recovery_summary(cache):
             'recovery_hours': round(r.get('recovery_time', 0) / 60, 0) if r.get('recovery_time') else None
         }
 
-    # Body Battery
+    # Body Battery - use latest_level (current) if available, fall back to charged
     battery = cache.get('body_battery', [])
     if battery:
-        summary['body_battery'] = battery[0].get('charged')
+        bb = battery[0]
+        # Prefer latest_level (actual current body battery level)
+        # Fall back to charged (overnight recharge amount) for backwards compatibility
+        summary['body_battery'] = bb.get('latest_level') or bb.get('charged')
 
     # HRV
     hrv = cache.get('hrv_readings', [])
@@ -256,7 +259,7 @@ def call_claude_headless(prompt):
             input=prompt,
             capture_output=True,
             text=True,
-            timeout=90,
+            timeout=180,
             cwd=str(Path(__file__).parent.parent)
         )
 
@@ -268,7 +271,7 @@ def call_claude_headless(prompt):
     except FileNotFoundError:
         return None, "Claude Code not installed"
     except subprocess.TimeoutExpired:
-        return None, "Claude timed out after 90s"
+        return None, "Claude timed out after 180s"
     except Exception as e:
         return None, str(e)
 
