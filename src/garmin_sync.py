@@ -974,7 +974,12 @@ def fetch_body_battery(client: Garmin, start_date: date, end_date: date, quiet: 
         quiet: Suppress output
 
     Returns:
-        List of daily body battery summary dictionaries
+        List of daily body battery summary dictionaries with:
+        - date: The date
+        - charged: Amount charged during the day (overnight sleep recharge)
+        - drained: Amount drained during the day
+        - latest_level: Most recent body battery level (0-100)
+        - latest_timestamp: Timestamp of the most recent reading
     """
     battery_data = []
 
@@ -989,10 +994,25 @@ def fetch_body_battery(client: Garmin, start_date: date, end_date: date, quiet: 
 
                 if data and len(data) > 0:
                     entry = data[0]
+
+                    # Extract latest body battery level from the values array
+                    latest_level = None
+                    latest_timestamp = None
+                    values_array = entry.get('bodyBatteryValuesArray', [])
+                    if values_array:
+                        # Array contains [timestamp_ms, level] pairs
+                        # Get the last entry for the most recent reading
+                        last_reading = values_array[-1]
+                        if len(last_reading) >= 2:
+                            latest_timestamp = last_reading[0]
+                            latest_level = last_reading[1]
+
                     battery_data.append({
                         'date': entry.get('date'),
                         'charged': entry.get('charged'),
-                        'drained': entry.get('drained')
+                        'drained': entry.get('drained'),
+                        'latest_level': latest_level,
+                        'latest_timestamp': latest_timestamp
                     })
 
             except Exception as e:
