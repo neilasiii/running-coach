@@ -71,6 +71,55 @@ def load_health_cache() -> Dict[str, Any]:
         return json.load(f)
 
 
+def save_workout_markdown(workout: 'SupplementalWorkout', garmin_id: int = None):
+    """
+    Save workout details to a markdown file for easy viewing.
+
+    Creates files in data/workouts/{domain}/{date}.md
+    Also maintains a combined weekly file at data/workouts/{domain}/week-{date}.md
+    """
+    workouts_dir = Path(__file__).parent.parent / "data" / "workouts" / workout.domain
+    workouts_dir.mkdir(parents=True, exist_ok=True)
+
+    # Format the markdown content
+    content = f"""# {workout.name}
+
+**Date:** {workout.date}
+**Duration:** {workout.duration_min} minutes
+**Intensity:** {workout.intensity}
+"""
+
+    if workout.focus_areas:
+        content += f"**Focus:** {workout.focus_areas}\n"
+
+    if garmin_id:
+        content += f"**Garmin ID:** {garmin_id}\n"
+
+    content += f"""
+---
+
+{workout.description}
+"""
+
+    # Save individual workout file
+    workout_file = workouts_dir / f"{workout.date}.md"
+    with open(workout_file, 'w') as f:
+        f.write(content)
+
+    # Also copy to shared storage for Markor access
+    shared_dir = Path("/storage/emulated/0/Documents/workouts") / workout.domain
+    try:
+        shared_dir.mkdir(parents=True, exist_ok=True)
+        shared_file = shared_dir / f"{workout.date}.md"
+        with open(shared_file, 'w') as f:
+            f.write(content)
+    except (PermissionError, OSError):
+        # Shared storage may not be available
+        pass
+
+    return workout_file
+
+
 def add_workout_to_health_cache(workout: 'SupplementalWorkout', garmin_id: int):
     """
     Add a generated workout to the health cache so morning reports can see it.
@@ -1069,6 +1118,11 @@ def generate_week_supplemental_workouts(
 
             # Add to health cache so morning report can see it
             add_workout_to_health_cache(workout, garmin_id)
+
+            # Save workout as markdown for easy viewing
+            md_file = save_workout_markdown(workout, garmin_id)
+            if not quiet:
+                print(f"  📄 Saved: {md_file}")
 
             # Log generated workout
             if workout.domain not in generated_log:
