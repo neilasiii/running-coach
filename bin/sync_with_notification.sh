@@ -55,8 +55,9 @@ SYNC_OUTPUT=$(bash bin/sync_garmin_data.sh $DAYS_ARG 2>&1)
 SYNC_EXIT_CODE=$?
 
 # Extract workout creation info from sync output (both running and supplemental)
-RUNNING_WORKOUTS_CREATED=$(echo "$SYNC_OUTPUT" | grep -c "Successfully created workouts:" 2>/dev/null || echo "0")
-SUPPLEMENTAL_WORKOUTS_CREATED=$(echo "$SYNC_OUTPUT" | grep -c "Successfully created supplemental workouts:" 2>/dev/null || echo "0")
+# Note: grep -c returns 0 and exits 1 on no match, so we capture the output and default to 0
+RUNNING_WORKOUTS_CREATED=$(echo "$SYNC_OUTPUT" | grep -c "Successfully created workouts:" 2>/dev/null) || RUNNING_WORKOUTS_CREATED=0
+SUPPLEMENTAL_WORKOUTS_CREATED=$(echo "$SYNC_OUTPUT" | grep -c "Successfully created supplemental workouts:" 2>/dev/null) || SUPPLEMENTAL_WORKOUTS_CREATED=0
 
 # Extract individual workout details
 RUNNING_WORKOUT_DETAILS=$(echo "$SYNC_OUTPUT" | grep -A 20 "Successfully created workouts:" | grep "•" | head -10 | sed 's/.*• //' | sed 's/ (ID:.*//')
