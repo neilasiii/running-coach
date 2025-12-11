@@ -26,18 +26,18 @@
   },
   "strength": {
     "2025-12-11": {
-      "garmin_id": 1406818642,
+      "garmin_id": 1407883520,
       "name": "2025-12-11 - Strength: Upper Body + Core",
-      "focus_areas": "Upper body emphasis: horizontal/vertical push (push-ups, overhead press), horizontal/vertical pull (rows, pull-up progressions) + core anti-rotation (pallof press, side planks)",
+      "focus_areas": "Full body emphasis: Upper body pulling (back, biceps, rear delts) + pushing (chest, shoulders, triceps) + core anti-rotation and stability + light lower body maintenance (calf raises, glute bridges)",
       "intensity": "full",
-      "generated_at": "2025-12-09T20:37:58.710787"
+      "generated_at": "2025-12-11T10:23:26.301286"
     },
     "2025-12-13": {
-      "garmin_id": 1406818644,
-      "name": "2025-12-13 - Strength: Full Body Balance",
-      "focus_areas": "Full body maintenance: quad-dominant lower (goblet squats, lunges) + calf strength (single-leg raises) + upper body balance (push/pull superset) + core anti-extension",
+      "garmin_id": 1407883581,
+      "name": "2025-12-13 - Strength: Full Body",
+      "focus_areas": "Lower body emphasis: Posterior chain (glutes, hamstrings, RDLs) + single-leg stability (Bulgarian split squats, single-leg deadlifts) + hip stabilizers (lateral band work, clamshells) + core anti-extension",
       "intensity": "moderate",
-      "generated_at": "2025-12-09T20:37:59.085798"
+      "generated_at": "2025-12-11T10:23:26.931124"
     }
   },
   "mobility": {},
@@ -70,13 +70,13 @@
   },
   "week_snapshots": {
     "2025-12-08": {
-      "running_fingerprint": "2025-12-10:Run: 35 min E:False|2025-12-12:Run: 40 min E:False|2025-12-14:Run: 45 min E:False",
+      "running_fingerprint": "2025-12-12:Run: 40 min E:False|2025-12-14:Run: 45 min E:False",
       "strength_dates": [
         "2025-12-11",
         "2025-12-13"
       ],
       "recovery_concern": false,
-      "generated_at": "2025-12-09T20:37:59.085981"
+      "generated_at": "2025-12-11T10:23:26.931247"
     }
   }
 }
