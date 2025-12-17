@@ -69,6 +69,15 @@ done
 # Run the sync script with summary
 "$PYTHON" "$PROJECT_ROOT/src/garmin_sync.py" --days "$DAYS" --summary $CHECK_ONLY
 
+# If sync was successful and not check-only, deduplicate scheduled workouts
+# This prevents duplicate entries from ICS calendar imports
+if [ -z "$CHECK_ONLY" ]; then
+    echo ""
+    echo "Deduplicating scheduled workouts..."
+    "$PYTHON" "$PROJECT_ROOT/src/deduplicate_workouts.py" > /dev/null 2>&1
+    echo "✓ Deduplication complete"
+fi
+
 # If sync was successful and not check-only, generate Garmin workouts from FinalSurge
 if [ "$AUTO_WORKOUTS" = true ] && [ -z "$CHECK_ONLY" ]; then
     echo ""
