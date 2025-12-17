@@ -1,7 +1,61 @@
 {
-  "last_updated": "2025-12-16T17:00:33.612472+00:00",
-  "last_sync_date": "2025-12-16",
+  "last_updated": "2025-12-17T22:15:38.873429+00:00",
+  "last_sync_date": "2025-12-17",
   "activities": [
+    {
+      "activity_id": 21282115644,
+      "date": "2025-12-17T10:16:26",
+      "activity_name": "Lee County - 2025-12-17 - Easy Run 45min",
+      "activity_type": "RUNNING",
+      "duration_seconds": 1834.5340576171875,
+      "distance_miles": 3.01976,
+      "calories": 353.0,
+      "avg_heart_rate": 141.0,
+      "max_heart_rate": 153.0,
+      "avg_speed": 5.925654,
+      "pace_per_mile": 10.125166,
+      "splits": [
+        {
+          "type": "INTERVAL_ACTIVE",
+          "distance_miles": 3.019747,
+          "duration_seconds": 1834.534,
+          "avg_heart_rate": 141.0,
+          "max_heart_rate": 153.0,
+          "avg_speed_mph": 5.925654,
+          "pace_per_mile": 10.125207,
+          "avg_cadence": 147.609375,
+          "avg_power": 299.0,
+          "calories": 353.0
+        }
+      ],
+      "hr_zones": [
+        {
+          "zone_number": 1,
+          "time_in_zone_seconds": 890.436,
+          "zone_low_boundary_bpm": 116
+        },
+        {
+          "zone_number": 2,
+          "time_in_zone_seconds": 904.977,
+          "zone_low_boundary_bpm": 144
+        },
+        {
+          "zone_number": 3,
+          "time_in_zone_seconds": 0.0,
+          "zone_low_boundary_bpm": 160
+        },
+        {
+          "zone_number": 4,
+          "time_in_zone_seconds": 0.0,
+          "zone_low_boundary_bpm": 174
+        },
+        {
+          "zone_number": 5,
+          "time_in_zone_seconds": 0.0,
+          "zone_low_boundary_bpm": 184
+        }
+      ]
+    },
     {
       "activity_id": 21265422196,
       "date": "2025-12-15T12:22:50",
@@ -25460,6 +25514,16 @@
   ],
   "sleep_sessions": [
     {
+      "date": "2025-12-17",
+      "total_duration_minutes": 521.0,
+      "light_sleep_minutes": 403.0,
+      "deep_sleep_minutes": 101.0,
+      "rem_sleep_minutes": 17.0,
+      "awake_minutes": 122.0,
+      "sleep_score": 56,
+      "deep_sleep_percentage": 19.39
+    },
+    {
       "date": "2025-12-16",
       "total_duration_minutes": 483.0,
       "light_sleep_minutes": 331.0,
@@ -29382,6 +29446,10 @@
   ],
   "vo2_max_readings": [
     {
+      "date": "2025-12-17T00:00:00",
+      "vo2_max": 49.7
+    },
+    {
       "date": "2025-12-15T00:00:00",
       "vo2_max": 49.7
     },
@@ -29963,6 +30031,10 @@
     }
   ],
   "resting_hr_readings": [
+    [
+      "2025-12-17T12:00:00",
+      48
+    ],
     [
       "2025-12-16T12:00:00",
       46
@@ -31541,6 +31613,16 @@
     ]
   ],
   "hrv_readings": [
+    {
+      "date": "2025-12-17",
+      "weekly_avg": 67,
+      "last_night_avg": 66,
+      "last_night_5min_high": 89,
+      "status": "BALANCED",
+      "baseline_low_upper": 60,
+      "baseline_balanced_low": 62,
+      "baseline_balanced_upper": 74
+    },
     {
       "date": "2025-12-16",
       "weekly_avg": 67,
@@ -35484,6 +35566,16 @@
   ],
   "training_readiness": [
     {
+      "date": "2025-12-17",
+      "score": 31,
+      "level": "LOW",
+      "recovery_time": 1106,
+      "sleep_score": 56,
+      "hrv_feedback": "VERY_GOOD",
+      "stress_feedback": "GOOD",
+      "acute_load": 301
+    },
+    {
       "date": "2025-12-16",
       "score": 35,
       "level": "LOW",
@@ -39426,9 +39518,14 @@
   ],
   "stress_readings": [
     {
+      "date": "2025-12-17",
+      "avg_stress": 19,
+      "max_stress": 84
+    },
+    {
       "date": "2025-12-16",
-      "avg_stress": 14,
-      "max_stress": 80
+      "avg_stress": 24,
+      "max_stress": 93
     },
     {
       "date": "2025-12-15",
@@ -41397,6 +41494,12 @@
     }
   ],
   "spo2_readings": [
+    {
+      "date": "2025-12-17",
+      "avg_spo2": 95.0,
+      "lowest_spo2": 81,
+      "avg_sleep_spo2": 96.0
+    },
     {
       "date": "2025-12-16",
       "avg_spo2": 95.0,
@@ -43764,11 +43867,18 @@
   ],
   "body_battery": [
     {
+      "date": "2025-12-17",
+      "charged": 39,
+      "drained": 35,
+      "latest_level": 48,
+      "latest_timestamp": 1765991160000
+    },
+    {
       "date": "2025-12-16",
-      "charged": 44,
-      "drained": 8,
-      "latest_level": 83,
-      "latest_timestamp": 1765893420000
+      "charged": 67,
+      "drained": 64,
+      "latest_level": 44,
+      "latest_timestamp": 1765947420000
     },
     {
       "date": "2025-12-15",
@@ -44032,267 +44142,373 @@
     {
       "date": "2025-11-08",
       "charged": 53,
-      "drained": 64
+      "drained": 64,
+      "latest_level": 6,
+      "latest_timestamp": 1762658460000
     },
     {
       "date": "2025-11-07",
       "charged": 51,
-      "drained": 58
+      "drained": 58,
+      "latest_level": 17,
+      "latest_timestamp": 1762571160000
     },
     {
       "date": "2025-11-06",
       "charged": 67,
-      "drained": 66
+      "drained": 66,
+      "latest_level": 21,
+      "latest_timestamp": 1762483320000
     },
     {
       "date": "2025-11-05",
       "charged": 68,
-      "drained": 70
+      "drained": 70,
+      "latest_level": 14,
+      "latest_timestamp": 1762397280000
     },
     {
       "date": "2025-11-04",
       "charged": 55,
-      "drained": 63
+      "drained": 63,
+      "latest_level": 24,
+      "latest_timestamp": 1762309800000
     },
     {
       "date": "2025-11-03",
       "charged": 66,
-      "drained": 71
+      "drained": 71,
+      "latest_level": 38,
+      "latest_timestamp": 1762232040000
     },
     {
       "date": "2025-11-02",
       "charged": 76,
-      "drained": 57
+      "drained": 57,
+      "latest_level": 35,
+      "latest_timestamp": 1762136100000
     },
     {
       "date": "2025-11-01",
       "charged": 46,
-      "drained": 66
+      "drained": 66,
+      "latest_level": 14,
+      "latest_timestamp": 1762048620000
     },
     {
       "date": "2025-10-31",
       "charged": 78,
-      "drained": 63
+      "drained": 63,
+      "latest_level": 27,
+      "latest_timestamp": 1761960600000
     },
     {
       "date": "2025-10-30",
       "charged": 69,
-      "drained": 61
+      "drained": 61,
+      "latest_level": 27,
+      "latest_timestamp": 1761881220000
     },
     {
       "date": "2025-10-29",
       "charged": 24,
-      "drained": 69
+      "drained": 69,
+      "latest_level": 9,
+      "latest_timestamp": 1761785280000
     },
     {
       "date": "2025-10-28",
       "charged": 82,
-      "drained": 41
+      "drained": 41,
+      "latest_level": 63,
+      "latest_timestamp": 1761710220000
     },
     {
       "date": "2025-10-27",
       "charged": 14,
-      "drained": 61
+      "drained": 61,
+      "latest_level": 19,
+      "latest_timestamp": 1761617700000
     },
     {
       "date": "2025-10-26",
       "charged": 48,
-      "drained": 43
+      "drained": 43,
+      "latest_level": 35,
+      "latest_timestamp": 1761531660000
     },
     {
       "date": "2025-10-25",
       "charged": 65,
-      "drained": 64
+      "drained": 64,
+      "latest_level": 42,
+      "latest_timestamp": 1761450840000
     },
     {
       "date": "2025-10-24",
       "charged": 63,
-      "drained": 61
+      "drained": 61,
+      "latest_level": 41,
+      "latest_timestamp": 1761364620000
     },
     {
       "date": "2025-10-23",
       "charged": 76,
-      "drained": 63
+      "drained": 63,
+      "latest_level": 39,
+      "latest_timestamp": 1761278220000
     },
     {
       "date": "2025-10-22",
       "charged": 60,
-      "drained": 71
+      "drained": 71,
+      "latest_level": 18,
+      "latest_timestamp": 1761181920000
     },
     {
       "date": "2025-10-21",
       "charged": 65,
-      "drained": 35
+      "drained": 35,
+      "latest_level": 37,
+      "latest_timestamp": 1761102900000
     },
     {
       "date": "2025-10-20",
       "charged": 61,
-      "drained": 84
+      "drained": 84,
+      "latest_level": 7,
+      "latest_timestamp": 1761018300000
     },
     {
       "date": "2025-10-19",
       "charged": 72,
-      "drained": 53
+      "drained": 53,
+      "latest_level": 30,
+      "latest_timestamp": 1760928840000
     },
     {
       "date": "2025-10-18",
       "charged": 40,
-      "drained": 71
+      "drained": 71,
+      "latest_level": 11,
+      "latest_timestamp": 1760840820000
     },
     {
       "date": "2025-10-17",
       "charged": 65,
-      "drained": 54
+      "drained": 54,
+      "latest_level": 31,
+      "latest_timestamp": 1760750280000
     },
     {
       "date": "2025-10-16",
       "charged": 72,
-      "drained": 63
+      "drained": 63,
+      "latest_level": 17,
+      "latest_timestamp": 1760662260000
     },
     {
       "date": "2025-10-15",
       "charged": 55,
-      "drained": 73
+      "drained": 73,
+      "latest_level": 5,
+      "latest_timestamp": 1760575140000
     },
     {
       "date": "2025-10-14",
       "charged": 84,
-      "drained": 50
+      "drained": 50,
+      "latest_level": 59,
+      "latest_timestamp": 1760485680000
     },
     {
       "date": "2025-10-13",
       "charged": 49,
-      "drained": 62
+      "drained": 62,
+      "latest_level": 5,
+      "latest_timestamp": 1760400720000
     },
     {
       "date": "2025-10-12",
       "charged": 48,
-      "drained": 57
+      "drained": 57,
+      "latest_level": 18,
+      "latest_timestamp": 1760322600000
     },
     {
       "date": "2025-10-11",
       "charged": 45,
-      "drained": 54
+      "drained": 54,
+      "latest_level": 19,
+      "latest_timestamp": 1760232600000
     },
     {
       "date": "2025-10-10",
       "charged": 49,
-      "drained": 48
+      "drained": 48,
+      "latest_level": 35,
+      "latest_timestamp": 1760152320000
     },
     {
       "date": "2025-10-09",
       "charged": 81,
-      "drained": 65
+      "drained": 65,
+      "latest_level": 18,
+      "latest_timestamp": 1760061240000
     },
     {
       "date": "2025-10-08",
       "charged": 43,
-      "drained": 91
+      "drained": 91,
+      "latest_level": 11,
+      "latest_timestamp": 1759978260000
     },
     {
       "date": "2025-10-07",
       "charged": 92,
-      "drained": 49
+      "drained": 49,
+      "latest_level": 64,
+      "latest_timestamp": 1759895460000
     },
     {
       "date": "2025-10-06",
       "charged": 70,
-      "drained": 78
+      "drained": 78,
+      "latest_level": 22,
+      "latest_timestamp": 1759807620000
     },
     {
       "date": "2025-10-05",
       "charged": 57,
-      "drained": 37
+      "drained": 37,
+      "latest_level": 27,
+      "latest_timestamp": 1759721940000
     },
     {
       "date": "2025-10-04",
       "charged": 38,
-      "drained": 92
+      "drained": 92,
+      "latest_level": 10,
+      "latest_timestamp": 1759633740000
     },
     {
       "date": "2025-10-03",
       "charged": 77,
-      "drained": 58
+      "drained": 58,
+      "latest_level": 63,
+      "latest_timestamp": 1759550040000
     },
     {
       "date": "2025-10-02",
       "charged": 55,
-      "drained": 72
+      "drained": 72,
+      "latest_level": 31,
+      "latest_timestamp": 1759457160000
     },
     {
       "date": "2025-10-01",
       "charged": 77,
-      "drained": 66
+      "drained": 66,
+      "latest_level": 34,
+      "latest_timestamp": 1759365720000
     },
     {
       "date": "2025-09-30",
       "charged": 57,
-      "drained": 47
+      "drained": 47,
+      "latest_level": 39,
+      "latest_timestamp": 1759283820000
     },
     {
       "date": "2025-09-29",
       "charged": 50,
-      "drained": 74
+      "drained": 74,
+      "latest_level": 32,
+      "latest_timestamp": 1759195800000
     },
     {
       "date": "2025-09-28",
       "charged": 94,
-      "drained": 48
+      "drained": 48,
+      "latest_level": 64,
+      "latest_timestamp": 1759118220000
     },
     {
       "date": "2025-09-27",
       "charged": 47,
-      "drained": 78
+      "drained": 78,
+      "latest_level": 18,
+      "latest_timestamp": 1759031820000
     },
     {
       "date": "2025-09-26",
       "charged": 62,
-      "drained": 60
+      "drained": 60,
+      "latest_level": 41,
+      "latest_timestamp": 1758937860000
     },
     {
       "date": "2025-09-25",
       "charged": 41,
-      "drained": 62
+      "drained": 62,
+      "latest_level": 35,
+      "latest_timestamp": 1758849840000
     },
     {
       "date": "2025-09-24",
       "charged": 65,
-      "drained": 65
+      "drained": 65,
+      "latest_level": 65,
+      "latest_timestamp": 1758772620000
     },
     {
       "date": "2025-09-23",
       "charged": 52,
-      "drained": 55
+      "drained": 55,
+      "latest_level": 47,
+      "latest_timestamp": 1758676500000
     },
     {
       "date": "2025-09-22",
       "charged": 51,
-      "drained": 60
+      "drained": 60,
+      "latest_level": 68,
+      "latest_timestamp": 1758599100000
     },
     {
       "date": "2025-09-21",
       "charged": 82,
-      "drained": 30
+      "drained": 30,
+      "latest_level": 76,
+      "latest_timestamp": 1758513240000
     },
     {
       "date": "2025-09-20",
       "charged": 62,
-      "drained": 77
+      "drained": 77,
+      "latest_level": 23,
+      "latest_timestamp": 1758425760000
     },
     {
       "date": "2025-09-19",
       "charged": 63,
-      "drained": 68
+      "drained": 68,
+      "latest_level": 33,
+      "latest_timestamp": 1758336660000
     },
     {
       "date": "2025-09-18",
       "charged": 46,
-      "drained": 68
+      "drained": 68,
+      "latest_level": 39,
+      "latest_timestamp": 1758249540000
     },
     {
       "date": "2025-09-17",
       "charged": 46,
-      "drained": 58
+      "drained": 58,
+      "latest_level": 65,
+      "latest_timestamp": 1758167820000
     },
     {
       "date": "2025-09-16",
@@ -45811,22 +46027,22 @@
     }
   ],
   "race_predictions": {
-    "date": "2025-12-16",
-    "time_5k": 1482,
-    "time_10k": 3114,
-    "time_half_marathon": 6987,
-    "time_marathon": 15294
+    "date": "2025-12-17",
+    "time_5k": 1477,
+    "time_10k": 3101,
+    "time_half_marathon": 6959,
+    "time_marathon": 15231
   },
   "training_status": {
-    "date": "2025-12-16",
+    "date": "2025-12-17",
     "vo2_max": {
-      "date": "2025-12-15",
+      "date": "2025-12-17",
       "value": 50.0,
       "precise_value": 49.7
     },
     "training_load": {
-      "date": "2025-12-16",
-      "aerobic_low": 562.7437,
+      "date": "2025-12-17",
+      "aerobic_low": 549.66034,
       "aerobic_high": 377.72284,
       "anaerobic": 0.0,
       "feedback": "AEROBIC_HIGH_SHORTAGE"
@@ -45889,6 +46105,15 @@
       "garmin_id": 1409157513
     },
     {
+      "scheduled_date": "2025-12-20",
+      "name": "2025-12-20 - Strength: Session A",
+      "description": "[HOLD | Foundation | Session A] (25-30 min)\nSquat + Push emphasis\n\nWARMUP:\nLeg swings 10ea, BW squats x10, glute bridges x10\n\nKEY FOCUS:\n- Goblet Squat: 3x8, rest 90s (RPE 6-7, tempo 3-1-1)\n  Progression: Maintain load, refine depth\n\nSUPPORTING:\n- Push-ups: 3x10, rest 60s (trunk rigidity)\n- DB RDL: 2x8, rest 60s (posterior chain)\n\nACCESSORY:\n- Calf Raises (straight): 2x15\n- Plank: 2x30s (anti-extension)\n\nNOTES: Moderate session. Minimal soreness expected.",
+      "source": "auto_generated",
+      "domain": "strength",
+      "duration_min": 30,
+      "garmin_id": 1412726075
+    },
+    {
       "scheduled_date": "2025-12-21",
       "scheduled_datetime": null,
       "name": "Run: 40-55 min E",
@@ -45910,12 +46135,12 @@
     },
     {
       "scheduled_date": "2025-12-17",
-      "scheduled_datetime": null,
+      "scheduled_datetime": "2025-12-17T15:16:26",
       "name": "Run: 30-45 min E",
       "description": "Workout: Run",
-      "duration_seconds": null,
+      "duration_seconds": 3600,
       "location": null,
-      "all_day": true,
+      "all_day": false,
       "source": "ics_calendar"
     },
     {
@@ -46003,15 +46228,6 @@
       "location": null,
       "all_day": true,
       "source": "ics_calendar"
-    },
-    {
-      "scheduled_date": "2025-12-20",
-      "name": "2025-12-20 - Strength: Session A",
-      "description": "[HOLD | Foundation | Session A] (25-30 min)\nSquat + Push emphasis\n\nWARMUP:\nLeg swings 10ea, BW squats x10, glute bridges x10\n\nKEY FOCUS:\n- Goblet Squat: 3x8, rest 90s (RPE 6-7, tempo 3-1-1)\n  Progression: Maintain load, refine depth\n\nSUPPORTING:\n- Push-ups: 3x10, rest 60s (trunk rigidity)\n- DB RDL: 2x8, rest 60s (posterior chain)\n\nACCESSORY:\n- Calf Raises (straight): 2x15\n- Plank: 2x30s (anti-extension)\n\nNOTES: Moderate session. Minimal soreness expected.",
-      "source": "auto_generated",
-      "domain": "strength",
-      "duration_min": 30,
-      "garmin_id": 1412726075
     }
   ],
   "lactate_threshold": {
@@ -46092,8 +46308,8 @@
       "date_begun": null,
       "date_retired": null,
       "is_active": true,
-      "total_distance_meters": 537525.6988220215,
-      "total_activities": 66,
+      "total_distance_meters": 542385.5186462402,
+      "total_activities": 67,
       "max_distance_single_activity": null,
       "notification_distance_meters": null,
       "created_date": "2025-09-13T13:41:08.0",
@@ -46117,8 +46333,14 @@
   ],
   "daily_steps": [
     {
+      "date": "2025-12-17",
+      "total_steps": 7706,
+      "goal_steps": 10470,
+      "goal_met": false
+    },
+    {
       "date": "2025-12-16",
-      "total_steps": 1479,
+      "total_steps": 8246,
       "goal_steps": 10710,
       "goal_met": false
     },
@@ -46385,11 +46607,287 @@
       "total_steps": 6123,
       "goal_steps": 12150,
       "goal_met": false
+    },
+    {
+      "date": "2025-11-01",
+      "total_steps": 23791,
+      "goal_steps": 13350,
+      "goal_met": true
+    },
+    {
+      "date": "2025-10-31",
+      "total_steps": 12047,
+      "goal_steps": 13490,
+      "goal_met": false
+    },
+    {
+      "date": "2025-10-30",
+      "total_steps": 16221,
+      "goal_steps": 12800,
+      "goal_met": true
+    },
+    {
+      "date": "2025-10-29",
+      "total_steps": 18640,
+      "goal_steps": 12150,
+      "goal_met": true
+    },
+    {
+      "date": "2025-10-28",
+      "total_steps": 7317,
+      "goal_steps": 12680,
+      "goal_met": false
+    },
+    {
+      "date": "2025-10-27",
+      "total_steps": 15930,
+      "goal_steps": 12310,
+      "goal_met": true
+    },
+    {
+      "date": "2025-10-26",
+      "total_steps": 6458,
+      "goal_steps": 12960,
+      "goal_met": false
+    },
+    {
+      "date": "2025-10-25",
+      "total_steps": 17282,
+      "goal_steps": 11870,
+      "goal_met": true
+    },
+    {
+      "date": "2025-10-24",
+      "total_steps": 15226,
+      "goal_steps": 11490,
+      "goal_met": true
+    },
+    {
+      "date": "2025-10-23",
+      "total_steps": 7661,
+      "goal_steps": 11910,
+      "goal_met": false
+    },
+    {
+      "date": "2025-10-22",
+      "total_steps": 16255,
+      "goal_steps": 11420,
+      "goal_met": true
+    },
+    {
+      "date": "2025-10-21",
+      "total_steps": 6334,
+      "goal_steps": 11980,
+      "goal_met": false
+    },
+    {
+      "date": "2025-10-20",
+      "total_steps": 14875,
+      "goal_steps": 11650,
+      "goal_met": true
+    },
+    {
+      "date": "2025-10-19",
+      "total_steps": 8597,
+      "goal_steps": 11990,
+      "goal_met": false
+    },
+    {
+      "date": "2025-10-18",
+      "total_steps": 19170,
+      "goal_steps": 11190,
+      "goal_met": true
+    },
+    {
+      "date": "2025-10-17",
+      "total_steps": 5665,
+      "goal_steps": 11800,
+      "goal_met": false
+    },
+    {
+      "date": "2025-10-16",
+      "total_steps": 15428,
+      "goal_steps": 10890,
+      "goal_met": true
+    },
+    {
+      "date": "2025-10-15",
+      "total_steps": 16648,
+      "goal_steps": 10250,
+      "goal_met": true
+    },
+    {
+      "date": "2025-10-14",
+      "total_steps": 5221,
+      "goal_steps": 10800,
+      "goal_met": false
+    },
+    {
+      "date": "2025-10-13",
+      "total_steps": 18778,
+      "goal_steps": 9910,
+      "goal_met": true
+    },
+    {
+      "date": "2025-10-12",
+      "total_steps": 6722,
+      "goal_steps": 10700,
+      "goal_met": false
+    },
+    {
+      "date": "2025-10-11",
+      "total_steps": 6064,
+      "goal_steps": 11860,
+      "goal_met": false
+    },
+    {
+      "date": "2025-10-10",
+      "total_steps": 5553,
+      "goal_steps": 13430,
+      "goal_met": false
+    },
+    {
+      "date": "2025-10-09",
+      "total_steps": 5406,
+      "goal_steps": 14320,
+      "goal_met": false
+    },
+    {
+      "date": "2025-10-08",
+      "total_steps": 29834,
+      "goal_steps": 12590,
+      "goal_met": true
+    },
+    {
+      "date": "2025-10-07",
+      "total_steps": 4375,
+      "goal_steps": 13500,
+      "goal_met": false
+    },
+    {
+      "date": "2025-10-06",
+      "total_steps": 15301,
+      "goal_steps": 13300,
+      "goal_met": true
+    },
+    {
+      "date": "2025-10-05",
+      "total_steps": 7825,
+      "goal_steps": 13900,
+      "goal_met": false
+    },
+    {
+      "date": "2025-10-04",
+      "total_steps": 29219,
+      "goal_steps": 12190,
+      "goal_met": true
+    },
+    {
+      "date": "2025-10-03",
+      "total_steps": 6238,
+      "goal_steps": 12850,
+      "goal_met": false
+    },
+    {
+      "date": "2025-10-02",
+      "total_steps": 13529,
+      "goal_steps": 12670,
+      "goal_met": true
+    },
+    {
+      "date": "2025-10-01",
+      "total_steps": 12806,
+      "goal_steps": 12650,
+      "goal_met": true
+    },
+    {
+      "date": "2025-09-30",
+      "total_steps": 4486,
+      "goal_steps": 13550,
+      "goal_met": false
+    },
+    {
+      "date": "2025-09-29",
+      "total_steps": 14843,
+      "goal_steps": 13400,
+      "goal_met": true
+    },
+    {
+      "date": "2025-09-28",
+      "total_steps": 8073,
+      "goal_steps": 13990,
+      "goal_met": false
+    },
+    {
+      "date": "2025-09-27",
+      "total_steps": 25912,
+      "goal_steps": 12660,
+      "goal_met": true
+    },
+    {
+      "date": "2025-09-26",
+      "total_steps": 9311,
+      "goal_steps": 13030,
+      "goal_met": false
+    },
+    {
+      "date": "2025-09-25",
+      "total_steps": 14976,
+      "goal_steps": 12540,
+      "goal_met": true
+    },
+    {
+      "date": "2025-09-24",
+      "total_steps": 14310,
+      "goal_steps": 12340,
+      "goal_met": true
+    },
+    {
+      "date": "2025-09-23",
+      "total_steps": 5943,
+      "goal_steps": 13050,
+      "goal_met": false
+    },
+    {
+      "date": "2025-09-22",
+      "total_steps": 13127,
+      "goal_steps": 13040,
+      "goal_met": true
+    },
+    {
+      "date": "2025-09-21",
+      "total_steps": 7761,
+      "goal_steps": 14360,
+      "goal_met": false
+    },
+    {
+      "date": "2025-09-20",
+      "total_steps": 10512,
+      "goal_steps": 14780,
+      "goal_met": false
+    },
+    {
+      "date": "2025-09-19",
+      "total_steps": 18688,
+      "goal_steps": 13800,
+      "goal_met": true
+    },
+    {
+      "date": "2025-09-18",
+      "total_steps": 14888,
+      "goal_steps": 13680,
+      "goal_met": true
+    },
+    {
+      "date": "2025-09-17",
+      "total_steps": 10655,
+      "goal_steps": 14430,
+      "goal_met": false
     }
   ],
   "progress_summary": {
-    "start_date": "2025-11-16",
-    "end_date": "2025-12-16",
+    "start_date": "2025-12-16",
+    "end_date": "2025-12-17",
     "acute_training_load": null,
     "chronic_training_load": null,
     "training_stress_balance": null,
