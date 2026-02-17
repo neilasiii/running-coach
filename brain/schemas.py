@@ -60,7 +60,7 @@ class PlanDay(BaseModel):
     @model_validator(mode="after")
     def steps_required_for_non_rest(self) -> "PlanDay":
         if self.workout_type not in ("rest", "cross") and not self.structure_steps:
-            # Auto-generate a minimal single-step if missing (Brain sometimes omits)
+            # Auto-generate a minimal single-step; flag it so callers can detect
             self.structure_steps = [
                 WorkoutStep(
                     label="main",
@@ -69,6 +69,8 @@ class PlanDay(BaseModel):
                     target_value="RPE per intent",
                 )
             ]
+            if "brain_missing_steps" not in self.safety_flags:
+                self.safety_flags = list(self.safety_flags) + ["brain_missing_steps"]
         return self
 
 
