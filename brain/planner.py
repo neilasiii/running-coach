@@ -463,6 +463,7 @@ def plan_week(
     # ── Call LLM ──────────────────────────────────────────────────────────
     raw = _call_llm(_SYSTEM_PLAN_WEEK, user_prompt)
     decision = _parse_and_validate_plan(raw, ctx_hash, _SYSTEM_PLAN_WEEK)
+    decision = _enforce_stride_rules(decision)
 
     # ── Enforce DATA QUALITY safety flag deterministically ─────────────────
     # The LLM prompt asks for this flag, but we cannot rely on the LLM.
@@ -511,6 +512,46 @@ def plan_week(
     )
 
     log.info("plan_week persisted plan_id=%s", plan_id)
+    return decision
+
+
+def _enforce_stride_rules(decision: PlanDecision) -> PlanDecision:
+    """
+    Post-LLM enforcement: for every 'easy' day whose intent mentions strides,
+    validate the structure_steps.  If invalid (multi-minute interval reps that
+    cannot be strides), apply a deterministic rewrite to canonical 6×20 s format.
+
+    This runs AFTER Pydantic validation so the decision is already structurally
+    sound.  It only mutates days that fail stride validation.
+    """
+    from .stride_rules import is_stride_intent, validate_strides, rewrite_strides
+    from .schemas import WorkoutStep
+
+    for day in decision.days:
+        if day.workout_type != "easy":
+            continue
+        if not is_stride_intent(day.intent):
+            continue
+
+        steps_dicts = [s.model_dump() for s in day.structure_steps]
+        ok, reason = validate_strides(steps_dicts)
+        if ok:
+            continue
+
+        log.warning(
+            "Stride rule violation on %s: %s — rewriting",
+            day.date, reason,
+        )
+        new_steps_dicts, rewrite_note = rewrite_strides(steps_dicts, day.duration_min)
+        day.structure_steps = [WorkoutStep.model_validate(s) for s in new_steps_dicts]
+
+        flags = list(day.safety_flags)
+        if "stride_rewrite_applied" not in flags:
+            flags.append("stride_rewrite_applied")
+        day.safety_flags = flags
+
+        log.info("Stride rewrite applied on %s: %s", day.date, rewrite_note)
+
     return decision
 
 
