@@ -194,6 +194,8 @@ def cmd_schedule(args) -> int:
         print(_fmt_text(sched))
     elif fmt == "md":
         print(_fmt_md(sched))
+    elif fmt == "mobile":
+        print(_fmt_mobile(sched))
     else:
         print(f"Unknown format: {fmt!r}", file=sys.stderr)
         return 1
@@ -249,6 +251,56 @@ def _fmt_text(sched: dict) -> str:
             f"{row['weekday']} {row['date']} — "
             f"{_clamp60(row['intent'])}{flag_part}"
         )
+    return "\n".join(lines)
+
+
+_TYPE_EMOJI = {
+    "rest":     ("⚪", "Rest"),
+    "easy":     ("🟢", "Easy"),
+    "long":     ("🔵", "Long"),
+    "race":     ("🟣", "Race"),
+    "tempo":    ("🟠", "Quality"),
+    "interval": ("🟠", "Quality"),
+    "workout":  ("🟠", "Quality"),
+    "strength": ("🟠", "Quality"),
+    "cross":    ("🟠", "Quality"),
+    "none":     ("⚫", "No entry"),
+}
+
+
+def _fmt_mobile(sched: dict) -> str:
+    """Mobile/Discord-friendly 'day cards' format — no code fences."""
+    pid = (sched["plan_id"] or "?")[:16]
+    ps  = sched.get("plan_start") or "?"
+    pe  = sched.get("plan_end")   or "?"
+    n   = len(sched["rows"])
+
+    lines = [
+        f"📅 Week Schedule ({n} days)",
+        f"Plan: {pid}  {ps}→{pe}",
+        f"Range: {sched['range_start']}→{sched['range_end']}",
+    ]
+
+    for row in sched["rows"]:
+        lines.append("")  # blank separator between days
+        emoji, label = _TYPE_EMOJI.get(row["workout_type"], ("🔘", row["workout_type"].title()))
+        dur = row["duration_min"]
+        dur_part = f" · {dur}m" if dur not in ("", 0) else ""
+        # Bold day header line
+        lines.append(f"**{row['weekday']} {row['date']}** — {emoji} {label}{dur_part}")
+        # Intent (clamped to 120 chars)
+        intent = row["intent"]
+        if len(intent) > 120:
+            intent = intent[:117] + "…"
+        if intent and intent != "(no entry)":
+            lines.append(intent)
+        # Flags — one line each, clamped to 180 chars
+        for flag in row["safety_flags"]:
+            flag_line = f"⚑ {flag}"
+            if len(flag_line) > 180:
+                flag_line = flag_line[:177] + "…"
+            lines.append(flag_line)
+
     return "\n".join(lines)
 
 
@@ -481,8 +533,8 @@ def main() -> int:
     p_sched.add_argument("--week", action="store_true", required=True, help="Export next N days")
     p_sched.add_argument("--days", type=int, default=7, metavar="N", help="Number of days (default 7)")
     p_sched.add_argument(
-        "--format", choices=["table", "text", "md"], default="table",
-        help="Output format (default: table)",
+        "--format", choices=["table", "text", "md", "mobile"], default="table",
+        help="Output format (default: table; mobile = Discord-friendly day cards)",
     )
     p_sched.set_defaults(func=cmd_schedule)
 
