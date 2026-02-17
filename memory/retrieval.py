@@ -327,6 +327,54 @@ def _search_vault_excerpts(
     return [excerpt for _, excerpt in candidates[:max_results]]
 
 
+# ── Data Quality ──────────────────────────────────────────────────────────────
+
+def _build_data_quality(health: Dict, enforced_packet: Dict) -> Dict:
+    """
+    Derive a data_quality block from the health cache and the already-enforced packet.
+
+    Fields:
+      has_health_cache        - health_data_cache.json existed and parsed OK
+      has_activities          - at least one activity present
+      has_readiness           - training_readiness rows present
+      readiness_confidence    - "low|medium|high" based on field presence + recency
+      constraints_confidence  - "low|medium|high" based on constraint count
+      packet_size_chars       - len(json.dumps(enforced_packet)) for prompt budgeting
+
+    packet_size_chars reflects the coaching-content size (excludes data_quality
+    overhead) so it's useful for prompt token estimates.
+    """
+    has_cache      = bool(health)
+    has_activities = bool(health.get("activities"))
+
+    tr_rows = health.get("training_readiness", [])
+    has_readiness = bool(tr_rows)
+
+    if not tr_rows or not has_cache:
+        readiness_confidence = "low"
+    else:
+        cutoff = (date.today() - timedelta(days=2)).isoformat()
+        recent = [r for r in tr_rows if r.get("calendarDate", "") >= cutoff]
+        readiness_confidence = "high" if recent else "medium"
+
+    constraints = enforced_packet.get("constraints", [])
+    if isinstance(constraints, list) and len(constraints) > 0:
+        constraints_confidence = "high"
+    elif isinstance(constraints, dict) and constraints.get("_truncated"):
+        constraints_confidence = "medium"   # truncated → data present but capped
+    else:
+        constraints_confidence = "low"      # empty list or missing
+
+    return {
+        "has_health_cache":       has_cache,
+        "has_activities":         has_activities,
+        "has_readiness":          has_readiness,
+        "readiness_confidence":   readiness_confidence,
+        "constraints_confidence": constraints_confidence,
+        "packet_size_chars":      len(json.dumps(enforced_packet, default=str)),
+    }
+
+
 # ── Size Enforcement ──────────────────────────────────────────────────────────
 
 def _cap_field(obj: Any, max_chars: int) -> Any:
@@ -436,15 +484,27 @@ def build_context_packet(
     except Exception:
         pass
 
-    return _enforce_size_caps(packet)
+    enforced = _enforce_size_caps(packet)
+    # data_quality is added AFTER enforcement so packet_size_chars reflects
+    # coaching-content size only (excludes data_quality overhead itself).
+    enforced["data_quality"] = _build_data_quality(health, enforced)
+    return enforced
 
 
 def hash_context_packet(packet: Dict) -> str:
     """
     Return a stable SHA-256 hex digest of the context packet.
-    generated_at is excluded so two packets built from identical data match.
-    Used by the Brain to skip re-planning when context hasn't changed.
+
+    Excluded from hash:
+      - generated_at        (changes every call, not semantic)
+      - data_quality.packet_size_chars  (derived/meta — changes when packet grows)
+
+    data_quality fields like readiness_confidence ARE included so that a
+    shift from "low" to "high" invalidates the cache and forces re-planning.
     """
     stable = {k: v for k, v in packet.items() if k != "generated_at"}
+    if "data_quality" in stable and isinstance(stable["data_quality"], dict):
+        dq = {k: v for k, v in stable["data_quality"].items() if k != "packet_size_chars"}
+        stable = {**stable, "data_quality": dq}
     serialized = json.dumps(stable, sort_keys=True, default=str)
     return hashlib.sha256(serialized.encode()).hexdigest()

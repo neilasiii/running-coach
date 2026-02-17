@@ -66,6 +66,15 @@ SAFETY RULES (enforced — violations will be flagged):
    explicitly permitted by context (e.g., post-taper return).
 4. Constraint dates (constraints[]) must be rest or cross-train.
 
+DATA QUALITY RULE:
+If data_quality.readiness_confidence == "low":
+  - Default to conservative plan: NO hard workouts (no tempo, no interval, no long).
+  - Prioritize easy (RPE 4-5) and rest days only.
+  - Do NOT increase volume vs training_summary.total_miles baseline.
+  - Add "low_readiness_confidence" to plan-level safety_flags.
+If data_quality.has_health_cache is false:
+  - Treat as low readiness confidence regardless of other signals.
+
 OUTPUT RULES:
 - Output ONLY a single JSON object. No markdown fences. No prose.
 - Every field in the schema is required unless marked Optional.
@@ -154,11 +163,22 @@ def _call_llm(system: str, user: str, timeout: int = 120) -> str:
     """
     Call Claude CLI in headless mode. Returns raw text output.
     Raises RuntimeError on non-zero exit or empty response.
+
+    SDK fallback is opt-in: set BRAIN_ALLOW_SDK_FALLBACK=1 to enable.
+    This keeps the transport deterministic in production; the SDK path is
+    only used in environments where the claude CLI is not available and
+    the operator has explicitly consented to it.
     """
     claude = _find_claude()
     if claude is None:
-        # Attempt anthropic SDK as fallback
-        return _call_anthropic_sdk(system, user)
+        if os.environ.get("BRAIN_ALLOW_SDK_FALLBACK") == "1":
+            return _call_anthropic_sdk(system, user)
+        raise RuntimeError(
+            "claude CLI not found. Searched:\n  "
+            + "\n  ".join(str(p) for p in CLAUDE_PATHS)
+            + "\nFix: install claude CLI at one of the above paths, "
+            "or set BRAIN_ALLOW_SDK_FALLBACK=1 to enable the anthropic SDK fallback."
+        )
 
     full_prompt = f"{system}\n\n{user}"
     log.debug("Calling claude CLI, prompt_len=%d chars", len(full_prompt))
@@ -212,29 +232,68 @@ def _call_anthropic_sdk(system: str, user: str) -> str:
 
 # ── JSON extraction ────────────────────────────────────────────────────────────
 
-def _extract_json(text: str) -> str:
+_JSON_FENCE_RE = re.compile(r"^```(?:json)?\s*\n?|\n?```$", re.MULTILINE)
+
+
+def _try_strict_extract(text: str) -> Optional[str]:
     """
-    Strip markdown fences and extract the first JSON object from text.
-    Tries: verbatim → strip fences → find {...} substring.
+    Strict extraction: strip fences, then accept ONLY if the result starts
+    with '{' and ends with '}'. Returns None if the output is not clean JSON.
     """
-    stripped = text.strip()
+    s = _JSON_FENCE_RE.sub("", text).strip()
+    if s.startswith("{") and s.endswith("}"):
+        return s
+    return None
 
-    # 1) Try verbatim
-    if stripped.startswith("{"):
-        return stripped
 
-    # 2) Strip ```json ... ``` or ``` ... ``` fences
-    fence = re.sub(r"^```(?:json)?\s*", "", stripped, flags=re.MULTILINE)
-    fence = re.sub(r"\s*```$", "", fence, flags=re.MULTILINE).strip()
-    if fence.startswith("{"):
-        return fence
+def _brace_search_last(text: str) -> str:
+    """
+    Last-resort extraction: find the LAST balanced JSON object in text.
+    Using rfind("{") avoids picking up example JSON objects that appear
+    earlier in the output (e.g. in schema hints the LLM echoes back).
+    Raises ValueError if no balanced object found.
+    """
+    last = text.rfind("{")
+    if last == -1:
+        raise ValueError(f"No JSON object found in output:\n{text[:300]}")
+    depth = 0
+    for i, ch in enumerate(text[last:]):
+        if ch == "{":
+            depth += 1
+        elif ch == "}":
+            depth -= 1
+            if depth == 0:
+                return text[last : last + i + 1]
+    raise ValueError(f"Unbalanced JSON braces in output:\n{text[:300]}")
 
-    # 3) Find first { ... } block
-    m = re.search(r"\{[\s\S]*\}", stripped)
-    if m:
-        return m.group(0)
 
-    raise ValueError(f"No JSON object found in LLM output:\n{text[:300]}")
+def _extract_or_reprompt(raw: str, system: str) -> str:
+    """
+    Three-step JSON extraction with one format reprompt:
+      1. Strict: text must start/end with { / } after fence stripping.
+      2. Format reprompt: 'Output JSON only. No text, no markdown.'
+      3. Last-resort brace search on the reprompted output.
+
+    Returns a JSON string. Raises ValueError on complete failure.
+    """
+    strict = _try_strict_extract(raw)
+    if strict is not None:
+        return strict
+
+    # Step 2: one format-level reprompt
+    log.warning("LLM output not clean JSON (len=%d) — reprompting for format", len(raw))
+    reprompted = _call_llm(
+        system,
+        "Output JSON only. No text, no markdown. No explanation.\n\nPrevious output:\n" + raw[:500],
+    )
+    strict2 = _try_strict_extract(reprompted)
+    if strict2 is not None:
+        log.info("Format reprompt succeeded")
+        return strict2
+
+    # Step 3: last resort — search reprompted output for last balanced object
+    log.warning("Strict extract failed after format reprompt — using brace search")
+    return _brace_search_last(reprompted)
 
 
 # ── Observability ──────────────────────────────────────────────────────────────
@@ -242,7 +301,7 @@ def _extract_json(text: str) -> str:
 _EXPECTED_PACKET_KEYS = {
     "today", "athlete", "training_summary", "readiness_trend",
     "plan_authority", "active_plan", "constraints",
-    "recent_decisions", "vault_excerpts",
+    "recent_decisions", "vault_excerpts", "data_quality",
 }
 
 
@@ -399,7 +458,7 @@ def plan_week(
 
     # ── Call LLM ──────────────────────────────────────────────────────────
     raw = _call_llm(_SYSTEM_PLAN_WEEK, user_prompt)
-    decision = _parse_and_validate_plan(raw, ctx_hash)
+    decision = _parse_and_validate_plan(raw, ctx_hash, _SYSTEM_PLAN_WEEK)
 
     # ── Persist ───────────────────────────────────────────────────────────
     plan_id = insert_plan(
@@ -439,28 +498,33 @@ def plan_week(
     return decision
 
 
-def _parse_and_validate_plan(raw: str, ctx_hash: str) -> PlanDecision:
+def _parse_and_validate_plan(raw: str, ctx_hash: str, system: str) -> PlanDecision:
     """
-    Extract JSON from LLM output, validate with Pydantic.
-    On failure: one reprompt "Fix JSON only". Raises on second failure.
+    Extract + validate a PlanDecision from raw LLM output.
+
+    Extraction (up to 2 LLM calls):
+      _extract_or_reprompt: strict → format-reprompt → brace-search
+
+    Schema validation (1 additional reprompt on ValidationError):
+      Attempt 0 → attempt 1 ("Fix JSON only") → raise
     """
+    json_str = _extract_or_reprompt(raw, system)
+
     for attempt in range(2):
         try:
-            json_str = _extract_json(raw)
             data = json.loads(json_str)
             data.setdefault("context_hash", ctx_hash)
-            # Truncate string fields to schema limits before validation.
-            # LLMs reliably exceed char caps; truncation is cheaper than reprompts.
             data = _truncate_plan_data(data)
             return PlanDecision.model_validate(data)
-        except (ValueError, json.JSONDecodeError, ValidationError) as exc:
+        except (json.JSONDecodeError, ValidationError) as exc:
             if attempt == 0:
-                log.warning("plan parse attempt 1 failed: %s — reprompting", exc)
-                fix_prompt = _FIX_JSON_PROMPT.format(error=str(exc)[:200])
-                raw = _call_llm(_SYSTEM_PLAN_WEEK, f"{fix_prompt}\n\nPrevious output:\n{raw}")
+                log.warning("plan schema attempt 1 failed: %s — reprompting", exc)
+                fix_raw = _call_llm(system, _FIX_JSON_PROMPT.format(error=str(exc)[:200])
+                                    + f"\n\nPrevious output:\n{json_str[:500]}")
+                json_str = _extract_or_reprompt(fix_raw, system)
             else:
                 raise RuntimeError(
-                    f"Brain returned invalid JSON after reprompt: {exc}\n\nRaw:\n{raw[:500]}"
+                    f"Brain returned invalid plan JSON after reprompts: {exc}\n\nLast:\n{json_str[:400]}"
                 ) from exc
 
     raise RuntimeError("unreachable")  # mypy
@@ -505,7 +569,7 @@ def adjust_today(
     )
 
     raw = _call_llm(_SYSTEM_ADJUST_TODAY, user_prompt)
-    adjustment = _parse_and_validate_adjustment(raw, today_str, original_intent)
+    adjustment = _parse_and_validate_adjustment(raw, today_str, original_intent, _SYSTEM_ADJUST_TODAY)
 
     # Persist to vault only
     append_decision(
@@ -528,26 +592,28 @@ def adjust_today(
 
 
 def _parse_and_validate_adjustment(
-    raw: str, today_str: str, original_intent: Optional[str]
+    raw: str, today_str: str, original_intent: Optional[str], system: str
 ) -> TodayAdjustment:
-    """Extract + validate TodayAdjustment. One reprompt on failure."""
+    """Extract + validate TodayAdjustment. One schema reprompt on failure."""
+    json_str = _extract_or_reprompt(raw, system)
+
     for attempt in range(2):
         try:
-            json_str = _extract_json(raw)
             data = json.loads(json_str)
             data.setdefault("date", today_str)
             if original_intent and not data.get("original_intent"):
                 data["original_intent"] = original_intent
             data = _truncate_adjustment_data(data)
             return TodayAdjustment.model_validate(data)
-        except (ValueError, json.JSONDecodeError, ValidationError) as exc:
+        except (json.JSONDecodeError, ValidationError) as exc:
             if attempt == 0:
-                log.warning("adjust parse attempt 1 failed: %s — reprompting", exc)
-                fix_prompt = _FIX_JSON_PROMPT.format(error=str(exc)[:200])
-                raw = _call_llm(_SYSTEM_ADJUST_TODAY, f"{fix_prompt}\n\nPrevious output:\n{raw}")
+                log.warning("adjust schema attempt 1 failed: %s — reprompting", exc)
+                fix_raw = _call_llm(system, _FIX_JSON_PROMPT.format(error=str(exc)[:200])
+                                    + f"\n\nPrevious output:\n{json_str[:500]}")
+                json_str = _extract_or_reprompt(fix_raw, system)
             else:
                 raise RuntimeError(
-                    f"Brain returned invalid adjustment JSON after reprompt: {exc}"
+                    f"Brain returned invalid adjustment JSON after reprompts: {exc}"
                 ) from exc
 
     raise RuntimeError("unreachable")  # mypy
