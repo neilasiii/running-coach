@@ -327,3 +327,107 @@ class TestCLISchedule:
         assert "##" in md_out
         for row in fake_rows:
             assert row["date"] in md_out
+
+
+# ── Unit: mobile format ────────────────────────────────────────────────────────
+
+class TestMobileFormat:
+    """Tests for _fmt_mobile — the Discord-mobile day-cards formatter."""
+
+    def _fake_sched(self, n=7, flags=None):
+        today = date.today()
+        weekdays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+        types = ["easy", "rest", "tempo", "easy", "rest", "long", "none"]
+        rows = [
+            {
+                "date":            (today + timedelta(days=i)).isoformat(),
+                "weekday":         weekdays[(today + timedelta(days=i)).weekday()],
+                "workout_type":    types[i % len(types)],
+                "duration_min":    0 if types[i % len(types)] == "rest" else 45,
+                "intent":          f"Day {i+1} intent text",
+                "safety_flags":    (flags if flags and i == 0 else []),
+                "structure_steps": [],
+            }
+            for i in range(n)
+        ]
+        return {
+            "plan_id":    "20260217-abc12345",
+            "plan_start": today.isoformat(),
+            "plan_end":   (today + timedelta(days=n - 1)).isoformat(),
+            "created_at": "2026-02-17T04:00:00",
+            "range_start": today.isoformat(),
+            "range_end":   (today + timedelta(days=n - 1)).isoformat(),
+            "rows": rows,
+        }
+
+    def test_header_contains_week_schedule(self):
+        from cli.coach import _fmt_mobile
+        out = _fmt_mobile(self._fake_sched())
+        assert "Week Schedule" in out
+
+    def test_header_contains_plan_id(self):
+        from cli.coach import _fmt_mobile
+        out = _fmt_mobile(self._fake_sched())
+        assert "20260217-abc12345" in out or "20260217" in out
+
+    def test_all_dates_present(self):
+        from cli.coach import _fmt_mobile
+        sched = self._fake_sched(7)
+        out = _fmt_mobile(sched)
+        for row in sched["rows"]:
+            assert row["date"] in out, f"{row['date']} missing from mobile output"
+
+    def test_day_header_bold_markers(self):
+        from cli.coach import _fmt_mobile
+        out = _fmt_mobile(self._fake_sched())
+        # Each day card should have a bold Discord markdown header
+        assert "**" in out
+
+    def test_emoji_present_for_known_types(self):
+        from cli.coach import _fmt_mobile
+        out = _fmt_mobile(self._fake_sched())
+        # easy → 🟢, rest → ⚪, tempo → 🟠, long → 🔵
+        assert "🟢" in out  # easy day
+        assert "⚪" in out  # rest day
+        assert "🟠" in out  # tempo day
+        assert "🔵" in out  # long day
+
+    def test_flags_prefixed_with_flag_symbol(self):
+        from cli.coach import _fmt_mobile
+        sched = self._fake_sched(flags=["low_hrv", "poor_sleep"])
+        out = _fmt_mobile(sched)
+        assert "⚑ low_hrv" in out
+        assert "⚑ poor_sleep" in out
+
+    def test_no_code_fences(self):
+        from cli.coach import _fmt_mobile
+        out = _fmt_mobile(self._fake_sched())
+        assert "```" not in out
+
+    def test_no_entry_row_shows_no_entry_emoji(self):
+        from cli.coach import _fmt_mobile
+        sched = self._fake_sched()
+        # "none" type maps to ⚫ No entry
+        out = _fmt_mobile(sched)
+        assert "⚫" in out
+
+    def test_intent_clamped_to_120_chars(self):
+        from cli.coach import _fmt_mobile
+        long_intent = "X" * 130
+        sched = self._fake_sched(n=1)
+        sched["rows"][0]["intent"] = long_intent
+        out = _fmt_mobile(sched)
+        # Intent should appear truncated with ellipsis
+        assert "…" in out
+        # No line in the output should be longer than 200 chars (intent clamped to 120)
+        for line in out.splitlines():
+            assert len(line) <= 200, f"Line too long ({len(line)}): {line!r}"
+
+    def test_rest_day_omits_duration(self):
+        from cli.coach import _fmt_mobile
+        sched = self._fake_sched(n=1)
+        sched["rows"][0]["workout_type"] = "rest"
+        sched["rows"][0]["duration_min"] = 0
+        out = _fmt_mobile(sched)
+        # "0m" should NOT appear — rest with dur=0 should omit · Nm
+        assert "· 0m" not in out

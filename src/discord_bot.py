@@ -916,19 +916,19 @@ async def coach_memory_command(interaction: discord.Interaction, query: str):
     await interaction.followup.send(embed=embed)
 
 
-@bot.tree.command(name="coach_schedule", description="Show the active plan's week schedule (no LLM/Garmin calls)")
+@bot.tree.command(name="coach_schedule", description="Show the active plan's week schedule (mobile-friendly day cards)")
 @app_commands.describe(
     days="Number of days to show (default 7)",
-    format="Output format: table (default) or text",
+    format="Output format: mobile (default, phone-friendly) | table (desktop) | text",
 )
 async def coach_schedule_command(
     interaction: discord.Interaction,
     days: int = 7,
-    format: str = "table",
+    format: str = "mobile",
 ):
-    """Route to: coach schedule --week --days N --format fmt"""
+    """Route to: coach schedule --week --days N --format fmt (default mobile)"""
     await interaction.response.defer(thinking=True)
-    fmt = format if format in ("table", "text", "md") else "table"
+    fmt = format if format in ("mobile", "table", "text", "md") else "mobile"
     rc, stdout, stderr = await run_coach_cli(
         ["schedule", "--week", "--days", str(days), "--format", fmt],
         timeout=60,
@@ -944,23 +944,40 @@ async def coach_schedule_command(
         await interaction.followup.send(embed=embed)
         return
 
-    title = f"📅 Week Schedule ({days} days)"
-    if len(out) <= 1800:
-        embed = discord.Embed(
-            title=title,
-            description=f"```\n{out}\n```",
-            color=discord.Color.blue(),
-            timestamp=datetime.now(),
-        )
-        await interaction.followup.send(embed=embed)
+    if fmt == "table":
+        # Desktop table — wrap in code block for column alignment
+        if len(out) <= 1800:
+            embed = discord.Embed(
+                title="📅 Week Schedule",
+                description=f"```\n{out}\n```",
+                color=discord.Color.blue(),
+                timestamp=datetime.now(),
+            )
+            await interaction.followup.send(embed=embed)
+        else:
+            header_embed = discord.Embed(title="📅 Week Schedule", color=discord.Color.blue(), timestamp=datetime.now())
+            await interaction.followup.send(embed=header_embed)
+            chunks = [out[i:i + 1900] for i in range(0, len(out), 1900)]
+            for chunk in chunks:
+                await interaction.followup.send(f"```\n{chunk}\n```")
     else:
-        # Too long for one embed — send header embed + follow-up plain chunks
-        header_embed = discord.Embed(title=title, color=discord.Color.blue(), timestamp=datetime.now())
-        await interaction.followup.send(embed=header_embed)
-        # Reuse send_long_message pattern via channel
-        chunks = [out[i:i + 1900] for i in range(0, len(out), 1900)]
-        for chunk in chunks:
-            await interaction.followup.send(f"```\n{chunk}\n```")
+        # Mobile / text — plain Discord markdown, no code fences
+        # Split at blank-line day-card boundaries to avoid mid-day cuts
+        if len(out) <= 3500:
+            await interaction.followup.send(out)
+        else:
+            cards = out.split("\n\n")
+            chunk = ""
+            for card in cards:
+                candidate = chunk + ("\n\n" if chunk else "") + card
+                if len(candidate) > 1900:
+                    if chunk:
+                        await interaction.followup.send(chunk)
+                    chunk = card
+                else:
+                    chunk = candidate
+            if chunk:
+                await interaction.followup.send(chunk)
 
 
 @bot.tree.command(name="coach_note", description="Save a note to the coach inbox (constraint, injury, schedule change)")
@@ -1101,10 +1118,10 @@ async def on_message(message: discord.Message):
 
             if lower in ("schedule", "week", "this week") or lower.startswith("schedule "):
                 rc, stdout, stderr = await run_coach_cli(
-                    ["schedule", "--week", "--format", "table"], timeout=60
+                    ["schedule", "--week", "--format", "mobile"], timeout=60
                 )
                 out = stdout.strip() or stderr.strip() or "No schedule found"
-                await message.reply(f"```\n{clamp(out, 1800)}\n```")
+                await message.reply(clamp(out, 1900))
                 return
 
             # ── Default: help ───────────────────────────────────────────────
@@ -1113,7 +1130,7 @@ async def on_message(message: discord.Message):
                 "• `/coach_today` — today's planned workout\n"
                 "• `/coach_sync` — sync Garmin data\n"
                 "• `/coach_plan` — generate new week plan\n"
-                "• `/coach_schedule` — week schedule (7 days)\n"
+                "• `/coach_schedule` — week schedule (mobile cards; use format=table for desktop)\n"
                 "• `/coach_export` — preview Garmin export\n"
                 "• `/coach_status` — agent status\n"
                 "• `/coach_memory <query>` — search memory\n"
