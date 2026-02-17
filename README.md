@@ -1,208 +1,188 @@
-# Running Coach System
+# Running Coach (VDOT + Garmin)
 
-An AI-powered training guidance system that provides personalized coaching across four domains: running, strength, mobility, and nutrition.
+A personal AI-powered running coach that generates structured weekly training plans, publishes structured workouts to Garmin Connect, and monitors daily readiness — all driven by a persistent Memory OS and a Brain LLM planner.
 
-**Data Philosophy:** Your Garmin device collects the data. This system makes intelligent coaching decisions based on that data.
+- VDOT-based running plans (Jack Daniels methodology)
+- Syncs health data directly from Garmin Connect (sleep, HRV, body battery, VO2 max, activities)
+- Internal plan is authoritative — FinalSurge/ICS are optional inputs only
+- Background agent runs every 15 minutes; re-plans at 4am if plan is stale
+- Discord bot provides the primary day-to-day interface
+- CLI available for headless / ops use
 
-Designed to work with [Claude Code](https://docs.claude.com/en/docs/claude-code) or as a standalone CLI tool.
+> **Note:** Strength, mobility, and nutrition coaching are currently stubbed. This system runs in running-only mode.
 
-## Features
+---
 
-### 🏃 Specialized Coaching Domains
+## Architecture (High Level)
 
-- **Running Coach** - VDOT-based training using Jack Daniels methodology
-- **Strength Coach** - Runner-specific strength training coordinated with running schedule
-- **Mobility Coach** - Recovery protocols and flexibility work
-- **Nutrition Coach** - Fueling strategies with dietary customization (gluten-free, dairy-free)
+```
+Garmin Connect API
+        │
+src/garmin_sync.py  ──►  data/health/health_data_cache.json
+        │
+skills/garmin_sync.py (wrapper)
+        │
+Memory OS ─────────────────────────────────────────────────
+│  data/coach.sqlite      (plans, events, metrics, state)  │
+│  vault/daily/           (daily markdown notes)           │
+│  vault/inbox/           (drop zone for constraint notes) │
+└──────────────────────────────────────────────────────────┘
+        │
+Brain (brain/planner.py)
+│  plan_week()    — generates 7-day plan, writes to SQLite
+│  adjust_today() — modifies today's session on readiness drop
+└──────────────────────────────────────────────────────────
+        │
+Skills (skills/)
+│  internal_plan_to_scheduled_workouts.py — renders plan days
+│  publish_to_garmin.py — calls sacred upload path
+└──────────────────────────────────────────────────────────
+        │
+CLI (cli/coach.py)       ←── Discord bot (src/discord_bot.py)
+Agent (agent/runner.py)  ←── systemd: running-coach-agent
+Hooks (hooks/)           ←── on_sync, on_readiness_change,
+                                on_daily_rollover, on_constraints_change
+```
 
-### 📊 Health Data Integration
+---
 
-- **Direct Garmin Connect Sync** - Automatic import of activities, sleep, HR, VO2 max, and biometric data
-- **Extended Metrics** - Endurance score, respiration data, GPS track details for route analysis
-- **VDOT Calculator** - Official Jack Daniels formulas for training pace calculations
-- **Garmin-Provided Analytics** - HR zone analysis, lactate threshold, HRV, training readiness scores
-- **Calendar Integration** - Import/export workouts from FinalSurge, TrainingPeaks, or any ICS calendar
-- **Workout Upload** - Push structured workouts directly to Garmin Connect calendar
+## What is Authoritative
 
-### 💬 Flexible Communication
+| Layer | Role |
+|---|---|
+| `data/coach.sqlite` | **Authoritative source for all plan data** |
+| `data/health/health_data_cache.json` | Garmin truth for all health metrics |
+| `data/generated_workouts.json` | **Sole skip gate** — if a date is in this file, Garmin upload is skipped (idempotency) |
+| FinalSurge / ICS calendar | Optional input to the Brain; never authoritative |
+| Garmin Connect calendar | Execution layer only — receives uploads, does not drive planning |
 
-- **BRIEF Mode** (default) - Quick, scannable workouts
-- **STANDARD Mode** - Balanced guidance with context
-- **DETAILED Mode** - Comprehensive explanations with physiological reasoning
+**Sacred files — never modify directly:**
 
-### 📱 Enhanced Morning Reports
+- `src/garmin_sync.py` — Garmin API fetch and cache writer
+- `src/auto_workout_generator.py` — converts workout descriptions to Garmin structured steps
+- `src/workout_uploader.py` — Garmin API upload
+- `data/generated_workouts.json` — write only via the publish skills path
 
-- **AI-Powered Notifications** - Daily training recommendations
-- **Terminal Dashboard** - Comprehensive text report with recovery metrics
-- **HTML Dashboard** - Beautiful mobile-friendly report with charts
-- **Recovery Analytics** - Sleep quality, RHR trends, training readiness
-- **Weather Integration** - Pace adjustments for heat/humidity
+---
 
-## Quick Start
+## Quick Start (Local)
 
-See **[QUICKSTART.md](docs/QUICKSTART.md)** for detailed setup instructions.
-
-### Using Claude Code (Recommended)
-
-1. Clone the repository and open in Claude Code
-2. Set Garmin credentials: `export GARMIN_EMAIL=...` and `export GARMIN_PASSWORD=...`
-3. Install dependencies: `pip install -r requirements.txt`
-4. Sync health data: `bash bin/sync_garmin_data.sh --days 90`
-5. Interact with the coaching agents in `.claude/agents/`
-
-### Customize Your Profile
-
-Edit the files in `data/athlete/` to personalize your coaching:
-- `goals.md` - Performance goals and training objectives
-- `training_preferences.md` - Schedule constraints and workout preferences
-- `communication_preferences.md` - Detail level (BRIEF/STANDARD/DETAILED)
-
-## Common Commands
-
-### Health Data & Sync
 ```bash
-# Sync from Garmin Connect (last 30 days)
-bash bin/sync_garmin_data.sh
+# 1. Sync Garmin health data
+python3 cli/coach.py sync
 
-# Calculate VDOT and training paces from race performance
-python3 src/vdot_calculator.py
+# 2. Generate this week's plan (calls Brain LLM — one call)
+python3 cli/coach.py plan --week
 
-# Get current weather and forecast
-python3 src/get_weather.py
+# 3. Preview Garmin upload (dry run — safe, no API calls)
+python3 cli/coach.py export-garmin
+
+# 4. See today's workout
+python3 cli/coach.py brief --today
+
+# 5. Upload to Garmin (only after reviewing dry run)
+python3 cli/coach.py export-garmin --live
 ```
 
-### Workout Management
+All CLI commands: `python3 cli/coach.py --help`
+
+---
+
+## Discord Usage (Recommended)
+
+The Discord bot is the primary interface. All `coach_*` commands route to `cli/coach.py`.
+
+| Command | What it does | Calls LLM? |
+|---|---|---|
+| `/coach_today` | Show today's plan from SQLite | No |
+| `/coach_sync` | Sync Garmin data | No |
+| `/coach_plan` | Generate new weekly plan | **Yes** |
+| `/coach_export` | Preview Garmin upload (dry run) | No |
+| `/coach_status` | Agent lock state + recent task runs | No |
+| `/coach_memory <query>` | Search plan days and events | No |
+| `/coach_note <text>` | Save constraint note to vault/inbox | No |
+
+**#coach channel keywords** (no slash needed):
+
+| Type | Triggers |
+|---|---|
+| `today` / `brief` / `workout` | Shows today's plan |
+| `sync` | Runs Garmin sync |
+| `plan` *(exact)* or `plan <anything>` | Generates new plan (LLM) |
+| `status` / `agent` | Shows agent status |
+| `ai: <question>` | Direct Claude/Gemini question |
+
+See **[docs/USER_GUIDE.md](docs/USER_GUIDE.md)** for the full command reference and `#coach` keyword routing rules.
+
+---
+
+## Systemd Services
+
+### Discord Bot (running)
+
 ```bash
-# View scheduled workouts
-bash bin/planned_workouts.sh list --upcoming 7 -v
-
-# Upload workout to Garmin Connect
-bash bin/upload_workout.sh path/to/workout.json
-
-# Export workouts to calendar
-bash bin/export_calendar.sh --days 14
+sudo systemctl status running-coach-bot --no-pager
+sudo systemctl restart running-coach-bot
+sudo journalctl -u running-coach-bot -f
 ```
 
-### Morning Reports
+### Heartbeat Agent (install once)
+
 ```bash
-# Generate AI-powered morning report
-bash bin/morning_report.sh
-
-# View last generated report
-bash bin/morning_report.sh --view
-
-# Generate without syncing (use cached data)
-bash bin/morning_report.sh --no-sync
+sudo cp deploy/running-coach-agent.service /etc/systemd/system/
+sudo systemctl daemon-reload
+sudo systemctl enable running-coach-agent
+sudo systemctl start running-coach-agent
+sudo journalctl -u running-coach-agent -f
 ```
 
-### Discord Bot
-```bash
-# Start Discord bot (manual)
-bash bin/start_discord_bot.sh
+The agent runs every 15 minutes. At 4am it performs a daily deep run: writes a vault note, checks plan staleness, and re-plans if needed. Both services share a SQLite lock so they never conflict.
 
-# Check service status
-sudo systemctl status running-coach-bot
+---
 
-# View bot logs
-journalctl -u running-coach-bot -f
-```
+## Safety / Sacred Path
 
-## Architecture
-
-**Coaching Agents** (`.claude/agents/`)
-- AI agents for running, strength, mobility, and nutrition
-- Auto-loaded by Claude Code
-- Access athlete context and health data automatically
-
-**Health Data System**
-- `src/garmin_sync.py` - Garmin Connect API sync
-- `data/health/health_data_cache.json` - Cached health metrics
-- Direct API access with OAuth authentication
-
-**Athlete Context**
-- `data/athlete/` - Profile, goals, preferences, status
-- Read by all coaching agents for personalized guidance
-
-See **[ARCHITECTURE.md](docs/ARCHITECTURE.md)** for complete technical details.
-
-## Documentation
-
-**Getting Started:**
-- **[QUICKSTART.md](docs/QUICKSTART.md)** - Step-by-step setup guide
-- **[COMMUNICATION_PREFERENCES_GUIDE.md](docs/COMMUNICATION_PREFERENCES_GUIDE.md)** - Choose your detail level
-
-**System Documentation:**
-- **[ARCHITECTURE.md](docs/ARCHITECTURE.md)** - System design and components
-- **[HEALTH_DATA_SYSTEM.md](docs/HEALTH_DATA_SYSTEM.md)** - Health data technical documentation
-- **[GARMIN_TOKEN_AUTH.md](docs/GARMIN_TOKEN_AUTH.md)** - Authentication setup guide
-
-**Agent Documentation:**
-- **[AGENT_HEALTH_DATA_GUIDE.md](docs/AGENT_HEALTH_DATA_GUIDE.md)** - Using health data in agents
-- **[AGENT_WORKOUT_LIBRARY_GUIDE.md](docs/AGENT_WORKOUT_LIBRARY_GUIDE.md)** - Workout library integration
-- **[AGENT_PLANNED_WORKOUTS_GUIDE.md](docs/AGENT_PLANNED_WORKOUTS_GUIDE.md)** - Managing planned workouts
-
-**Development:**
-- **[CLAUDE.md](CLAUDE.md)** - Development guide for Claude Code integration
-
-## Project Structure
+The Garmin publish path must never be bypassed or modified:
 
 ```
-running-coach/
-├── src/                       # Python source code
-├── bin/                       # Executable scripts
-├── docs/                      # Documentation
-├── data/
-│   ├── athlete/               # Athlete profile & context
-│   ├── health/                # Health data cache
-│   ├── library/               # Workout library
-│   ├── plans/                 # Training plans
-│   └── calendar/              # Calendar files
-├── .claude/agents/            # AI coaching agents
-├── config/                    # Configuration files
-└── requirements.txt           # Python dependencies
+cli/coach.py export-garmin --live
+        │
+skills/publish_to_garmin.py
+        │  reads:  data/generated_workouts.json  (skip gate)
+        │  calls:  skills/internal_plan_to_scheduled_workouts.py
+        │
+src/auto_workout_generator.py  →  src/workout_uploader.py
+        │
+Garmin Connect API
+        │
+data/generated_workouts.json  ←  updated (idempotency record)
 ```
 
-## Troubleshooting
+**Invariants:**
+- New code must never write `data/generated_workouts.json` directly.
+- New code must never call `src/workout_uploader.py` directly — always go through the skills layer.
+- FinalSurge ICS source is rejected at the CLI level (`--source ics` returns error).
 
-**Authentication Issues:**
-```bash
-# Verify credentials
-echo $GARMIN_EMAIL
-echo $GARMIN_PASSWORD
+---
 
-# Clear cache and re-authenticate
-rm -rf ~/.garminconnect
-bash bin/sync_garmin_data.sh
-```
+## Docs
 
-**Health Data Not Updating:**
-```bash
-# Run with verbose output
-python3 src/garmin_sync.py --days 7 --summary
+| Document | Contents |
+|---|---|
+| **[docs/USER_GUIDE.md](docs/USER_GUIDE.md)** | Full user guide: daily workflow, all commands, end-to-end testing checklist, debugging playbook, token discipline |
+| [docs/SYSTEM_ARCHITECTURE.md](docs/SYSTEM_ARCHITECTURE.md) | Technical architecture detail |
+| [docs/TRAINING_PHILOSOPHY.md](docs/TRAINING_PHILOSOPHY.md) | VDOT periodization and training principles |
+| [docs/GARMIN_TOKEN_AUTH.md](docs/GARMIN_TOKEN_AUTH.md) | Token-based Garmin authentication setup |
+| [docs/QUICKSTART.md](docs/QUICKSTART.md) | Initial setup guide |
 
-# Check cache timestamp
-python3 -c "import json; print(json.load(open('data/health/health_data_cache.json'))['last_updated'])"
-```
+The **User Guide** (`docs/USER_GUIDE.md`) is the primary reference for day-to-day use. It includes:
+- Complete Discord and CLI command reference
+- 10-step end-to-end testing checklist
+- Debugging playbook for common failures
+- Token/cost discipline guide
 
-**Reset Cache:**
-```bash
-rm data/health/health_data_cache.json
-bash bin/sync_garmin_data.sh --days 90
-```
+---
 
-See **[QUICKSTART.md](docs/QUICKSTART.md)** for more troubleshooting tips.
+## License / Disclaimer
 
-## License
-
-[Add your license information here]
-
-## Contributing
-
-[Add contribution guidelines here]
-
-## Support
-
-For issues or questions:
-1. Check the documentation in `docs/`
-2. Review the troubleshooting section above
-3. [Add your support contact or issue tracker link]
+Personal training tool — not medical advice. Training recommendations are generated by an AI model and should be used at your own discretion. Always consult a qualified coach or physician before making significant changes to your training load.
