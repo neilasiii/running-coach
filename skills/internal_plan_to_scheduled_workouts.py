@@ -63,7 +63,7 @@ def convert(
         steps = session.get("structure_steps", [])
         intent = session.get("intent", "")
 
-        name, degraded_reason = _render_description(workout_type, duration_min, steps)
+        name, degraded_reason = _render_description(workout_type, duration_min, steps, intent)
         if degraded_reason:
             _record_degraded(
                 date=date_,
@@ -72,6 +72,17 @@ def convert(
                 rendered=name,
                 db_path=db_path,
             )
+
+        # Stride-specific event: record when renderer had to correct invalid strides
+        plan_id = session.get("plan_id", "unknown")
+        _check_stride_validity(
+            date=date_,
+            plan_id=plan_id,
+            workout_type=workout_type,
+            intent=intent,
+            steps=steps,
+            db_path=db_path,
+        )
 
         results.append(
             {
@@ -92,15 +103,23 @@ def _render_description(
     workout_type: str,
     duration_min: int,
     steps: List[Dict[str, Any]],
+    intent: str = "",
 ) -> Tuple[str, Optional[str]]:
     """
     Return (description_string, degraded_reason_or_None).
 
     degraded_reason is None when the workout was rendered correctly.
     When degraded, the returned description is a safe fallback easy run.
+
+    For easy/long workouts whose intent mentions strides, emits the canonical
+    stride description rather than a plain easy run.  This is the second
+    enforcement point (planner already rewrites bad steps; renderer always
+    emits the correct format regardless).
     """
     try:
         if workout_type in ("easy", "long"):
+            if "stride" in intent.lower():
+                return _render_easy_strides(duration_min), None
             return f"{duration_min} min E", None
 
         if workout_type in ("tempo", "interval"):
@@ -169,6 +188,55 @@ def _find_steps(steps: List[Dict], labels: tuple) -> List[Dict]:
     return [s for s in steps if s.get("label") in labels]
 
 
+# ── Stride rendering ──────────────────────────────────────────────────────────
+
+def _render_easy_strides(duration_min: int) -> str:
+    """
+    Return a parser-compatible easy+strides description.
+
+    Always uses the canonical 6×20 s format.  Sub-minute stride durations
+    cannot be stored in WorkoutStep.duration_min (schema ge=1), so the
+    canonical text is the only reliable representation.
+
+    Example: "45 min E + 6x20 sec strides @ 5k effort on 40 sec easy jog recovery"
+    """
+    from brain.stride_rules import CANONICAL_REPS, CANONICAL_REP_SEC
+    return (
+        f"{duration_min} min E + "
+        f"{CANONICAL_REPS}x{CANONICAL_REP_SEC} sec strides "
+        f"@ 5k effort on 40 sec easy jog recovery"
+    )
+
+
+def _check_stride_validity(
+    date: str,
+    plan_id: str,
+    workout_type: str,
+    intent: str,
+    steps: List[Dict[str, Any]],
+    db_path=None,
+) -> None:
+    """Record a stride_validation_failed event when renderer detects bad steps."""
+    if workout_type not in ("easy", "long"):
+        return
+    if "stride" not in intent.lower():
+        return
+
+    try:
+        from brain.stride_rules import validate_strides
+        ok, reason = validate_strides(steps)
+        if not ok:
+            log.warning(
+                "stride_validation_failed at render: %s (date=%s plan=%s)",
+                reason, date, plan_id,
+            )
+            _record_stride_failure(
+                date=date, plan_id=plan_id, reason=reason, db_path=db_path
+            )
+    except Exception as exc:
+        log.error("stride validity check error: %s", exc)
+
+
 # ── Degraded event recording ───────────────────────────────────────────────────
 
 def _record_degraded(
@@ -196,3 +264,28 @@ def _record_degraded(
         )
     except Exception as exc:
         log.error("Failed to record render_degraded event: %s", exc)
+
+
+def _record_stride_failure(
+    date: str,
+    plan_id: str,
+    reason: str,
+    db_path=None,
+) -> None:
+    """Record a stride_validation_failed event in SQLite."""
+    try:
+        from memory.db import init_db, insert_event, DB_PATH as _DEFAULT_DB
+
+        init_db(db_path or _DEFAULT_DB)
+        insert_event(
+            event_type="stride_validation_failed",
+            payload={
+                "date":    date,
+                "plan_id": plan_id,
+                "reason":  reason[:300],
+            },
+            source="skills.internal_plan_to_scheduled_workouts",
+            db_path=db_path or _DEFAULT_DB,
+        )
+    except Exception as exc:
+        log.error("Failed to record stride_validation_failed event: %s", exc)
