@@ -169,6 +169,113 @@ def cmd_brief(args) -> int:
     return 0
 
 
+# ── schedule ──────────────────────────────────────────────────────────────────
+
+def cmd_schedule(args) -> int:
+    """Export the active plan's next N days in a human-readable format."""
+    if not getattr(args, "week", False):
+        print("Error: specify --week", file=sys.stderr)
+        return 1
+
+    days = getattr(args, "days", 7)
+    fmt  = getattr(args, "format", "table")
+
+    from skills.plans import get_schedule
+
+    sched = get_schedule(days=days)
+
+    if sched["plan_id"] is None:
+        print("No active plan. Run 'coach plan --week' first.", file=sys.stderr)
+        return 1
+
+    if fmt == "table":
+        print(_fmt_table(sched))
+    elif fmt == "text":
+        print(_fmt_text(sched))
+    elif fmt == "md":
+        print(_fmt_md(sched))
+    else:
+        print(f"Unknown format: {fmt!r}", file=sys.stderr)
+        return 1
+
+    return 0
+
+
+def _clamp60(s: str) -> str:
+    """Clamp intent to 60 chars for stable table width."""
+    return s if len(s) <= 60 else s[:57] + "..."
+
+
+def _fmt_table(sched: dict) -> str:
+    lines = []
+    pid = sched["plan_id"] or "?"
+    ps  = sched.get("plan_start") or "?"
+    pe  = sched.get("plan_end")   or "?"
+    ca  = sched.get("created_at") or "?"
+    # Trim created_at to date+time without microseconds
+    if len(ca) > 19:
+        ca = ca[:19]
+    lines.append(f"Active plan: {pid}  {ps} → {pe}  (created_at={ca})")
+    lines.append(
+        f"Range: {sched['range_start']} → {sched['range_end']}  "
+        f"Days: {len(sched['rows'])}"
+    )
+    lines.append("")
+    lines.append(f"{'DATE':<12} {'DAY':<4} {'TYPE':<10} {'MIN':>4}  INTENT")
+    lines.append("─" * 74)
+
+    for row in sched["rows"]:
+        min_val = str(row["duration_min"]) if row["duration_min"] != "" else ""
+        lines.append(
+            f"{row['date']:<12} {row['weekday']:<4} "
+            f"{row['workout_type']:<10} {min_val:>4}  "
+            f"{_clamp60(row['intent'])}"
+        )
+        if row["safety_flags"]:
+            flags_str = "; ".join(row["safety_flags"])
+            lines.append(f"           ↳ flags: {flags_str}")
+
+    return "\n".join(lines)
+
+
+def _fmt_text(sched: dict) -> str:
+    lines = []
+    pid = sched["plan_id"] or "?"
+    lines.append(f"Schedule — plan {pid}  {sched['range_start']} to {sched['range_end']}")
+    lines.append("")
+    for row in sched["rows"]:
+        flag_part = f" [flags: {'; '.join(row['safety_flags'])}]" if row["safety_flags"] else ""
+        lines.append(
+            f"{row['weekday']} {row['date']} — "
+            f"{_clamp60(row['intent'])}{flag_part}"
+        )
+    return "\n".join(lines)
+
+
+def _fmt_md(sched: dict) -> str:
+    lines = []
+    pid = sched["plan_id"] or "?"
+    lines.append(f"## Schedule — plan `{pid}`")
+    lines.append(
+        f"Range: **{sched['range_start']}** → **{sched['range_end']}**  "
+        f"({len(sched['rows'])} days)"
+    )
+    lines.append("")
+    for row in sched["rows"]:
+        wtype = row["workout_type"]
+        dur   = f" {row['duration_min']}min" if row["duration_min"] not in ("", 0) else ""
+        intent = _clamp60(row["intent"])
+        flags_part = (
+            f"\n  - *flags: {'; '.join(row['safety_flags'])}*"
+            if row["safety_flags"] else ""
+        )
+        lines.append(
+            f"- **{row['date']} ({row['weekday']})** — {wtype}{dur}: {intent}"
+            f"{flags_part}"
+        )
+    return "\n".join(lines)
+
+
 # ── memory search ─────────────────────────────────────────────────────────────
 
 def cmd_memory(args) -> int:
@@ -368,6 +475,16 @@ def main() -> int:
     p_brief = sub.add_parser("brief", help="Print today's planned workout")
     p_brief.add_argument("--today", action="store_true", required=True)
     p_brief.set_defaults(func=cmd_brief)
+
+    # schedule
+    p_sched = sub.add_parser("schedule", help="Export the active plan's week schedule")
+    p_sched.add_argument("--week", action="store_true", required=True, help="Export next N days")
+    p_sched.add_argument("--days", type=int, default=7, metavar="N", help="Number of days (default 7)")
+    p_sched.add_argument(
+        "--format", choices=["table", "text", "md"], default="table",
+        help="Output format (default: table)",
+    )
+    p_sched.set_defaults(func=cmd_schedule)
 
     # memory
     p_mem = sub.add_parser("memory", help="Query the Memory OS")

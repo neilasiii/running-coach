@@ -916,6 +916,53 @@ async def coach_memory_command(interaction: discord.Interaction, query: str):
     await interaction.followup.send(embed=embed)
 
 
+@bot.tree.command(name="coach_schedule", description="Show the active plan's week schedule (no LLM/Garmin calls)")
+@app_commands.describe(
+    days="Number of days to show (default 7)",
+    format="Output format: table (default) or text",
+)
+async def coach_schedule_command(
+    interaction: discord.Interaction,
+    days: int = 7,
+    format: str = "table",
+):
+    """Route to: coach schedule --week --days N --format fmt"""
+    await interaction.response.defer(thinking=True)
+    fmt = format if format in ("table", "text", "md") else "table"
+    rc, stdout, stderr = await run_coach_cli(
+        ["schedule", "--week", "--days", str(days), "--format", fmt],
+        timeout=60,
+    )
+    out = stdout.strip() or stderr.strip() or "No schedule data"
+    if rc != 0:
+        embed = discord.Embed(
+            title="❌ Schedule Error",
+            description=clamp(out, 1800),
+            color=discord.Color.red(),
+            timestamp=datetime.now(),
+        )
+        await interaction.followup.send(embed=embed)
+        return
+
+    title = f"📅 Week Schedule ({days} days)"
+    if len(out) <= 1800:
+        embed = discord.Embed(
+            title=title,
+            description=f"```\n{out}\n```",
+            color=discord.Color.blue(),
+            timestamp=datetime.now(),
+        )
+        await interaction.followup.send(embed=embed)
+    else:
+        # Too long for one embed — send header embed + follow-up plain chunks
+        header_embed = discord.Embed(title=title, color=discord.Color.blue(), timestamp=datetime.now())
+        await interaction.followup.send(embed=header_embed)
+        # Reuse send_long_message pattern via channel
+        chunks = [out[i:i + 1900] for i in range(0, len(out), 1900)]
+        for chunk in chunks:
+            await interaction.followup.send(f"```\n{chunk}\n```")
+
+
 @bot.tree.command(name="coach_note", description="Save a note to the coach inbox (constraint, injury, schedule change)")
 @app_commands.describe(note="The note to save (e.g. 'No workout Sunday — family commitment')")
 async def coach_note_command(interaction: discord.Interaction, note: str):
@@ -1052,12 +1099,21 @@ async def on_message(message: discord.Message):
                 await message.reply(f"```\n{clamp(out, 1800)}\n```")
                 return
 
+            if lower in ("schedule", "week", "this week") or lower.startswith("schedule "):
+                rc, stdout, stderr = await run_coach_cli(
+                    ["schedule", "--week", "--format", "table"], timeout=60
+                )
+                out = stdout.strip() or stderr.strip() or "No schedule found"
+                await message.reply(f"```\n{clamp(out, 1800)}\n```")
+                return
+
             # ── Default: help ───────────────────────────────────────────────
             await message.reply(
                 "Use slash commands or prefix with `ai:` for LLM:\n"
                 "• `/coach_today` — today's planned workout\n"
                 "• `/coach_sync` — sync Garmin data\n"
                 "• `/coach_plan` — generate new week plan\n"
+                "• `/coach_schedule` — week schedule (7 days)\n"
                 "• `/coach_export` — preview Garmin export\n"
                 "• `/coach_status` — agent status\n"
                 "• `/coach_memory <query>` — search memory\n"
