@@ -377,15 +377,56 @@ def insert_plan_days(
 
 def set_active_plan(plan_id: str, db_path: Path = DB_PATH) -> None:
     """
-    Promote plan_id to 'active'. Archives any previously active plan.
-    Also stores active_plan_id in state table for fast lookup.
+    Promote plan_id to 'active'. ATOMIC: all four steps run in one transaction.
+
+      1) Verify plan_id exists — raises ValueError if not.
+      2) Capture previous active plan id (for the event payload).
+      3) Archive any currently-active plan (status → 'archived').
+      4) Set the new plan to status='active'.
+      5) Write a 'plan_activated' event (inline, same connection).
+      6) Update state['active_plan_id'] for fast lookup.
+
+    Raises:
+        ValueError: if plan_id does not exist in the plans table.
     """
+    ts = datetime.utcnow().isoformat()
     conn = _connect(db_path)
     try:
+        # 1) Guard: plan must exist
+        if not conn.execute(
+            "SELECT 1 FROM plans WHERE plan_id = ?", (plan_id,)
+        ).fetchone():
+            raise ValueError(f"set_active_plan: plan_id {plan_id!r} not found")
+
+        # 2) Capture previous active plan (may be None)
+        prev = conn.execute(
+            "SELECT plan_id FROM plans WHERE status = 'active'"
+        ).fetchone()
+        previous_plan_id: Optional[str] = prev["plan_id"] if prev else None
+
+        # 3) Archive current active plan(s)
         conn.execute("UPDATE plans SET status = 'archived' WHERE status = 'active'")
+
+        # 4) Activate new plan
         conn.execute(
             "UPDATE plans SET status = 'active' WHERE plan_id = ?", (plan_id,)
         )
+
+        # 5) Write plan_activated event — inline to stay in the same transaction
+        event_payload = {
+            "plan_id":          plan_id,
+            "previous_plan_id": previous_plan_id,
+            "activated_at":     ts,
+        }
+        event_payload_str = json.dumps(event_payload, sort_keys=True)
+        event_id = _make_event_id("plan_activated", event_payload, ts)
+        conn.execute(
+            """INSERT OR IGNORE INTO events(id, type, ts, payload_json, source, hash)
+               VALUES (?, 'plan_activated', ?, ?, 'system', ?)""",
+            (event_id, ts, event_payload_str, event_id),
+        )
+
+        # 6) Fast-lookup state entry
         conn.execute(
             """INSERT INTO state(key, value, updated_at) VALUES('active_plan_id', ?, datetime('now'))
                ON CONFLICT(key) DO UPDATE SET
@@ -393,7 +434,42 @@ def set_active_plan(plan_id: str, db_path: Path = DB_PATH) -> None:
                  updated_at = excluded.updated_at""",
             (plan_id,),
         )
+
         conn.commit()
+    except Exception:
+        conn.rollback()
+        raise
+    finally:
+        conn.close()
+
+
+def get_active_plan_id(db_path: Path = DB_PATH) -> Optional[str]:
+    """Return the active plan's plan_id from the state table, or None."""
+    return get_state("active_plan_id", db_path=db_path)
+
+
+def get_active_plan_range(db_path: Path = DB_PATH) -> Optional[Tuple[str, str]]:
+    """Return (start_date, end_date) ISO strings for the active plan, or None."""
+    conn = _connect(db_path)
+    try:
+        row = conn.execute(
+            "SELECT start_date, end_date FROM plans WHERE status = 'active' LIMIT 1"
+        ).fetchone()
+        return (row["start_date"], row["end_date"]) if row else None
+    finally:
+        conn.close()
+
+
+def get_plan_meta(plan_id: str, db_path: Path = DB_PATH) -> Optional[Dict]:
+    """Return plan header fields (no plan_json or day rows) for a given plan_id."""
+    conn = _connect(db_path)
+    try:
+        row = conn.execute(
+            "SELECT plan_id, start_date, end_date, created_at, status, context_hash "
+            "FROM plans WHERE plan_id = ?",
+            (plan_id,),
+        ).fetchone()
+        return dict(row) if row else None
     finally:
         conn.close()
 

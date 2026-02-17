@@ -230,6 +230,35 @@ def _get_plan_section(days_forward: int, db_path) -> Optional[Dict]:
     return get_active_plan(start=today, end=end, db_path=db_path)
 
 
+def _get_plan_authority(db_path) -> Dict:
+    """
+    Build the plan_authority block — always fully populated, never absent.
+
+    Rules:
+      - source is always 'internal' (FinalSurge is not authoritative).
+      - finalsurge_authoritative is always False.
+      - If no active plan exists, id/range/created_at are None but keys are present.
+    """
+    from .db import get_active_plan_id, get_active_plan_range, get_plan_meta
+
+    active_id    = get_active_plan_id(db_path=db_path)
+    active_range = get_active_plan_range(db_path=db_path)
+
+    last_created = None
+    if active_id:
+        meta = get_plan_meta(active_id, db_path=db_path)
+        if meta:
+            last_created = meta.get("created_at")
+
+    return {
+        "source":               "internal",
+        "active_plan_id":       active_id,
+        "active_plan_range":    list(active_range) if active_range else None,
+        "last_plan_created_at": last_created,
+        "finalsurge_authoritative": False,
+    }
+
+
 # ── Vault Excerpts ─────────────────────────────────────────────────────────────
 
 _DEFAULT_KEYWORDS = [
@@ -344,10 +373,20 @@ def build_context_packet(
       athlete            snapshot of key athlete metrics from health cache
       training_summary   rolling activities rollup (last days_back)
       readiness_trend    recovery metrics (last 7 days)
+      plan_authority     authority declaration (always present; see below)
       active_plan        internal plan days (today → today + days_forward), or None
       constraints        upcoming constraint events from SQLite
       recent_decisions   last 3 coaching decisions from vault
       vault_excerpts     top 3–5 keyword-matched note excerpts
+
+    plan_authority shape (always fully populated):
+      {
+        "source":               "internal",
+        "active_plan_id":       str | null,
+        "active_plan_range":    [start_iso, end_iso] | null,
+        "last_plan_created_at": iso_str | null,
+        "finalsurge_authoritative": false   ← always false
+      }
 
     All fields are truncated to hard size caps before return.
     """
@@ -378,6 +417,7 @@ def build_context_packet(
         "athlete":          athlete,
         "training_summary": _rollup_activities(health, days_back),
         "readiness_trend":  _rollup_readiness(health, min(days_back, 7)),
+        "plan_authority":   _get_plan_authority(db_path),
         "active_plan":      _get_plan_section(days_forward, db_path),
         "constraints":      _get_constraints(days_forward, db_path),
         "recent_decisions": [],
