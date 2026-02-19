@@ -12,6 +12,12 @@ config/discord_bot.env
 config/.garmin_config.json
 config/.garmin_session.json
 
+# Google OAuth credentials and tokens (not used — but must never be re-committed)
+config/credentials.json
+config/.drive_token.json
+config/token.json
+config/token.pickle
+
 # Calendar URLs (may contain private calendar links)
 config/calendar_sources.json
 
