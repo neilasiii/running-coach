@@ -1,9 +1,10 @@
 """
 Tests for memory/retrieval.py — context packet builder.
 
-Scope: B11-009 — verify activities are capped to days_back before rollup
-so the full 60-day cache is never loaded into the in-memory health dict
-during context-packet construction.
+Scope:
+  B11-009 — verify activities are capped to days_back before rollup
+  B11-014 — readiness_trend reads from daily_metrics SQLite when populated;
+            falls back cleanly to JSON cache when table is empty
 """
 import json
 import tempfile
@@ -111,3 +112,89 @@ class TestActivitiesCap:
 
         ts = packet["training_summary"]
         assert ts["count"] == 5, "Only the 5 recent activities should be counted"
+
+
+# ── B11-014: readiness_trend SQLite vs JSON fallback ──────────────────────────
+
+class TestReadinessTrendSQLitePath:
+    """readiness_trend should come from daily_metrics when rows are present."""
+
+    def _empty_health(self):
+        return {
+            "activities": [],
+            "hrv": [], "sleep": [], "body_battery": [],
+            "training_readiness": [], "resting_hr": [],
+            "vo2_max": None, "last_updated": date.today().isoformat(),
+        }
+
+    def _build_packet_with_db(self, db_path):
+        from memory.retrieval import build_context_packet
+        from memory.db import init_db
+        init_db(db_path=db_path)
+        with patch("memory.retrieval._load_health_cache", return_value=self._empty_health()):
+            return build_context_packet(days_back=7, db_path=db_path)
+
+    def test_sqlite_path_used_when_rows_present(self, tmp_path):
+        from memory.db import init_db, upsert_daily_metrics
+        db = tmp_path / "test.sqlite"
+        init_db(db_path=db)
+
+        today = date.today()
+        upsert_daily_metrics(
+            today,
+            hrv_rmssd=65.0, resting_hr=48.0, sleep_score=82.0,
+            sleep_duration_h=7.8, body_battery=90, training_readiness=75,
+            stress_avg=20.0, db_path=db,
+        )
+
+        packet = self._build_packet_with_db(db)
+        rt = packet["readiness_trend"]
+
+        assert rt.get("source") == "sqlite", "Expected source='sqlite' when rows present"
+        assert rt["today"]["hrv"] == pytest.approx(65.0)
+        assert rt["today"]["sleep_score"] == pytest.approx(82.0)
+        assert rt["today"]["body_battery_max"] == pytest.approx(90)
+        assert rt["today"]["training_readiness"] == pytest.approx(75)
+        assert rt["today"]["rhr"] == pytest.approx(48.0)
+
+    def test_trend_averages_over_multiple_days(self, tmp_path):
+        from memory.db import init_db, upsert_daily_metrics
+        db = tmp_path / "test.sqlite"
+        init_db(db_path=db)
+
+        today = date.today()
+        for i in range(3):
+            upsert_daily_metrics(
+                today - timedelta(days=i),
+                hrv_rmssd=60.0 + i * 5, db_path=db,
+            )
+
+        packet = self._build_packet_with_db(db)
+        rt = packet["readiness_trend"]
+
+        # avg_hrv should be mean of 60, 65, 70 = 65
+        assert rt["trend"]["avg_hrv"] == pytest.approx(65.0)
+
+    def test_fallback_to_json_when_table_empty(self, tmp_path):
+        """With empty daily_metrics table, readiness_trend must not have source='sqlite'."""
+        from memory.db import init_db
+        db = tmp_path / "test.sqlite"
+        init_db(db_path=db)  # empty table
+
+        packet = self._build_packet_with_db(db)
+        rt = packet["readiness_trend"]
+
+        assert rt.get("source") != "sqlite", "Empty table must trigger JSON fallback"
+        assert "period_days" in rt  # still returns a valid (empty) dict
+
+    def test_fallback_when_sqlite_unavailable(self, tmp_path):
+        """If get_daily_metrics raises, must fall back gracefully."""
+        from memory.db import init_db
+        db = tmp_path / "test.sqlite"
+        init_db(db_path=db)
+
+        with patch("memory.retrieval._rollup_readiness_from_sqlite", return_value=None):
+            packet = self._build_packet_with_db(db)
+
+        rt = packet["readiness_trend"]
+        assert "period_days" in rt

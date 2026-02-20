@@ -107,6 +107,59 @@ def _rollup_activities(health: Dict, days_back: int) -> Dict:
 
 # ── Readiness Trend (last 7 days of recovery metrics) ────────────────────────
 
+def _rollup_readiness_from_sqlite(days_back: int, db_path) -> Optional[Dict]:
+    """
+    Build the readiness trend dict from the daily_metrics SQLite table.
+
+    Returns None if the table is empty or unavailable (caller falls back to JSON).
+    When rows are present, returns the same shape as _rollup_readiness() with
+    an extra source="sqlite" field for auditability.
+    """
+    from .db import get_daily_metrics
+
+    today = date.today()
+    start = today - timedelta(days=days_back)
+
+    try:
+        rows = get_daily_metrics(start, today, db_path=db_path)
+    except Exception:
+        return None
+
+    if not rows:
+        return None
+
+    hrv_vals  = [r["hrv_rmssd"]          for r in rows if r.get("hrv_rmssd")          is not None]
+    sleep_h   = [r["sleep_duration_h"]   for r in rows if r.get("sleep_duration_h")   is not None]
+    sleep_sc  = [r["sleep_score"]        for r in rows if r.get("sleep_score")        is not None]
+    bb_max    = [r["body_battery"]       for r in rows if r.get("body_battery")       is not None]
+    tr_scores = [r["training_readiness"] for r in rows if r.get("training_readiness") is not None]
+    rhr_vals  = [r["resting_hr"]         for r in rows if r.get("resting_hr")         is not None]
+
+    # Most-recent row = "today" snapshot (rows ordered ASC by day)
+    latest = rows[-1]
+
+    return {
+        "period_days": days_back,
+        "source": "sqlite",
+        "today": {
+            "sleep_hours":        latest.get("sleep_duration_h"),
+            "sleep_score":        latest.get("sleep_score"),
+            "hrv":                latest.get("hrv_rmssd"),
+            "body_battery_max":   latest.get("body_battery"),
+            "training_readiness": latest.get("training_readiness"),
+            "rhr":                latest.get("resting_hr"),
+        },
+        "trend": {
+            "avg_sleep_hours":        _safe_avg(sleep_h),
+            "avg_sleep_score":        _safe_avg(sleep_sc),
+            "avg_hrv":                _safe_avg(hrv_vals),
+            "avg_body_battery_max":   _safe_avg(bb_max),
+            "avg_training_readiness": _safe_avg(tr_scores),
+            "avg_rhr":                _safe_avg(rhr_vals),
+        },
+    }
+
+
 def _rollup_readiness(health: Dict, days_back: int = 7) -> Dict:
     cutoff = (date.today() - timedelta(days=days_back)).isoformat()
 
@@ -470,12 +523,19 @@ def build_context_packet(
         "rhr_latest": rhr_latest,
     }
 
+    # Readiness trend: prefer SQLite (populated by post-sync ingest); fall back
+    # to JSON cache if the daily_metrics table is empty or unavailable.
+    readiness_days = min(days_back, 7)
+    readiness_trend = _rollup_readiness_from_sqlite(readiness_days, db_path)
+    if readiness_trend is None:
+        readiness_trend = _rollup_readiness(health, readiness_days)
+
     packet = {
         "generated_at":     datetime.utcnow().isoformat(),
         "today":            today.isoformat(),
         "athlete":          athlete,
         "training_summary": _rollup_activities(health, days_back),
-        "readiness_trend":  _rollup_readiness(health, min(days_back, 7)),
+        "readiness_trend":  readiness_trend,
         "plan_authority":   _get_plan_authority(db_path),
         "active_plan":      _get_plan_section(days_forward, db_path),
         "constraints":      _get_constraints(days_forward, db_path),
