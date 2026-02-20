@@ -11,6 +11,7 @@ Tables:
   task_runs        - heartbeat / cron task audit log
   sync_runs        - Garmin sync provenance / freshness log
   daily_metrics    - structured daily health metrics (typed columns + raw JSON)
+  activities       - individual workout/activity records from Garmin
 
 All writes are idempotent. Plans are append-only (new plan_id per version).
 """
@@ -133,6 +134,23 @@ CREATE TABLE IF NOT EXISTS daily_metrics (
 );
 
 CREATE INDEX IF NOT EXISTS daily_metrics_day ON daily_metrics(day);
+
+CREATE TABLE IF NOT EXISTS activities (
+    activity_id  TEXT PRIMARY KEY,
+    activity_date DATE NOT NULL,
+    activity_type TEXT NOT NULL DEFAULT 'unknown',
+    name         TEXT,
+    duration_s   REAL,
+    distance_m   REAL,
+    avg_hr       REAL,
+    max_hr       REAL,
+    avg_pace_s   REAL,
+    calories     REAL,
+    raw_json     TEXT NOT NULL DEFAULT '{}'
+);
+
+CREATE INDEX IF NOT EXISTS activities_date ON activities(activity_date);
+CREATE INDEX IF NOT EXISTS activities_type ON activities(activity_type, activity_date);
 """
 
 
@@ -753,6 +771,87 @@ def get_daily_metrics(
         rows = conn.execute(
             "SELECT * FROM daily_metrics WHERE day BETWEEN ? AND ? ORDER BY day",
             (start.isoformat(), end.isoformat()),
+        ).fetchall()
+        return [dict(r) for r in rows]
+    finally:
+        conn.close()
+
+
+# ── Activities ────────────────────────────────────────────────────────────────
+
+def upsert_activity(
+    activity_id: str,
+    activity_date: date,
+    activity_type: str = "unknown",
+    name: Optional[str] = None,
+    duration_s: Optional[float] = None,
+    distance_m: Optional[float] = None,
+    avg_hr: Optional[float] = None,
+    max_hr: Optional[float] = None,
+    avg_pace_s: Optional[float] = None,
+    calories: Optional[float] = None,
+    raw: Optional[Dict] = None,
+    db_path: Path = DB_PATH,
+) -> None:
+    """Insert or update an activity row keyed by activity_id."""
+    conn = _connect(db_path)
+    try:
+        conn.execute(
+            """INSERT INTO activities(
+                   activity_id, activity_date, activity_type, name,
+                   duration_s, distance_m, avg_hr, max_hr, avg_pace_s,
+                   calories, raw_json
+               ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+               ON CONFLICT(activity_id) DO UPDATE SET
+                   activity_date = excluded.activity_date,
+                   activity_type = excluded.activity_type,
+                   name          = excluded.name,
+                   duration_s    = excluded.duration_s,
+                   distance_m    = excluded.distance_m,
+                   avg_hr        = excluded.avg_hr,
+                   max_hr        = excluded.max_hr,
+                   avg_pace_s    = excluded.avg_pace_s,
+                   calories      = excluded.calories,
+                   raw_json      = excluded.raw_json""",
+            (
+                activity_id,
+                activity_date.isoformat(),
+                activity_type,
+                name,
+                duration_s,
+                distance_m,
+                avg_hr,
+                max_hr,
+                avg_pace_s,
+                calories,
+                json.dumps(raw or {}),
+            ),
+        )
+        conn.commit()
+    finally:
+        conn.close()
+
+
+def get_activities(
+    start: date,
+    end: date,
+    activity_type: Optional[str] = None,
+    limit: int = 200,
+    db_path: Path = DB_PATH,
+) -> List[Dict]:
+    """Return activities between start and end (inclusive), optionally filtered by type."""
+    wheres = ["activity_date BETWEEN ? AND ?"]
+    params: List[Any] = [start.isoformat(), end.isoformat()]
+    if activity_type:
+        wheres.append("activity_type = ?")
+        params.append(activity_type)
+    params.append(limit)
+    conn = _connect(db_path)
+    try:
+        rows = conn.execute(
+            f"SELECT * FROM activities WHERE {' AND '.join(wheres)} "
+            f"ORDER BY activity_date DESC LIMIT ?",
+            params,
         ).fetchall()
         return [dict(r) for r in rows]
     finally:
