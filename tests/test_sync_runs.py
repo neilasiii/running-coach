@@ -222,6 +222,8 @@ class TestSkillsGarminSyncRecordsSyncRun:
 
             with (
                 patch("skills.garmin_sync.subprocess.run", return_value=fake_result),
+                patch("skills.garmin_sync._cache_age_minutes", return_value=999.0),
+                patch("skills.garmin_sync._load_cache", return_value={}),
                 patch("memory.db.record_sync_start", side_effect=fake_start),
                 patch("memory.db.record_sync_finish", side_effect=fake_finish),
                 patch("memory.db.log_task_start", return_value=1),
@@ -229,9 +231,7 @@ class TestSkillsGarminSyncRecordsSyncRun:
                 patch("memory.db.insert_event", return_value="ev-id"),
                 patch("memory.db.init_db"),
             ):
-                import importlib
                 import skills.garmin_sync as gsk
-                importlib.reload(gsk)   # ensure fresh import sees patches
                 result = gsk.run(force=False, source="cli")
 
             assert result["success"] is True
