@@ -8,7 +8,8 @@ is asked to adjust today's workout.
 
 Brain is NOT called when:
   - readiness_confidence is "low" (not enough data to act on)
-  - Today's adjustment has already been recorded in the vault this cycle
+  - Today's sleep data has not yet been synced (sleep_hours missing from context)
+  - Today's adjustment has already been recorded in SQLite today
   - No active plan exists
 
 Returns:
@@ -55,6 +56,15 @@ def run(context_packet: Dict[str, Any], db_path=None) -> Dict[str, Any]:
     if not pa.get("active_plan_id"):
         log.debug("No active plan — skipping adjust_today")
         return {"triggered": False, "reason": "no_active_plan", "adjustment": None}
+
+    # ── Gate: sleep data must be available for today ───────────────────────
+    # Readiness scores can be incomplete before the night's sleep is synced.
+    # Wait until sleep_hours is populated in the context packet.
+    rt_check = context_packet.get("readiness_trend", {})
+    today_rt_check = rt_check.get("today", {}) if isinstance(rt_check, dict) else {}
+    if not today_rt_check.get("sleep_hours"):
+        log.debug("No sleep data for today yet — deferring adjust_today")
+        return {"triggered": False, "reason": "no_sleep_today", "adjustment": None}
 
     # ── Read today's and yesterday's readiness ─────────────────────────────
     rt = context_packet.get("readiness_trend", {})
@@ -121,6 +131,7 @@ def run(context_packet: Dict[str, Any], db_path=None) -> Dict[str, Any]:
 
     try:
         from brain import adjust_today
+        from memory.db import insert_event
 
         adjustment = adjust_today(context_packet, db_path=db)
         log.info(
@@ -128,6 +139,19 @@ def run(context_packet: Dict[str, Any], db_path=None) -> Dict[str, Any]:
             adjustment.workout_type,
             adjustment.adjustment_reason,
         )
+
+        # Record in SQLite so the deduplication guard above fires on future cycles
+        insert_event(
+            event_type="today_adjustment",
+            payload={
+                "date":         today_str,
+                "workout_type": adjustment.workout_type,
+                "reason":       adjustment.adjustment_reason,
+            },
+            source="on_readiness_change",
+            db_path=db,
+        )
+
         return {
             "triggered":  True,
             "reason":     trigger_reason,
