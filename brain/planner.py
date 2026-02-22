@@ -179,10 +179,15 @@ def _find_claude() -> Optional[str]:
     return None
 
 
-def _call_llm(system: str, user: str, timeout: int = 120) -> str:
+def _call_llm(system: str, user: str, timeout: int = 120, model: Optional[str] = None) -> str:
     """
     Call Claude CLI in headless mode. Returns raw text output.
     Raises RuntimeError on non-zero exit or empty response.
+
+    Args:
+        model: Optional model alias or full ID (e.g. "haiku", "sonnet",
+               "claude-haiku-4-5-20251001"). When None, the CLI uses its
+               default model (currently Sonnet 4.6).
 
     SDK fallback is opt-in: set BRAIN_ALLOW_SDK_FALLBACK=1 to enable.
     This keeps the transport deterministic in production; the SDK path is
@@ -201,15 +206,19 @@ def _call_llm(system: str, user: str, timeout: int = 120) -> str:
         )
 
     full_prompt = f"{system}\n\n{user}"
-    log.debug("Calling claude CLI, prompt_len=%d chars", len(full_prompt))
+    log.debug("Calling claude CLI, prompt_len=%d chars, model=%s", len(full_prompt), model or "default")
 
     # Strip CLAUDECODE so the subprocess is not treated as a nested session.
     # This is the documented bypass: the child process is headless/one-shot
     # and does not share interactive state with the parent session.
     env = {k: v for k, v in os.environ.items() if k != "CLAUDECODE"}
 
+    cmd = [claude, "-p", full_prompt, "--output-format", "text"]
+    if model:
+        cmd += ["--model", model]
+
     result = subprocess.run(
-        [claude, "-p", full_prompt, "--output-format", "text"],
+        cmd,
         capture_output=True,
         text=True,
         timeout=timeout,
