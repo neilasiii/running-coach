@@ -39,6 +39,11 @@ log = logging.getLogger("brain.macro_plan")
 
 MAX_TOKENS_MACRO = 4096
 
+# Haiku is 5-10× faster than Sonnet for structured JSON generation — the macro
+# plan is a template-filling task (apply rules, output week objects), not a
+# complex reasoning task, so speed wins here.
+_MACRO_MODEL = "claude-haiku-4-5-20251001"
+
 # ── Validation ─────────────────────────────────────────────────────────────────
 
 
@@ -711,6 +716,7 @@ def _parse_and_validate_macro(raw_text: str, system: str) -> MacroPlan:
             "Output JSON only. No text, no markdown. No explanation.\n\n"
             "Previous output:\n" + raw_text[:500],
             timeout=120,
+            model=_MACRO_MODEL,
         )
         json_str = _try_strict_extract(reprompted)
         if json_str is None:
@@ -732,6 +738,7 @@ def _parse_and_validate_macro(raw_text: str, system: str) -> MacroPlan:
                     f"Return ONLY a corrected JSON object. No explanation. No markdown. "
                     f"Error: {str(exc)[:200]}\n\nPrevious output:\n{json_str[:600]}",
                     timeout=120,
+                    model=_MACRO_MODEL,
                 )
                 json_str_2 = _try_strict_extract(fix_raw)
                 json_str = json_str_2 if json_str_2 is not None else _brace_search_last(fix_raw)
@@ -815,10 +822,10 @@ def generate_macro_plan(
     # ── LLM call (OUTSIDE DB transaction) ───────────────────────────────────
     import subprocess as _subprocess
     try:
-        raw = _call_llm(system, user, timeout=600)
+        raw = _call_llm(system, user, timeout=120, model=_MACRO_MODEL)
     except _subprocess.TimeoutExpired:
         raise RuntimeError(
-            "Macro plan generation timed out (10 min). "
+            "Macro plan generation timed out (2 min). "
             "The LLM is likely overloaded — try again in a few minutes."
         )
 

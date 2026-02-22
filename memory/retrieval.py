@@ -72,6 +72,44 @@ def _safe_avg(lst: List) -> Optional[float]:
 
 # ── Training Summary (last N days of running activities) ─────────────────────
 
+# The health cache may be in either of two formats:
+#   "new"  (garmin_sync.py simplified): date, activity_type (UPPER), distance_miles, duration_seconds, avg_heart_rate
+#   "old"  (raw Garmin API):            startTimeLocal, activityType.typeKey (lower), distance (m), duration (s), averageHR
+# All helpers below handle both transparently.
+
+def _act_date_str(a: Dict) -> str:
+    """Return the activity's ISO date string regardless of schema."""
+    return a.get("date") or a.get("startTimeLocal") or ""
+
+def _act_type_key(a: Dict) -> str:
+    """Return the activity type key, lowercase, regardless of schema."""
+    # new schema: activity_type = "RUNNING"
+    flat = a.get("activity_type")
+    if flat:
+        return flat.lower()
+    # old schema: activityType.typeKey = "running"
+    return a.get("activityType", {}).get("typeKey", "")
+
+def _act_miles(a: Dict) -> float:
+    """Return distance in miles regardless of schema."""
+    dm = a.get("distance_miles")
+    if dm is not None:
+        return float(dm)
+    return a.get("distance", 0) / 1609.34
+
+def _act_dur_min(a: Dict) -> float:
+    """Return duration in minutes regardless of schema."""
+    ds = a.get("duration_seconds")
+    if ds is not None:
+        return float(ds) / 60
+    return a.get("duration", 0) / 60
+
+def _act_avg_hr(a: Dict) -> Optional[float]:
+    """Return average HR regardless of schema."""
+    hr = a.get("avg_heart_rate") or a.get("averageHR")
+    return float(hr) if hr is not None else None
+
+
 def _rollup_activities(health: Dict, days_back: int) -> Dict:
     cutoff = (date.today() - timedelta(days=days_back)).isoformat()
     running_types = {"running", "trail_running", "treadmill_running"}
@@ -79,25 +117,25 @@ def _rollup_activities(health: Dict, days_back: int) -> Dict:
     activities = [
         a for a in health.get("activities", [])
         if (
-            a.get("startTimeLocal", "") >= cutoff
-            and a.get("activityType", {}).get("typeKey", "") in running_types
+            _act_date_str(a) >= cutoff
+            and _act_type_key(a) in running_types
         )
     ]
 
     if not activities:
         return {"count": 0, "total_miles": 0.0, "period_days": days_back, "recent_runs": []}
 
-    total_mi = sum(a.get("distance", 0) for a in activities) / 1609.34
+    total_mi = sum(_act_miles(a) for a in activities)
 
     # Last 7 runs max (prevents token bloat)
-    recent = sorted(activities, key=lambda x: x.get("startTimeLocal", ""))[-7:]
+    recent = sorted(activities, key=_act_date_str)[-7:]
     runs = [
         {
-            "date":        a.get("startTimeLocal", "")[:10],
-            "distance_mi": round(a.get("distance", 0) / 1609.34, 2),
-            "duration_min": round(a.get("duration", 0) / 60, 1),
-            "avg_hr":      a.get("averageHR"),
-            "type":        a.get("activityType", {}).get("typeKey", "running"),
+            "date":         _act_date_str(a)[:10],
+            "distance_mi":  round(_act_miles(a), 2),
+            "duration_min": round(_act_dur_min(a), 1),
+            "avg_hr":       _act_avg_hr(a),
+            "type":         _act_type_key(a),
         }
         for a in recent
     ]
@@ -632,14 +670,21 @@ def build_context_packet(
         _act_cutoff = (today - timedelta(days=days_back)).isoformat()
         health["activities"] = [
             a for a in health["activities"]
-            if a.get("startTimeLocal", "") >= _act_cutoff
+            if _act_date_str(a) >= _act_cutoff
         ]
 
     # Athlete snapshot (lightweight — just key scalars)
-    vo2_raw = health.get("vo2_max")
+    # VO2 max — handle two schemas:
+    #   new (simplified): vo2_max_readings = [{date, vo2_max}, ...]  (float value)
+    #   old (raw Garmin): vo2_max = {generic: {vo2MaxPreciseValue: float}}
     vdot_approx = None
+    vo2_raw = health.get("vo2_max")
     if isinstance(vo2_raw, dict):
         vdot_approx = vo2_raw.get("generic", {}).get("vo2MaxPreciseValue")
+    if vdot_approx is None:
+        readings = health.get("vo2_max_readings", [])
+        if readings:
+            vdot_approx = readings[-1].get("vo2_max")
     rhr_rows = health.get("resting_hr", [])
     rhr_latest = rhr_rows[-1].get("restingHeartRate") if rhr_rows else None
 
