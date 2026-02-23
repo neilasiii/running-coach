@@ -44,6 +44,17 @@ MAX_TOKENS_MACRO = 4096
 # complex reasoning task, so speed wins here.
 _MACRO_MODEL = "claude-haiku-4-5-20251001"
 
+# Number of days after a short race during which quality sessions are prohibited.
+# Applies when a race-level effort < 10 mi is detected (5k, 10k, etc.).
+POST_RACE_SHORT_NO_QUALITY_DAYS: int = 4
+
+# Keywords (lowercase) that indicate a race-level effort in an activity name.
+# Used by _detect_post_race_recovery to identify short races by name when
+# distance is absent or < 10 miles.
+_RACE_KEYWORDS: frozenset = frozenset([
+    "race", "5k", "10k", "5 km", "10 km", "half", "marathon", "hm",
+])
+
 # ── Validation ─────────────────────────────────────────────────────────────────
 
 
@@ -68,6 +79,7 @@ def validate_macro_plan(
     *,
     post_race_cap_miles: Optional[float] = None,
     post_race_recovery_weeks: int = 0,
+    short_race_no_quality_days: int = 0,
 ) -> MacroValidationResult:
     """
     Run all structural and training-science invariants.
@@ -79,6 +91,9 @@ def validate_macro_plan(
             recent race-level effort is detected.
         post_race_recovery_weeks: How many weeks must obey recovery constraints.
             Default 0 means post-race check is skipped even if cap is set.
+        short_race_no_quality_days: When > 0, Week 1 must have
+            quality_sessions_allowed == 0 (short-race no-quality window).
+            Does NOT enforce a volume cap (use post_race_cap_miles for that).
 
     Returns MacroValidationResult(ok=True) on success, or
     MacroValidationResult(ok=False, errors=[...]) with human-readable
@@ -314,27 +329,52 @@ def validate_macro_plan(
                     f"got '{rw.intensity_budget}'"
                 )
 
+    # 15. Short-race no-quality window (short_race_no_quality_days > 0)
+    # A recent short race (5k/10k/etc.) requires no quality in Week 1.
+    # Volume cap is NOT enforced here (short races don't need mileage reduction).
+    if short_race_no_quality_days > 0 and weeks:
+        rw = weeks[0]
+        if rw.quality_sessions_allowed > 0:
+            errors.append(
+                f"week {rw.week_number}: short-race no-quality window "
+                f"({short_race_no_quality_days} days) — "
+                f"quality_sessions_allowed must be 0, "
+                f"got {rw.quality_sessions_allowed}"
+            )
+
     return MacroValidationResult(ok=len(errors) == 0, errors=errors)
 
 
 # ── Race detection ─────────────────────────────────────────────────────────────
 
 
+def _has_race_keyword(run: Dict) -> bool:
+    """Return True if the run's name or title contains a race keyword."""
+    name = (run.get("name") or run.get("title") or "").lower()
+    return any(kw in name for kw in _RACE_KEYWORDS)
+
+
 def _detect_post_race_recovery(context_packet: Dict) -> Dict:
     """
     Detect if a race-level effort occurred in the last 7 days.
 
+    Two modes of detection:
+      Long race (dist >= 10.0 mi): enforces 1–2 full recovery weeks with volume cap.
+      Short race (dist < 10.0 mi or keyword-only): enforces a no-quality window
+        of POST_RACE_SHORT_NO_QUALITY_DAYS days only (no volume cap).
+
     Uses training_summary.recent_runs from the context packet.
-    A "race-level effort" is any run with distance_mi >= 10.0 within 7 days
-    of today (covers 10k+, half marathon, marathon).
+    Long race takes priority over short race when both are detected.
 
     Returns:
         {
             "required":           bool,
-            "days_ago":           int,     # 0 if not required
-            "approx_distance_mi": float,   # 0.0 if not required
-            "week_load_mi":       float,   # rolling weekly avg from training summary
-            "recovery_weeks":     int,     # 0 if not required, else 1 or 2
+            "short_race_mode":    bool,   # True = short race (no volume cap)
+            "no_quality_days":    int,    # POST_RACE_SHORT_NO_QUALITY_DAYS if short, else 0
+            "days_ago":           int,    # 0 if not required
+            "approx_distance_mi": float,  # 0.0 if not required or keyword-only
+            "week_load_mi":       float,  # rolling weekly avg from training summary
+            "recovery_weeks":     int,    # 0 if not required or short, else 1 or 2
         }
     """
     today = date.today()
@@ -342,7 +382,9 @@ def _detect_post_race_recovery(context_packet: Dict) -> Dict:
         context_packet.get("training_summary", {}).get("recent_runs", []) or []
     )
 
-    best_candidate: Optional[Dict] = None
+    long_candidate: Optional[Dict] = None   # dist >= 10.0 mi
+    short_candidate: Optional[Dict] = None  # dist < 10.0 mi or keyword-only
+
     for run in recent_runs:
         run_date_str = run.get("date", "")
         dist = float(run.get("distance_mi", 0) or 0)
@@ -351,38 +393,64 @@ def _detect_post_race_recovery(context_packet: Dict) -> Dict:
         except ValueError:
             continue
         days_ago = (today - run_date).days
-        if days_ago <= 7 and dist >= 10.0:
-            if best_candidate is None or dist > best_candidate["dist"]:
-                best_candidate = {"days_ago": days_ago, "dist": dist}
+        if days_ago > 7:
+            continue
 
-    if best_candidate is None:
-        return {
-            "required":           False,
-            "days_ago":           0,
-            "approx_distance_mi": 0.0,
-            "week_load_mi":       0.0,
-            "recovery_weeks":     0,
-        }
+        if dist >= 10.0:
+            if long_candidate is None or dist > long_candidate["dist"]:
+                long_candidate = {"days_ago": days_ago, "dist": dist}
+        elif _has_race_keyword(run):
+            # Short race: keyword match without long-race distance
+            if short_candidate is None or days_ago < short_candidate["days_ago"]:
+                short_candidate = {"days_ago": days_ago, "dist": dist}
 
-    dist_mi = best_candidate["dist"]
     ts = context_packet.get("training_summary", {})
     total_mi = float(ts.get("total_miles", 0) or 0)
     period_days = int(ts.get("period_days", 14) or 14)
     week_load = (total_mi / period_days * 7) if period_days > 0 else 0.0
 
-    # Marathon → 2 recovery weeks; half/other → 1
-    recovery_weeks = 2 if dist_mi >= 24.0 else 1
+    # Long race takes priority
+    if long_candidate is not None:
+        dist_mi = long_candidate["dist"]
+        recovery_weeks = 2 if dist_mi >= 24.0 else 1
+        log.info(
+            "post_race_recovery detected (long): dist_mi=%.1f days_ago=%d recovery_weeks=%d",
+            dist_mi, long_candidate["days_ago"], recovery_weeks,
+        )
+        return {
+            "required":           True,
+            "short_race_mode":    False,
+            "no_quality_days":    0,
+            "days_ago":           long_candidate["days_ago"],
+            "approx_distance_mi": round(dist_mi, 1),
+            "week_load_mi":       round(week_load, 1),
+            "recovery_weeks":     recovery_weeks,
+        }
 
-    log.info(
-        "post_race_recovery detected: dist_mi=%.1f days_ago=%d recovery_weeks=%d",
-        dist_mi, best_candidate["days_ago"], recovery_weeks,
-    )
+    if short_candidate is not None:
+        dist_mi = short_candidate["dist"]
+        log.info(
+            "post_race_recovery detected (short): dist_mi=%.1f days_ago=%d no_quality_days=%d",
+            dist_mi, short_candidate["days_ago"], POST_RACE_SHORT_NO_QUALITY_DAYS,
+        )
+        return {
+            "required":           True,
+            "short_race_mode":    True,
+            "no_quality_days":    POST_RACE_SHORT_NO_QUALITY_DAYS,
+            "days_ago":           short_candidate["days_ago"],
+            "approx_distance_mi": round(dist_mi, 1),
+            "week_load_mi":       round(week_load, 1),
+            "recovery_weeks":     0,
+        }
+
     return {
-        "required":           True,
-        "days_ago":           best_candidate["days_ago"],
-        "approx_distance_mi": round(dist_mi, 1),
-        "week_load_mi":       round(week_load, 1),
-        "recovery_weeks":     recovery_weeks,
+        "required":           False,
+        "short_race_mode":    False,
+        "no_quality_days":    0,
+        "days_ago":           0,
+        "approx_distance_mi": 0.0,
+        "week_load_mi":       0.0,
+        "recovery_weeks":     0,
     }
 
 
@@ -459,13 +527,17 @@ def _extract_macro_inputs(context_packet: Dict) -> Dict:
     vdot_raw = context_packet.get("athlete", {}).get("vo2_max")
     vdot = float(vdot_raw) if vdot_raw is not None else 38.0
 
-    # Week 1 cap for post-race recovery (formula: min(60% race_week, 70% 4wk_avg, 20 mi))
+    # Week 1 volume cap for long-race recovery only (not for short races).
+    # Short races enforce a no-quality window but NOT a volume cap.
     week1_cap_miles: Optional[float] = None
-    if post_race["required"]:
+    if post_race["required"] and not post_race["short_race_mode"]:
         wk_load = post_race["week_load_mi"] if post_race["week_load_mi"] > 0 else weekly_avg
         cap_a = 0.60 * wk_load if wk_load > 0 else 14.0
         cap_b = 0.70 * weekly_avg if weekly_avg > 0 else 14.0
         week1_cap_miles = max(round(min(cap_a, cap_b, 20.0), 1), 10.0)  # floor 10 mi
+
+    # Short-race no-quality days: pass through for prompt injection + validation
+    short_race_no_quality_days = post_race.get("no_quality_days", 0)
 
     if target_race:
         race_date_str = target_race.get("date", "")
@@ -505,6 +577,8 @@ def _extract_macro_inputs(context_packet: Dict) -> Dict:
                 "post_race_recovery_days_ago":    post_race["days_ago"],
                 "post_race_approx_distance_mi":   post_race["approx_distance_mi"],
                 "post_race_recovery_week_count":  post_race["recovery_weeks"],
+                "post_race_short_race_mode":      post_race["short_race_mode"],
+                "short_race_no_quality_days":     short_race_no_quality_days,
                 "week1_cap_miles":                week1_cap_miles,
             }
 
@@ -522,6 +596,8 @@ def _extract_macro_inputs(context_packet: Dict) -> Dict:
         "post_race_recovery_days_ago":    post_race["days_ago"],
         "post_race_approx_distance_mi":   post_race["approx_distance_mi"],
         "post_race_recovery_week_count":  post_race["recovery_weeks"],
+        "post_race_short_race_mode":      post_race["short_race_mode"],
+        "short_race_no_quality_days":     short_race_no_quality_days,
         "week1_cap_miles":                week1_cap_miles,
     }
 
@@ -576,19 +652,34 @@ def _build_macro_prompts(inputs: Dict) -> tuple:
     # Post-race recovery block (injected into prompt when recent race detected)
     if inputs.get("post_race_recovery_required"):
         days_ago = inputs["post_race_recovery_days_ago"]
-        cap      = inputs["week1_cap_miles"]
         dist     = inputs["post_race_approx_distance_mi"]
-        n_rec    = inputs.get("post_race_recovery_week_count", 1)
-        recovery_note = (
-            f"POST-RACE RECOVERY REQUIREMENT:\n"
-            f"- A race-level effort ({dist:.1f} mi) was completed {days_ago} day(s) ago.\n"
-            f"- Weeks 1–{n_rec} MUST be recovery weeks:\n"
-            f"  * target_volume_miles <= {cap:.1f} mi (hard cap)\n"
-            f"  * quality_sessions_allowed = 0\n"
-            f"  * intensity_budget = 'none' or 'low'\n"
-            f"  * key_workout_type = 'easy' or 'rest'\n"
-            f"  * planner_notes must mention 'post-race recovery'\n\n"
-        )
+
+        if inputs.get("post_race_short_race_mode"):
+            # Short race (5k/10k/etc.): no-quality window only, no volume cap.
+            nq_days = inputs.get("short_race_no_quality_days", POST_RACE_SHORT_NO_QUALITY_DAYS)
+            recovery_note = (
+                f"SHORT-RACE NO-QUALITY WINDOW:\n"
+                f"- A short race effort ({dist:.1f} mi) was completed {days_ago} day(s) ago.\n"
+                f"- For the first {nq_days} days after the race: no quality sessions, easy only.\n"
+                f"- Week 1 MUST have quality_sessions_allowed = 0.\n"
+                f"- Volume cap is NOT enforced — continue normal base-phase mileage ramp.\n"
+                f"- intensity_budget for Week 1 should be 'low'.\n"
+                f"- planner_notes for Week 1 must mention 'short-race recovery'.\n\n"
+            )
+        else:
+            # Long race (half/marathon): full volume cap + quality=0 + low intensity.
+            cap   = inputs["week1_cap_miles"]
+            n_rec = inputs.get("post_race_recovery_week_count", 1)
+            recovery_note = (
+                f"POST-RACE RECOVERY REQUIREMENT:\n"
+                f"- A race-level effort ({dist:.1f} mi) was completed {days_ago} day(s) ago.\n"
+                f"- Weeks 1–{n_rec} MUST be recovery weeks:\n"
+                f"  * target_volume_miles <= {cap:.1f} mi (hard cap)\n"
+                f"  * quality_sessions_allowed = 0\n"
+                f"  * intensity_budget = 'none' or 'low'\n"
+                f"  * key_workout_type = 'easy' or 'rest'\n"
+                f"  * planner_notes must mention 'post-race recovery'\n\n"
+            )
     else:
         recovery_note = ""
 
@@ -837,6 +928,7 @@ def generate_macro_plan(
         plan,
         post_race_cap_miles=inputs.get("week1_cap_miles"),
         post_race_recovery_weeks=inputs.get("post_race_recovery_week_count", 0),
+        short_race_no_quality_days=inputs.get("short_race_no_quality_days", 0),
     )
 
     if not result.ok:

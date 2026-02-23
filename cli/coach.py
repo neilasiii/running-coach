@@ -152,9 +152,12 @@ def cmd_macro(args) -> int:
     return 0
 
 
-def _print_macro_plan(plan, macro_id: str) -> None:
+def _print_macro_plan(plan, macro_id: str, today=None) -> None:
     """Print a human-readable tabular summary of the macro plan."""
     from datetime import date, timedelta
+
+    today_str = today or date.today().isoformat()
+    current_week = plan.get_week_for_date(today_str)
 
     try:
         start_d = date.fromisoformat(plan.start_week)
@@ -181,8 +184,10 @@ def _print_macro_plan(plan, macro_id: str) -> None:
         notes = w.planner_notes[:35] if w.planner_notes else ""
         if len(w.planner_notes) > 35:
             notes = notes.rstrip() + "…"
+        is_current = current_week is not None and w.week_number == current_week.week_number
+        marker = "→" if is_current else " "
         print(
-            f"  {w.week_number:>2}  {w.week_start:<12} {w.phase:<13} "
+            f"{marker} {w.week_number:>2}  {w.week_start:<12} {w.phase:<13} "
             f"{w.target_volume_miles:>5.1f}  {w.long_run_max_min:>6}  "
             f"{w.intensity_budget:<10} {notes}"
         )
