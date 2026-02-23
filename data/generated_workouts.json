@@ -179,6 +179,30 @@
       "finalsurge_name": "Run: 50-60 min E",
       "workout_type": "easy",
       "generated_at": "2026-02-15T00:00:32.095014"
+    },
+    "2026-02-26": {
+      "garmin_id": 1480959068,
+      "finalsurge_name": "Run: 50-60 min E",
+      "workout_type": "easy",
+      "generated_at": "2026-02-21T08:13:39.137798"
+    },
+    "2026-02-28": {
+      "garmin_id": 1480959075,
+      "finalsurge_name": "Run: 50-60 min E",
+      "workout_type": "easy",
+      "generated_at": "2026-02-21T08:13:39.316669"
+    },
+    "2026-02-25": {
+      "garmin_id": 1480959079,
+      "finalsurge_name": "Run: 20 min warm up 6x4 min @ tempo  on 1 min easy jog 10 min warm down",
+      "workout_type": "intervals",
+      "generated_at": "2026-02-21T08:13:39.502802"
+    },
+    "2026-02-23": {
+      "garmin_id": 1480959084,
+      "finalsurge_name": "Run: 30 min E",
+      "workout_type": "easy",
+      "generated_at": "2026-02-21T08:13:39.692234"
     }
   },
   "strength": {
