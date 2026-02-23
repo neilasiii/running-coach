@@ -523,9 +523,26 @@ def _extract_macro_inputs(context_packet: Dict) -> Dict:
     period_days = int(ts.get("period_days", 14) or 14)
     weekly_avg = (total_mi / period_days * 7) if period_days > 0 else 0.0
 
-    # VDOT from athlete snapshot (VO2max ≈ VDOT in Jack Daniels system)
-    vdot_raw = context_packet.get("athlete", {}).get("vo2_max")
-    vdot = float(vdot_raw) if vdot_raw is not None else 38.0
+    # VDOT from athlete snapshot.
+    # Priority: race-derived VDOT (from actual performance) > Garmin VO2max > 38.0 default.
+    # Garmin's physiological VO2max estimate inflates by ~25-35% relative to
+    # race performance and must NOT be used directly as Jack Daniels VDOT.
+    athlete = context_packet.get("athlete", {})
+    vdot_race = athlete.get("vdot_race_derived")
+    vdot_garmin = athlete.get("vo2_max")
+    if vdot_race is not None:
+        vdot = float(vdot_race)
+        log.info("VDOT source=race_derived value=%.1f", vdot)
+    elif vdot_garmin is not None:
+        vdot = float(vdot_garmin)
+        log.warning(
+            "VDOT source=garmin_vo2max value=%.1f — no recent race found; "
+            "Garmin VO2max may overestimate fitness by 25-35%%",
+            vdot,
+        )
+    else:
+        vdot = 38.0
+        log.warning("VDOT source=default value=38.0 — no athlete data available")
 
     # Week 1 volume cap for long-race recovery only (not for short races).
     # Short races enforce a no-quality window but NOT a volume cap.
