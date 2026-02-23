@@ -620,6 +620,103 @@ def _load_upcoming_races() -> list:
         return []
 
 
+# ── Race-derived VDOT ─────────────────────────────────────────────────────────
+
+# Standard race distances: (center_miles, tolerance_miles).
+# An activity whose distance falls within tolerance is classified as a race.
+_RACE_DISTANCE_BANDS: tuple = (
+    (3.107, 0.20),   # 5k
+    (6.214, 0.30),   # 10k
+    (9.321, 0.40),   # 15k
+    (13.109, 0.60),  # Half marathon  (covers 12.5–13.7 mi)
+    (26.219, 1.00),  # Marathon       (covers 25.2–27.2 mi)
+)
+
+# Activity name keywords that indicate a race (case-insensitive).
+# Checked against activity_name / name / title fields.
+_RACE_KEYWORDS_VDOT: frozenset = frozenset([
+    "race", "5k", "10k", "5 km", "10 km",
+    "half marathon", "half-marathon", "marathon", "hm",
+])
+
+
+def _is_race_distance(dist_mi: float) -> bool:
+    """Return True if dist_mi is within tolerance of a standard race distance."""
+    return any(
+        abs(dist_mi - center) <= tol
+        for center, tol in _RACE_DISTANCE_BANDS
+    )
+
+
+def _has_race_keyword_activity(a: Dict) -> bool:
+    """Return True if any name field of the activity contains a race keyword."""
+    name = (
+        a.get("activity_name") or a.get("name") or a.get("title") or ""
+    ).lower()
+    return any(kw in name for kw in _RACE_KEYWORDS_VDOT)
+
+
+def _derive_vdot_from_activities(health: Dict, lookback_days: int = 90) -> Optional[float]:
+    """
+    Derive VDOT from recent *race* running activities only.
+
+    An activity qualifies as a race if:
+      - Its distance is within tolerance of a standard race distance (5k, 10k,
+        15k, half marathon, marathon), OR
+      - Its name/title contains a race keyword ("race", "5k", "marathon", etc.)
+
+    HR thresholds are intentionally NOT used — they would include hard tempo and
+    interval training sessions, which are not races.
+
+    From qualifying candidates, returns the VDOT of the most recent one.
+    Returns None when no qualifying race is found (caller falls back to Garmin
+    VO2max estimate or 38.0 default).
+    """
+    try:
+        from src.vdot_calculator import calculate_vdot as _calc_vdot
+    except ImportError:
+        log.warning("vdot_calculator not importable — skipping race VDOT derivation")
+        return None
+
+    cutoff = (date.today() - timedelta(days=lookback_days)).isoformat()
+    running_types = {"running", "trail_running", "treadmill_running"}
+
+    candidates: List[tuple] = []  # (date_str, vdot)
+    for a in health.get("activities", []):
+        date_str = _act_date_str(a)
+        if date_str < cutoff:
+            continue
+        if _act_type_key(a) not in running_types:
+            continue
+
+        dist_mi = _act_miles(a)
+        dur_min = _act_dur_min(a)
+
+        if dist_mi <= 0 or dur_min <= 0:
+            continue
+
+        if not (_is_race_distance(dist_mi) or _has_race_keyword_activity(a)):
+            continue
+
+        try:
+            vdot = _calc_vdot(dist_mi * 1609.34, dur_min * 60)
+            candidates.append((date_str, round(vdot, 1)))
+        except Exception:
+            continue
+
+    if not candidates:
+        log.debug("race VDOT: no qualifying race activities in last %d days", lookback_days)
+        return None
+
+    candidates.sort(key=lambda x: x[0], reverse=True)
+    best_date, best_vdot = candidates[0]
+    log.info(
+        "race VDOT derived: %.1f from race activity on %s",
+        best_vdot, best_date[:10],
+    )
+    return best_vdot
+
+
 # ── Public API ────────────────────────────────────────────────────────────────
 
 def build_context_packet(
@@ -662,6 +759,11 @@ def build_context_packet(
     health = _load_health_cache()
     today  = date.today()
 
+    # Derive race-based VDOT from the FULL activity list (90-day window) BEFORE
+    # truncating to days_back.  Garmin's physiological VO2max estimate inflates
+    # fitness by ~25–35%; race-derived VDOT from actual performance is authoritative.
+    vdot_race_derived = _derive_vdot_from_activities(health, lookback_days=90)
+
     # Cap the activities list to days_back before any rollup.
     # Avoids iterating full 60-day history when only 14 days are needed.
     # Other health sections (sleep, HRV, etc.) are already date-filtered
@@ -692,8 +794,9 @@ def build_context_packet(
     rhr_latest = rhr_rows[-1].get("restingHeartRate") if rhr_rows else None
 
     athlete = {
-        "vo2_max":    vdot_approx,
-        "rhr_latest": rhr_latest,
+        "vo2_max":          vdot_approx,       # Garmin physiological VO2max estimate
+        "vdot_race_derived": vdot_race_derived, # Race-performance VDOT (preferred for planning)
+        "rhr_latest":       rhr_latest,
     }
 
     # Readiness trend: prefer SQLite (populated by post-sync ingest); fall back
