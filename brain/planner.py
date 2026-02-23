@@ -541,6 +541,15 @@ def plan_week(
                     "macro_cap_exceeded: plan volume %.1f mi exceeds macro target %.1f mi",
                     decision.weekly_volume_miles, macro_target_vol,
                 )
+            # Clamp to macro ceiling — macro is authoritative; readiness/constraints
+            # can reduce volume below target but never increase it above.
+            decision.weekly_volume_miles = float(macro_target_vol)
+            if "macro_cap_clamped" not in decision.safety_flags:
+                decision.safety_flags.append("macro_cap_clamped")
+                log.info(
+                    "macro_cap_clamped: weekly_volume_miles clamped to %.1f mi",
+                    macro_target_vol,
+                )
 
     # ── Persist ───────────────────────────────────────────────────────────
     plan_id = insert_plan(
