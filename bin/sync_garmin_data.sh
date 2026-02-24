@@ -14,7 +14,7 @@
 #   --days DAYS            Number of days to sync (default: 30)
 #   --check-only           Check what would be synced without updating cache
 #   --auto-workouts        Enable automatic workout generation (legacy behavior)
-#   --no-auto-workouts     Explicitly disable automatic workout generation
+#   --no-auto-workouts     Explicitly disable automatic workout generation (default; kept for compatibility)
 #
 # Environment Variables:
 #   GARMIN_EMAIL     Garmin Connect email/username (required)

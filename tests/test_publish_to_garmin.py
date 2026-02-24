@@ -1,5 +1,5 @@
 import json
-from datetime import date
+from datetime import date, timedelta
 from pathlib import Path
 from unittest.mock import patch
 
@@ -139,3 +139,87 @@ def test_live_publish_removes_obsolete_running_workout_for_rest_day(tmp_path: Pa
 
     saved = json.loads(log_path.read_text())
     assert target_date not in saved["running"]
+
+
+def test_live_publish_does_not_remove_unknown_running_variant(tmp_path: Path):
+    import skills.publish_to_garmin as pub
+
+    target_date = date.today().isoformat()
+    log_path = tmp_path / "generated_workouts.json"
+    log_path.write_text(
+        json.dumps(
+            {
+                "running": {
+                    target_date: {
+                        "garmin_id": 444,
+                        "signature": "sig",
+                    }
+                }
+            }
+        )
+    )
+
+    with (
+        patch.object(pub, "_GENERATED_LOG", log_path),
+        patch(
+            "skills.plans.get_active_sessions",
+            return_value=[
+                {
+                    "date": target_date,
+                    "workout_type": "recovery",
+                }
+            ],
+        ),
+        patch("skills.internal_plan_to_scheduled_workouts.convert", return_value=[]),
+        patch("workout_uploader.get_garmin_client", return_value=object()),
+        patch("workout_uploader.delete_workout", return_value=True) as mock_delete,
+        patch("memory.db.init_db"),
+        patch("memory.db.insert_event", return_value="event-id"),
+    ):
+        result = pub.publish(days=1, dry_run=False)
+
+    assert result["removed"] == []
+    mock_delete.assert_not_called()
+    saved = json.loads(log_path.read_text())
+    assert saved["running"][target_date]["garmin_id"] == 444
+
+
+def test_dry_run_flags_logged_date_missing_from_active_plan(tmp_path: Path):
+    import skills.publish_to_garmin as pub
+
+    today_str = date.today().isoformat()
+    tomorrow_str = (date.today() + timedelta(days=1)).isoformat()
+    log_path = tmp_path / "generated_workouts.json"
+    log_path.write_text(
+        json.dumps(
+            {
+                "running": {
+                    today_str: {
+                        "garmin_id": 555,
+                        "signature": "sig",
+                    }
+                }
+            }
+        )
+    )
+
+    with (
+        patch.object(pub, "_GENERATED_LOG", log_path),
+        patch(
+            "skills.plans.get_active_sessions",
+            return_value=[
+                {
+                    "date": tomorrow_str,
+                    "workout_type": "rest",
+                }
+            ],
+        ),
+        patch("skills.internal_plan_to_scheduled_workouts.convert", return_value=[]),
+    ):
+        result = pub.publish(days=1, dry_run=True)
+
+    assert result["removed"] == []
+    assert any(
+        s["date"] == today_str and "no active plan session" in s["reason"]
+        for s in result["skipped"]
+    )

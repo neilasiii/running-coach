@@ -18,7 +18,9 @@ Authority rule (non-negotiable):
 import hashlib
 import json
 import logging
+import os
 import sys
+import tempfile
 from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional
@@ -31,6 +33,15 @@ if _SRC not in sys.path:
 log = logging.getLogger("skills.publish_to_garmin")
 
 _GENERATED_LOG = PROJECT_ROOT / "data" / "generated_workouts.json"
+NON_RUNNING_TYPES = {
+    "rest",
+    "strength",
+    "mobility",
+    "cross",
+    "cross_training",
+    "off",
+    "none",
+}
 
 
 def _load_generated_log() -> Dict[str, Any]:
@@ -60,8 +71,22 @@ def _load_generated_log() -> Dict[str, Any]:
 def _save_generated_log(data: Dict[str, Any]) -> None:
     """Persist generated_workouts.json safely."""
     _GENERATED_LOG.parent.mkdir(parents=True, exist_ok=True)
-    with open(_GENERATED_LOG, "w") as f:
-        json.dump(data, f, indent=2)
+    fd, tmp_path = tempfile.mkstemp(
+        prefix=f"{_GENERATED_LOG.name}.",
+        suffix=".tmp",
+        dir=str(_GENERATED_LOG.parent),
+    )
+    try:
+        with os.fdopen(fd, "w") as f:
+            json.dump(data, f, indent=2)
+            f.write("\n")
+        os.replace(tmp_path, _GENERATED_LOG)
+    finally:
+        if os.path.exists(tmp_path):
+            try:
+                os.unlink(tmp_path)
+            except OSError:
+                pass
 
 
 def _workout_signature(workout: Dict[str, Any]) -> str:
@@ -169,7 +194,7 @@ def publish(
         wo_copy["_action"] = "update" if existing else "create"
         prepared.append(wo_copy)
 
-    # If a date in the active plan is no longer a running day but a running
+    # If a date in the active plan is explicitly non-running but a running
     # workout exists in generated_workouts.json, remove it in live mode.
     for log_date, entry in list(running_log.items()):
         try:
@@ -180,12 +205,19 @@ def publish(
             continue
         session = session_by_date.get(log_date)
         if not session:
+            reason = "in publish log but no active plan session for date"
+            skipped.append({"date": log_date, "reason": reason})
+            log.warning("Skipping cleanup for %s: %s", log_date, reason)
             continue
-        session_type = session.get("workout_type")
-        if session_type is None:
-            # Defensive: if session shape is partial, avoid destructive deletes.
+        session_type_raw = session.get("workout_type")
+        session_type = str(session_type_raw).strip().lower() if session_type_raw is not None else ""
+        if not session_type:
+            reason = "active plan session missing workout_type; leaving Garmin workout unchanged"
+            skipped.append({"date": log_date, "reason": reason})
+            log.warning("Skipping cleanup for %s: %s", log_date, reason)
             continue
-        if session_type in ("easy", "tempo", "interval", "long"):
+        # Safe default: only delete when workout type is explicitly non-running.
+        if session_type not in NON_RUNNING_TYPES:
             continue
         if isinstance(entry, dict) and entry.get("garmin_id") is not None:
             to_remove.append(log_date)
