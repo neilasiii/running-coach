@@ -29,6 +29,7 @@ log = logging.getLogger("hooks.on_readiness_change")
 
 READINESS_LOW = 45           # absolute threshold (0-100)
 READINESS_DROP_THRESHOLD = 15  # relative drop from yesterday triggers action
+RUNNING_WORKOUT_TYPES = {"easy", "tempo", "interval", "long"}
 
 
 def _events_for_day(event_type: str, target_date: str, db_path) -> list[Dict[str, Any]]:
@@ -45,6 +46,58 @@ def _events_for_day(event_type: str, target_date: str, db_path) -> list[Dict[str
         if payload.get("date") == target_date:
             matches.append(payload)
     return matches
+
+
+def _is_running_workout_type(workout_type: Any) -> Optional[bool]:
+    """Return True/False when workout type is known, else None."""
+    if workout_type is None:
+        return None
+    return str(workout_type).strip().lower() in RUNNING_WORKOUT_TYPES
+
+
+def _publish_succeeded_for_day(
+    publish_result: Dict[str, Any],
+    target_date: str,
+    expected_running: Optional[bool],
+) -> tuple[bool, str]:
+    """
+    Determine whether publish() actually succeeded for target_date.
+
+    publish() can report per-workout failures in skipped/warnings without raising.
+    """
+    if not isinstance(publish_result, dict):
+        return False, "invalid publish result shape"
+
+    published = publish_result.get("published", []) or []
+    removed = publish_result.get("removed", []) or []
+    skipped = publish_result.get("skipped", []) or []
+    warnings = publish_result.get("warnings", []) or []
+
+    if target_date in published:
+        return True, "published"
+    if target_date in removed:
+        return True, "removed"
+
+    for entry in skipped:
+        if not isinstance(entry, dict) or entry.get("date") != target_date:
+            continue
+        reason = str(entry.get("reason", "unknown"))
+        if "unchanged" in reason.lower():
+            return True, reason
+        return False, reason
+
+    for warning in warnings:
+        warning_text = str(warning)
+        if target_date in warning_text:
+            return False, warning_text
+
+    # Non-running adjustments can be valid no-ops when Garmin already has
+    # nothing to remove for the date.
+    if expected_running is False:
+        return True, "non_running_noop"
+    if expected_running is True:
+        return False, "no outcome for expected running workout"
+    return False, "no outcome for target date"
 
 
 def run(context_packet: Dict[str, Any], db_path=None) -> Dict[str, Any]:
@@ -88,13 +141,22 @@ def run(context_packet: Dict[str, Any], db_path=None) -> Dict[str, Any]:
 
         try:
             from skills.publish_to_garmin import publish
-            publish(days=1, dry_run=False, db_path=db)
+            expected_running = _is_running_workout_type(prior_adjustments[0].get("workout_type"))
+            publish_result = publish(days=1, dry_run=False, db_path=db)
+            publish_ok, publish_outcome = _publish_succeeded_for_day(
+                publish_result,
+                target_date=today_str,
+                expected_running=expected_running,
+            )
+            if not publish_ok:
+                raise RuntimeError(f"publish did not succeed for {today_str}: {publish_outcome}")
             insert_event(
                 event_type="today_adjustment_garmin_publish",
                 payload={
                     "date": today_str,
                     "status": "success",
                     "mode": "retry",
+                    "outcome": publish_outcome,
                 },
                 source="on_readiness_change",
                 db_path=db,
@@ -225,13 +287,21 @@ def run(context_packet: Dict[str, Any], db_path=None) -> Dict[str, Any]:
             # Push today's change to Garmin immediately (best effort).
             try:
                 from skills.publish_to_garmin import publish
-                publish(days=1, dry_run=False, db_path=db)
+                publish_result = publish(days=1, dry_run=False, db_path=db)
+                publish_ok, publish_outcome = _publish_succeeded_for_day(
+                    publish_result,
+                    target_date=today_str,
+                    expected_running=_is_running_workout_type(adjustment.workout_type),
+                )
+                if not publish_ok:
+                    raise RuntimeError(f"publish did not succeed for {today_str}: {publish_outcome}")
                 insert_event(
                     event_type="today_adjustment_garmin_publish",
                     payload={
                         "date": today_str,
                         "status": "success",
                         "mode": "initial",
+                        "outcome": publish_outcome,
                     },
                     source="on_readiness_change",
                     db_path=db,
