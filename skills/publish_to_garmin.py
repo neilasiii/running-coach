@@ -33,6 +33,8 @@ if _SRC not in sys.path:
 log = logging.getLogger("skills.publish_to_garmin")
 
 _GENERATED_LOG = PROJECT_ROOT / "data" / "generated_workouts.json"
+# Conservative policy: unknown/new workout types are treated as "running"
+# (not removable) until explicitly added here as non-running.
 NON_RUNNING_TYPES = {
     "rest",
     "strength",

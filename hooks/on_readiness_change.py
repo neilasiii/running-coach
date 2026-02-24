@@ -21,6 +21,7 @@ Returns:
 """
 
 import logging
+import json
 from datetime import date, timedelta
 from typing import Any, Dict, Optional
 
@@ -28,6 +29,22 @@ log = logging.getLogger("hooks.on_readiness_change")
 
 READINESS_LOW = 45           # absolute threshold (0-100)
 READINESS_DROP_THRESHOLD = 15  # relative drop from yesterday triggers action
+
+
+def _events_for_day(event_type: str, target_date: str, db_path) -> list[Dict[str, Any]]:
+    """Return parsed event payloads for a specific date and event type."""
+    from memory.db import query_events
+
+    matches: list[Dict[str, Any]] = []
+    recent = query_events(event_type=event_type, limit=20, db_path=db_path)
+    for ev in recent:
+        try:
+            payload = json.loads(ev.get("payload_json", "{}"))
+        except Exception:
+            payload = {}
+        if payload.get("date") == target_date:
+            matches.append(payload)
+    return matches
 
 
 def run(context_packet: Dict[str, Any], db_path=None) -> Dict[str, Any]:
@@ -43,6 +60,7 @@ def run(context_packet: Dict[str, Any], db_path=None) -> Dict[str, Any]:
 
     db = db_path or _DEFAULT_DB
     today = date.today()
+    today_str = today.isoformat()
 
     # ── Gate: confidence must be medium or high ────────────────────────────
     dq = context_packet.get("data_quality", {})
@@ -57,6 +75,53 @@ def run(context_packet: Dict[str, Any], db_path=None) -> Dict[str, Any]:
     if not active_plan_id:
         log.debug("No active plan — skipping adjust_today")
         return {"triggered": False, "reason": "no_active_plan", "adjustment": None}
+
+    # If today's adjustment already exists but publish never succeeded, retry
+    # Garmin publish without re-running the Brain.
+    prior_adjustments = _events_for_day("today_adjustment", today_str, db)
+    if prior_adjustments:
+        from memory.db import insert_event
+        publish_events = _events_for_day("today_adjustment_garmin_publish", today_str, db)
+        already_published = any(p.get("status") == "success" for p in publish_events)
+        if already_published:
+            return {"triggered": False, "reason": "already_adjusted_today", "adjustment": None}
+
+        try:
+            from skills.publish_to_garmin import publish
+            publish(days=1, dry_run=False, db_path=db)
+            insert_event(
+                event_type="today_adjustment_garmin_publish",
+                payload={
+                    "date": today_str,
+                    "status": "success",
+                    "mode": "retry",
+                },
+                source="on_readiness_change",
+                db_path=db,
+            )
+            return {
+                "triggered": False,
+                "reason": "already_adjusted_today_publish_retried",
+                "adjustment": None,
+            }
+        except Exception as retry_exc:
+            log.warning("Garmin publish retry for adjusted day failed: %s", retry_exc)
+            insert_event(
+                event_type="today_adjustment_garmin_publish",
+                payload={
+                    "date": today_str,
+                    "status": "failed",
+                    "mode": "retry",
+                    "error": str(retry_exc)[:300],
+                },
+                source="on_readiness_change",
+                db_path=db,
+            )
+            return {
+                "triggered": False,
+                "reason": "already_adjusted_today_publish_retry_failed",
+                "adjustment": None,
+            }
 
     # ── Gate: sleep data must be available for today ───────────────────────
     # Readiness scores can be incomplete before the night's sleep is synced.
@@ -110,23 +175,6 @@ def run(context_packet: Dict[str, Any], db_path=None) -> Dict[str, Any]:
             "adjustment": None,
         }
 
-    # ── Gate: avoid duplicate adjustments on the same day ─────────────────
-    from memory.db import query_events
-    today_str = today.isoformat()
-    recent = query_events(event_type="today_adjustment", limit=5, db_path=db)
-    for ev in recent:
-        import json
-        try:
-            payload = json.loads(ev.get("payload_json", "{}"))
-        except Exception:
-            payload = {}
-        if payload.get("date") == today_str:
-            log.info(
-                "Adjustment already recorded today (%s) — skipping duplicate",
-                today_str,
-            )
-            return {"triggered": False, "reason": "already_adjusted_today", "adjustment": None}
-
     # ── Call Brain: adjust_today ───────────────────────────────────────────
     log.info("Triggering adjust_today: %s", trigger_reason)
 
@@ -139,18 +187,6 @@ def run(context_packet: Dict[str, Any], db_path=None) -> Dict[str, Any]:
             "adjust_today complete: type=%s reason=%s",
             adjustment.workout_type,
             adjustment.adjustment_reason,
-        )
-
-        # Record in SQLite so the deduplication guard above fires on future cycles
-        insert_event(
-            event_type="today_adjustment",
-            payload={
-                "date":         today_str,
-                "workout_type": adjustment.workout_type,
-                "reason":       adjustment.adjustment_reason,
-            },
-            source="on_readiness_change",
-            db_path=db,
         )
 
         # Persist the adjusted workout into today's active plan row so all
@@ -173,14 +209,53 @@ def run(context_packet: Dict[str, Any], db_path=None) -> Dict[str, Any]:
             )
             log.info("Updated plan_days for %s from readiness adjustment", today_str)
 
+            # Record adjustment after successful persistence so dedup reflects
+            # committed state.
+            insert_event(
+                event_type="today_adjustment",
+                payload={
+                    "date":         today_str,
+                    "workout_type": adjustment.workout_type,
+                    "reason":       adjustment.adjustment_reason,
+                },
+                source="on_readiness_change",
+                db_path=db,
+            )
+
             # Push today's change to Garmin immediately (best effort).
             try:
                 from skills.publish_to_garmin import publish
                 publish(days=1, dry_run=False, db_path=db)
+                insert_event(
+                    event_type="today_adjustment_garmin_publish",
+                    payload={
+                        "date": today_str,
+                        "status": "success",
+                        "mode": "initial",
+                    },
+                    source="on_readiness_change",
+                    db_path=db,
+                )
             except Exception as publish_exc:
                 log.warning("Garmin publish after readiness adjustment failed: %s", publish_exc)
+                insert_event(
+                    event_type="today_adjustment_garmin_publish",
+                    payload={
+                        "date": today_str,
+                        "status": "failed",
+                        "mode": "initial",
+                        "error": str(publish_exc)[:300],
+                    },
+                    source="on_readiness_change",
+                    db_path=db,
+                )
         except Exception as persist_exc:
             log.warning("Could not persist adjusted workout to plan_days: %s", persist_exc)
+            return {
+                "triggered":  False,
+                "reason":     f"persist_error: {persist_exc}",
+                "adjustment": None,
+            }
 
         return {
             "triggered":  True,
