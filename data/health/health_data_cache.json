@@ -1,5 +1,5 @@
 {
-  "last_updated": "2026-02-24T16:16:52.608062+00:00",
+  "last_updated": "2026-02-24T23:24:51.599356+00:00",
   "last_sync_date": "2026-02-24",
   "activities": [
     {
@@ -45951,7 +45951,7 @@
   "stress_readings": [
     {
       "date": "2026-02-24",
-      "avg_stress": 14,
+      "avg_stress": 15,
       "max_stress": 93
     },
     {
@@ -51059,10 +51059,10 @@
   "body_battery": [
     {
       "date": "2026-02-24",
-      "charged": 37,
-      "drained": 25,
-      "latest_level": 74,
-      "latest_timestamp": 1771947540000
+      "charged": 38,
+      "drained": 29,
+      "latest_level": 71,
+      "latest_timestamp": 1771955280000
     },
     {
       "date": "2026-02-23",
@@ -53888,7 +53888,7 @@
   "daily_steps": [
     {
       "date": "2026-02-24",
-      "total_steps": 4267,
+      "total_steps": 4853,
       "goal_steps": 12430,
       "goal_met": false
     },
