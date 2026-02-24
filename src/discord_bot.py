@@ -854,12 +854,23 @@ async def coach_plan_command(interaction: discord.Interaction):
     await interaction.response.defer(thinking=True)
     rc, stdout, stderr = await run_coach_cli(["plan", "--week"], timeout=300)
     if rc == 0:
+        plan_msg = clamp(stdout.strip() or "Plan generated.", 1700)
+        # Long-running export step: update the deferred message so users see
+        # progress instead of waiting silently.
+        await interaction.edit_original_response(
+            embed=discord.Embed(
+                title="⏳ Plan Generated, Publishing to Garmin...",
+                description=plan_msg,
+                color=discord.Color.blurple(),
+                timestamp=datetime.now(),
+            )
+        )
+
         # Plan succeeded — publish to Garmin immediately.
         exp_rc, exp_stdout, exp_stderr = await run_coach_cli(
             ["export-garmin", "--live"],
             timeout=240,
         )
-        plan_msg = clamp(stdout.strip() or "Plan generated.", 1700)
         export_msg = clamp(exp_stdout.strip() or exp_stderr.strip() or "No export output.", 1700)
         if exp_rc == 0:
             embed = discord.Embed(
@@ -883,7 +894,7 @@ async def coach_plan_command(interaction: discord.Interaction):
             color=discord.Color.red(),
             timestamp=datetime.now(),
         )
-    await interaction.followup.send(embed=embed)
+    await interaction.edit_original_response(embed=embed)
 
 
 @bot.tree.command(name="coach_macro", description="Generate or show the full periodized training block")

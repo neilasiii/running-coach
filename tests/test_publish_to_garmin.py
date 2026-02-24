@@ -442,3 +442,37 @@ def test_live_publish_same_day_mixed_sessions_does_not_remove_running_workout(tm
 
     assert result["removed"] == []
     mock_delete.assert_not_called()
+
+
+def test_live_publish_warns_when_generated_log_save_fails(tmp_path: Path):
+    import skills.publish_to_garmin as pub
+
+    target_date = date.today().isoformat()
+    workout = {
+        "scheduled_date": target_date,
+        "name": "30 min E",
+        "description": "Easy run",
+        "source": "internal_plan",
+        "_degraded": False,
+    }
+    log_path = tmp_path / "generated_workouts.json"
+
+    with (
+        patch.object(pub, "_GENERATED_LOG", log_path),
+        patch("skills.plans.get_active_sessions", return_value=[{"date": target_date}]),
+        patch("skills.internal_plan_to_scheduled_workouts.convert", return_value=[workout]),
+        patch("workout_parser.parse_workout_description", return_value=object()),
+        patch("auto_workout_generator.generate_workout_name", return_value="Workout"),
+        patch("auto_workout_generator.generate_garmin_workout", return_value={"workoutName": "Workout"}),
+        patch("workout_uploader.get_garmin_client", return_value=object()),
+        patch("workout_uploader.upload_workout", return_value={"workoutId": 999}),
+        patch("workout_uploader.schedule_workout", return_value=True),
+        patch("workout_uploader.delete_workout", return_value=True),
+        patch("memory.db.init_db"),
+        patch("memory.db.insert_event", return_value="event-id"),
+        patch.object(pub, "_save_generated_log", side_effect=RuntimeError("disk full")),
+    ):
+        result = pub.publish(days=1, dry_run=False)
+
+    assert target_date in result["published"]
+    assert any("Failed to update generated_workouts.json" in w for w in result["warnings"])
