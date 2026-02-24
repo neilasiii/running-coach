@@ -127,6 +127,28 @@ def _running_entry(log_data: Dict[str, Any], target_date: str) -> Optional[Dict[
     return entry if isinstance(entry, dict) else None
 
 
+def _normalized_stale_ids(entry: Dict[str, Any], current_id: Any = None) -> List[int]:
+    """Return unique stale Garmin IDs from a log entry, excluding current_id."""
+    raw = entry.get("stale_garmin_ids", [])
+    out: List[int] = []
+    if not isinstance(raw, list):
+        return out
+    for item in raw:
+        try:
+            item_int = int(item)
+        except (TypeError, ValueError):
+            continue
+        if current_id is not None:
+            try:
+                if item_int == int(current_id):
+                    continue
+            except (TypeError, ValueError):
+                pass
+        if item_int not in out:
+            out.append(item_int)
+    return out
+
+
 def publish(
     days: int = 7,
     dry_run: bool = True,
@@ -300,6 +322,7 @@ def publish(
         wo_date = wo["scheduled_date"]
         existing = wo.get("_existing_entry") or {}
         prev_id = existing.get("garmin_id")
+        stale_ids = _normalized_stale_ids(existing, current_id=prev_id)
 
         try:
             parsed = parse_workout_description(wo["name"])
@@ -321,6 +344,12 @@ def publish(
                 except Exception:
                     deleted = False
                 if not deleted:
+                    try:
+                        prev_int = int(prev_id)
+                        if prev_int not in stale_ids:
+                            stale_ids.append(prev_int)
+                    except (TypeError, ValueError):
+                        pass
                     warn = (
                         f"{wo_date}: new workout published ({garmin_id}) but could not "
                         f"delete previous workout {prev_id}"
@@ -351,6 +380,8 @@ def publish(
                 "signature": wo.get("_signature"),
                 "published_at": datetime.now(timezone.utc).isoformat(),
             }
+            if stale_ids:
+                running_log[wo_date]["stale_garmin_ids"] = stale_ids
             log_dirty = True
 
             log.info("Published %s -> Garmin %s (%s)", wo_date, garmin_id, wo.get("_action", "create"))
@@ -388,6 +419,47 @@ def publish(
         running_log.pop(remove_date, None)
         log_dirty = True
         removed.append(remove_date)
+
+    # Retry cleanup of stale Garmin IDs left behind by previous replacement
+    # attempts (e.g., transient API failures during delete).
+    for log_date, entry in list(running_log.items()):
+        if not isinstance(entry, dict):
+            continue
+        current_id = entry.get("garmin_id")
+        stale_ids = _normalized_stale_ids(entry, current_id=current_id)
+        if not stale_ids:
+            if "stale_garmin_ids" in entry:
+                entry.pop("stale_garmin_ids", None)
+                log_dirty = True
+            continue
+
+        remaining: List[int] = []
+        for stale_id in stale_ids:
+            try:
+                deleted = delete_workout(client, int(stale_id), quiet=True)
+            except Exception as exc:
+                deleted = False
+                warnings.append(f"{log_date}: stale cleanup delete failed for Garmin workout {stale_id} ({exc})")
+            if not deleted:
+                remaining.append(stale_id)
+                continue
+
+            insert_event(
+                event_type="garmin_publish_internal",
+                payload={
+                    "date": log_date,
+                    "garmin_id": stale_id,
+                    "action": "cleanup_stale",
+                },
+                source="skills.publish_to_garmin",
+                db_path=db_path or _DEFAULT_DB,
+            )
+
+        if remaining:
+            entry["stale_garmin_ids"] = remaining
+        else:
+            entry.pop("stale_garmin_ids", None)
+        log_dirty = True
 
     if log_dirty:
         try:

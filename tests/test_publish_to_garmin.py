@@ -136,6 +136,102 @@ def test_live_publish_replaces_changed_workout_and_updates_log(tmp_path: Path):
     assert saved["running"][target_date]["signature"] == new_signature
 
 
+def test_live_publish_records_stale_id_when_replaced_delete_fails(tmp_path: Path):
+    import skills.publish_to_garmin as pub
+
+    target_date = date.today().isoformat()
+    workout = {
+        "scheduled_date": target_date,
+        "name": "30 min E",
+        "description": "Adjusted easy day",
+        "source": "internal_plan",
+        "_degraded": False,
+    }
+
+    log_path = tmp_path / "generated_workouts.json"
+    log_path.write_text(
+        json.dumps(
+            {
+                "running": {
+                    target_date: {
+                        "garmin_id": 111,
+                        "signature": "old-signature",
+                    }
+                }
+            }
+        )
+    )
+
+    with (
+        patch.object(pub, "_GENERATED_LOG", log_path),
+        patch("skills.plans.get_active_sessions", return_value=[{"date": target_date}]),
+        patch("skills.internal_plan_to_scheduled_workouts.convert", return_value=[workout]),
+        patch("workout_parser.parse_workout_description", return_value=object()),
+        patch("auto_workout_generator.generate_workout_name", return_value="Updated Workout"),
+        patch("auto_workout_generator.generate_garmin_workout", return_value={"workoutName": "Updated Workout"}),
+        patch("workout_uploader.get_garmin_client", return_value=object()),
+        patch("workout_uploader.upload_workout", return_value={"workoutId": 222}),
+        patch("workout_uploader.schedule_workout", return_value=True),
+        patch("workout_uploader.delete_workout", return_value=False),
+        patch("memory.db.init_db"),
+        patch("memory.db.insert_event", return_value="event-id"),
+    ):
+        result = pub.publish(days=1, dry_run=False)
+
+    assert target_date in result["published"]
+    assert any("could not delete previous workout 111" in w for w in result["warnings"])
+    saved = json.loads(log_path.read_text())
+    assert saved["running"][target_date]["garmin_id"] == 222
+    assert saved["running"][target_date]["stale_garmin_ids"] == [111]
+
+
+def test_live_publish_retries_stale_cleanup_even_when_workout_unchanged(tmp_path: Path):
+    import skills.publish_to_garmin as pub
+
+    target_date = date.today().isoformat()
+    workout = {
+        "scheduled_date": target_date,
+        "name": "45 min E",
+        "description": "Easy run",
+        "source": "internal_plan",
+        "_degraded": False,
+    }
+    signature = pub._workout_signature(workout)
+
+    log_path = tmp_path / "generated_workouts.json"
+    log_path.write_text(
+        json.dumps(
+            {
+                "running": {
+                    target_date: {
+                        "garmin_id": 222,
+                        "signature": signature,
+                        "stale_garmin_ids": [111],
+                    }
+                }
+            }
+        )
+    )
+
+    with (
+        patch.object(pub, "_GENERATED_LOG", log_path),
+        patch("skills.plans.get_active_sessions", return_value=[{"date": target_date}]),
+        patch("skills.internal_plan_to_scheduled_workouts.convert", return_value=[workout]),
+        patch("workout_uploader.get_garmin_client", return_value=object()),
+        patch("workout_uploader.delete_workout", return_value=True) as mock_delete,
+        patch("memory.db.init_db"),
+        patch("memory.db.insert_event", return_value="event-id"),
+    ):
+        result = pub.publish(days=1, dry_run=False)
+
+    assert result["prepared"] == []
+    mock_delete.assert_called_once()
+    assert mock_delete.call_args.args[1] == 111
+
+    saved = json.loads(log_path.read_text())
+    assert "stale_garmin_ids" not in saved["running"][target_date]
+
+
 def test_live_publish_removes_obsolete_running_workout_for_rest_day(tmp_path: Path):
     import skills.publish_to_garmin as pub
 
