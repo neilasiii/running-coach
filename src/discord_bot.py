@@ -1132,6 +1132,24 @@ async def on_message(message: discord.Message):
 
     async with message.channel.typing():
         try:
+            # ── Reply to bot message → route straight to AI ─────────────────
+            # Handles post-workout check-in replies (and any other bot reply)
+            # without keyword matching accidentally triggering CLI commands.
+            if message.reference and message.reference.resolved:
+                ref = message.reference.resolved
+                if isinstance(ref, discord.Message) and ref.author == bot.user:
+                    response, provider = call_ai_with_fallback(
+                        content,
+                        allowed_tools="Bash(python3:*),Read,Grep,Glob",
+                    )
+                    if not response:
+                        await message.reply("❌ AI unavailable. Both Claude and Gemini failed.")
+                        return
+                    if provider == "gemini":
+                        response = f"{response}\n\n*Powered by Gemini (Claude unavailable)*"
+                    await send_long_message(message, response)
+                    return
+
             # ── LLM opt-in via "ai:" prefix ────────────────────────────────
             if lower.startswith("ai:"):
                 prompt = content[3:].strip()
