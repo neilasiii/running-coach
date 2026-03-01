@@ -553,15 +553,10 @@ async def report_command(interaction: discord.Interaction):
                     continue
                 filtered_lines.append(line)
 
-            report = '\n'.join(filtered_lines).strip()[:4000]  # Discord embed limit
+            report = '\n'.join(filtered_lines).strip()
 
-            embed = discord.Embed(
-                title="🌅 Morning Training Report",
-                description=report,
-                color=discord.Color.blue(),
-                timestamp=datetime.now()
-            )
-            await interaction.followup.send(embed=embed)
+            embeds = split_embeds(report, "🌅 Morning Training Report", discord.Color.blue())
+            await interaction.followup.send(embeds=embeds[:10])
         else:
             await interaction.followup.send(f"❌ Error generating report:\n{result.stderr[:500]}")
 
@@ -623,7 +618,7 @@ async def workout_command(interaction: discord.Interaction):
             if intent:
                 embed.description = intent
             if dur:
-                embed.add_field(name="Duration", value=f"{dur} min", inline=True)
+                embed.add_field(name="Duration", value=f"{dur} min", inline=False)
             if steps:
                 step_lines = []
                 for i, s in enumerate(steps, 1):
@@ -678,7 +673,7 @@ async def workout_command(interaction: discord.Interaction):
                 if w.get("description"):
                     embed.description = w["description"][:3900]
                 if w.get("duration_min"):
-                    embed.add_field(name="Duration", value=f"{w['duration_min']} min", inline=True)
+                    embed.add_field(name="Duration", value=f"{w['duration_min']} min", inline=False)
                 embeds.append(embed)
 
         if not embeds:
@@ -736,18 +731,25 @@ async def status_command(interaction: discord.Interaction):
                 color = discord.Color.red()
                 status_emoji = "🔴"
 
+            sleep_val = f"{sleep_score}/100" if sleep_score != "N/A" else "N/A"
+            battery_val = f"{body_battery}%" if body_battery != "N/A" else "N/A"
+            rhr_val = f"{rhr} bpm" if rhr != "N/A" else "N/A"
+            hrv_val = f"{hrv} ms{' · ' + hrv_status if hrv_status else ''}" if hrv != "N/A" else "N/A"
+            readiness_val = f"{readiness_score}/100 ({readiness_level})" if readiness_score != "N/A" else "N/A"
+
+            description = bullet_fields([
+                ("😴", "Sleep", sleep_val),
+                ("🔋", "Battery", battery_val),
+                ("❤️", "RHR", rhr_val),
+                ("📈", "HRV", hrv_val),
+                ("🎯", "Readiness", readiness_val),
+            ])
             embed = discord.Embed(
                 title=f"{status_emoji} Recovery Status",
+                description=description,
                 color=color,
-                timestamp=datetime.now()
+                timestamp=datetime.now(),
             )
-
-            embed.add_field(name="😴 Sleep", value=f"{sleep_score}/100" if sleep_score != "N/A" else "N/A", inline=True)
-            embed.add_field(name="🔋 Body Battery", value=f"{body_battery}%" if body_battery != "N/A" else "N/A", inline=True)
-            embed.add_field(name="❤️ RHR", value=f"{rhr} bpm" if rhr != "N/A" else "N/A", inline=True)
-            embed.add_field(name="📈 HRV", value=f"{hrv} ms" if hrv != "N/A" else "N/A", inline=True)
-            embed.add_field(name="🎯 Readiness", value=f"{readiness_score}/100 ({readiness_level})" if readiness_score != "N/A" else "N/A", inline=True)
-
             await interaction.followup.send(embed=embed)
         else:
             await interaction.followup.send(f"❌ Error: {result.stderr[:500]}")
