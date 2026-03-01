@@ -629,7 +629,7 @@ async def workout_command(interaction: discord.Interaction):
                     step_lines.append(
                         f"{i}. {s.get('label', '').title()} {s.get('duration_min', 0)}min{rep_str}{tv}"
                     )
-                embed.add_field(name="Structure", value="\n".join(step_lines), inline=False)
+                embed.add_field(name="Structure", value=clamp("\n".join(step_lines), 1024), inline=False)
 
             plan_id = schedule.get("plan_id") or "unknown"
             embed.set_footer(text=f"Plan: {plan_id}")
@@ -1018,29 +1018,26 @@ async def coach_plan_command(interaction: discord.Interaction):
             timeout=240,
         )
         export_msg = clamp(exp_stdout.strip() or exp_stderr.strip() or "No export output.", 1700)
+        plan_embeds = split_embeds(plan_msg, "✓ Plan Generated", discord.Color.blue())
         if exp_rc == 0:
-            embed = discord.Embed(
-                title="✓ Plan Generated + Garmin Updated",
-                description=f"{plan_msg}\n\n---\n{export_msg}",
-                color=discord.Color.blue(),
-                timestamp=datetime.now(),
-            )
+            export_embeds = split_embeds(export_msg, "📤 Garmin Updated", discord.Color.green())
         else:
-            embed = discord.Embed(
-                title="⚠ Plan Generated, Garmin Publish Failed",
-                description=f"{plan_msg}\n\n---\n{export_msg}",
-                color=discord.Color.orange(),
-                timestamp=datetime.now(),
-            )
+            export_embeds = split_embeds(export_msg, "⚠ Garmin Publish Failed", discord.Color.orange())
+
+        await interaction.edit_original_response(
+            embed=discord.Embed(title="✓ Done", color=discord.Color.green(), timestamp=datetime.now())
+        )
+        await interaction.followup.send(embeds=(plan_embeds + export_embeds)[:10])
     else:
         msg = stderr.strip() or stdout.strip() or "Unknown error"
-        embed = discord.Embed(
-            title="❌ Plan Generation Failed",
-            description=clamp(msg, 1800),
-            color=discord.Color.red(),
-            timestamp=datetime.now(),
+        await interaction.edit_original_response(
+            embed=discord.Embed(
+                title="❌ Plan Generation Failed",
+                description=clamp(msg, MOBILE_DESC_LIMIT),
+                color=discord.Color.red(),
+                timestamp=datetime.now(),
+            )
         )
-    await interaction.edit_original_response(embed=embed)
 
 
 @bot.tree.command(name="coach_macro", description="Generate or show the full periodized training block")
