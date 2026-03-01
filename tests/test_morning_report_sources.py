@@ -116,6 +116,23 @@ class TestGetTodaysWorkout:
         result = self._call(sessions, [])
         assert result is None
 
+    def test_falls_back_to_cache_when_sessions_exist_but_no_today_match(self):
+        """If plan has sessions but none for today, fall back to health cache."""
+        yesterday = (date.today() - timedelta(days=1)).isoformat()
+        tomorrow = (date.today() + timedelta(days=1)).isoformat()
+        sessions = [_make_session(yesterday), _make_session(tomorrow)]
+        today = date.today().isoformat()
+        cache_workouts = [{
+            "scheduled_date": today,
+            "name": "Cache Easy Run",
+            "description": "From cache",
+            "source": "ics_calendar",
+        }]
+        result = self._call(sessions, cache_workouts)
+        assert result is not None
+        assert result[0]["source"] != "internal_plan"
+        assert result[0]["name"] == "Cache Easy Run"
+
 
 class TestGetUpcomingWorkouts:
     """get_upcoming_workouts prefers internal plan over health cache."""
