@@ -110,6 +110,87 @@ def clamp(text: str, n: int) -> str:
     return text if len(text) <= n else text[:n - 3] + "..."
 
 
+# Mobile-safe embed description cap. Discord allows 4096 chars per embed
+# description, but walls of text are unreadable on a phone screen.
+MOBILE_DESC_LIMIT = 1200
+
+
+def split_embeds(
+    content: str,
+    title: str,
+    color: discord.Color,
+    chunk_size: int = MOBILE_DESC_LIMIT,
+) -> list:
+    """
+    Split long content into a list of Discord Embeds, each under chunk_size chars.
+
+    Only the first embed gets the title. All share the same color.
+    Splits on paragraph breaks (\\n\\n) first, sentence breaks second, hard cut last.
+    Returns at least one embed even if content is empty.
+    """
+    content = content.strip()
+    if not content:
+        return [discord.Embed(title=title, description="(no content)", color=color)]
+
+    # Build chunks
+    chunks: list[str] = []
+    current = ""
+    for para in content.split("\n\n"):
+        if len(para) > chunk_size:
+            # Para itself is too long — split at sentence boundaries
+            for sentence in para.split(". "):
+                piece = sentence + ". "
+                if len(current) + len(piece) > chunk_size:
+                    if current:
+                        chunks.append(current.rstrip())
+                    current = piece
+                else:
+                    current += piece
+        else:
+            candidate = (current + "\n\n" + para) if current else para
+            if len(candidate) > chunk_size:
+                chunks.append(current.rstrip())
+                current = para
+            else:
+                current = candidate
+    if current:
+        chunks.append(current.rstrip())
+
+    if not chunks:
+        chunks = [clamp(content, chunk_size)]
+
+    embeds = []
+    for i, chunk in enumerate(chunks):
+        embed = discord.Embed(
+            title=title if i == 0 else "",
+            description=chunk,
+            color=color,
+        )
+        if i == 0:
+            embed.timestamp = datetime.now()
+        embeds.append(embed)
+    return embeds
+
+
+def bullet_fields(pairs: list) -> str:
+    """
+    Format a list of (emoji, label, value) tuples as a mobile-friendly bullet string.
+
+    Example:
+        bullet_fields([("😴", "Sleep", "78/100"), ("🔋", "Battery", "62%")])
+        → "😴 Sleep: 78/100\\n🔋 Battery: 62%"
+
+    Shows a dash for N/A or None values.
+    """
+    lines = []
+    for emoji, label, value in pairs:
+        if value is not None and str(value) != "N/A":
+            lines.append(f"{emoji} {label}: {value}")
+        else:
+            lines.append(f"{emoji} {label}: —")
+    return "\n".join(lines)
+
+
 async def run_coach_cli(args: list, timeout: int = 180) -> tuple:
     """
     Run `python3 cli/coach.py <args>` as a subprocess.
