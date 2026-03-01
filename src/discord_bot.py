@@ -673,7 +673,7 @@ async def workout_command(interaction: discord.Interaction):
                     timestamp=datetime.now(),
                 )
                 if w.get("description"):
-                    embed.description = w["description"][:3900]
+                    embed.description = w["description"][:MOBILE_DESC_LIMIT]
                 if w.get("duration_min"):
                     embed.add_field(name="Duration", value=f"{w['duration_min']} min", inline=False)
                 embeds.append(embed)
@@ -1608,15 +1608,9 @@ async def morning_report_task():
                     continue
                 filtered_lines.append(line)
 
-            report = '\n'.join(filtered_lines).strip()[:4000]
-
-            embed = discord.Embed(
-                title="🌅 Morning Training Report",
-                description=report,
-                color=discord.Color.blue(),
-                timestamp=datetime.now()
-            )
-            await channel.send(embed=embed)
+            report = '\n'.join(filtered_lines).strip()
+            embeds = split_embeds(report, "🌅 Morning Training Report", discord.Color.blue())
+            await channel.send(embeds=embeds[:10])
         else:
             await channel.send(f"❌ Report generation failed: {(stderr or 'Unknown error')[:500]}")
 
