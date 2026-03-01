@@ -173,10 +173,13 @@ class TestSplitEmbeds:
     def test_empty_content_returns_one_embed(self):
         embeds = split_embeds("", "Title", "blue")  # type: ignore
         assert len(embeds) == 1
+        assert embeds[0].description == "(no content)"
+        assert embeds[0].title == "Title"
 
     def test_each_embed_under_chunk_size(self):
         content = " ".join(["word"] * 2000)
         embeds = split_embeds(content, "T", "blue", chunk_size=500)  # type: ignore
+        assert len(embeds) > 1
         for embed in embeds:
             assert len(embed.description) <= 500
 

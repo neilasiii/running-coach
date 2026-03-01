@@ -145,8 +145,10 @@ def split_embeds(
                         chunks.append(current.rstrip())
                     # Hard-cut if piece itself exceeds chunk_size (no sentence boundaries)
                     if len(piece) > chunk_size:
-                        chunks.append(clamp(piece.rstrip(), chunk_size))
-                        current = ""
+                        while len(piece) > chunk_size:
+                            chunks.append(piece[:chunk_size])
+                            piece = piece[chunk_size:]
+                        current = piece if piece else ""
                     else:
                         current = piece
                 else:
@@ -891,10 +893,6 @@ async def ask_command(interaction: discord.Interaction, question: str):
             await interaction.followup.send("❌ AI services unavailable. Both Claude and Gemini failed.")
             return
 
-        # Truncate if needed
-        response = response[:4000] if len(response) > 4000 else response
-
-        # Set color and footer based on provider
         if provider == 'claude':
             color = discord.Color.purple()
             footer_text = f"Powered by Claude • {question[:80]}"
@@ -902,15 +900,9 @@ async def ask_command(interaction: discord.Interaction, question: str):
             color = discord.Color.blue()
             footer_text = f"Powered by Gemini (Claude unavailable) • {question[:60]}"
 
-        embed = discord.Embed(
-            title="🤖 Coach Response",
-            description=response,
-            color=color,
-            timestamp=datetime.now()
-        )
-        embed.set_footer(text=footer_text)
-
-        await interaction.followup.send(embed=embed)
+        embeds = split_embeds(response or "(no response)", "🤖 Coach Response", color)
+        embeds[0].set_footer(text=footer_text)
+        await interaction.followup.send(embeds=embeds[:10])
 
     except Exception as e:
         await interaction.followup.send(f"❌ Error: {str(e)}")
