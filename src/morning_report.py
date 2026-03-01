@@ -21,6 +21,65 @@ from pathlib import Path
 from environmental_adjustments import calculate_environmental_adjustment
 
 
+# ── Internal plan helpers ──────────────────────────────────────────────────────
+
+_WORKOUT_TYPE_LABELS = {
+    "easy": "Easy Run",
+    "long": "Long Run",
+    "tempo": "Tempo Run",
+    "interval": "Interval Run",
+    "rest": "Rest Day",
+}
+
+
+def _session_to_workout(session):
+    """Convert an internal plan session dict to a morning_report workout dict."""
+    wtype = session.get("workout_type", "rest")
+    label = _WORKOUT_TYPE_LABELS.get(wtype, wtype.title())
+    intent = session.get("intent", "")
+    steps = session.get("structure_steps", [])
+
+    description = intent
+    if steps:
+        step_lines = []
+        for i, s in enumerate(steps, 1):
+            rep_str = f" \u00d7{s['reps']}" if s.get("reps") else ""
+            target = f"  [{s.get('target_value', '')}]" if s.get("target_value") else ""
+            step_lines.append(
+                f"{i}. {s.get('label', '').title()} {s.get('duration_min', 0)}min{rep_str}{target}"
+            )
+        structure = "\n".join(step_lines)
+        description = f"{intent}\n\nStructure:\n{structure}" if intent else f"Structure:\n{structure}"
+
+    return {
+        "name": label,
+        "description": description,
+        "duration_min": session.get("duration_min", 0),
+        "source": "internal_plan",
+        "domain": "running",
+        "workout_type": wtype,
+        "structure_steps": steps,
+        "intent": intent,
+    }
+
+
+def _get_active_sessions_safe():
+    """Call skills.plans.get_active_sessions(), returning [] on any error."""
+    try:
+        import sys
+        from pathlib import Path as _Path
+        _root = _Path(__file__).parent.parent
+        sys.path.insert(0, str(_root))
+        from skills.plans import get_active_sessions
+        return get_active_sessions()
+    except Exception:
+        return []
+
+
+# Patchable alias for tests
+get_active_sessions = _get_active_sessions_safe
+
+
 def load_health_data():
     """Load health data from cache."""
     project_root = Path(__file__).parent.parent
@@ -87,21 +146,27 @@ def load_athlete_context():
 
 
 def get_todays_workout(cache):
-    """Get today's scheduled workouts (returns list of all workouts for today)."""
-    today = datetime.now().date().isoformat()
-    workouts = []
+    """Get today's workout — internal plan first, health cache fallback."""
+    today_str = datetime.now().date().isoformat()
 
+    # Internal plan (authoritative)
+    sessions = get_active_sessions()
+    today_session = next((s for s in sessions if s["date"] == today_str), None)
+    if today_session is not None and today_session.get("workout_type") != "rest":
+        return [_session_to_workout(today_session)]
+
+    # Health cache fallback (FinalSurge / ICS)
+    workouts = []
     for workout in cache.get('scheduled_workouts', []):
         workout_date = workout.get('scheduled_date') or workout.get('date', '')
-        if workout_date.startswith(today):
+        if workout_date.startswith(today_str):
             workouts.append({
                 'name': workout.get('workout_name') or workout.get('name', 'Workout'),
                 'description': workout.get('description', ''),
                 'source': workout.get('source', 'unknown'),
-                'domain': workout.get('domain', 'unknown')
+                'domain': workout.get('domain', 'unknown'),
             })
 
-    # Deduplicate by name (in case same workout appears multiple times)
     seen = set()
     unique_workouts = []
     for w in workouts:
@@ -113,22 +178,42 @@ def get_todays_workout(cache):
 
 
 def get_upcoming_workouts(cache, days=5):
-    """Get upcoming scheduled workouts for the next N days (excluding today)."""
+    """Get upcoming workouts — internal plan first, health cache fallback."""
     today = datetime.now().date()
-    upcoming = []
 
+    # Internal plan (authoritative)
+    sessions = get_active_sessions()
+    if sessions:
+        upcoming = []
+        for s in sessions:
+            try:
+                session_date = datetime.fromisoformat(s["date"]).date()
+            except (ValueError, KeyError):
+                continue
+            days_ahead = (session_date - today).days
+            if 1 <= days_ahead <= days and s.get("workout_type") != "rest":
+                wo = _session_to_workout(s)
+                upcoming.append({
+                    "date": s["date"],
+                    "days_ahead": days_ahead,
+                    "name": wo["name"],
+                    "description": wo["description"],
+                    "domain": "running",
+                    "source": "internal_plan",
+                })
+        upcoming.sort(key=lambda x: x["date"])
+        return upcoming
+
+    # Health cache fallback
+    upcoming = []
     for workout in cache.get('scheduled_workouts', []):
         workout_date_str = workout.get('scheduled_date') or workout.get('date', '')
         if not workout_date_str:
             continue
-
-        # Parse workout date
         try:
             workout_date = datetime.fromisoformat(workout_date_str.split('T')[0]).date()
-        except:
+        except (ValueError, KeyError):
             continue
-
-        # Check if it's in our upcoming window (after today, within N days)
         days_ahead = (workout_date - today).days
         if 1 <= days_ahead <= days:
             upcoming.append({
@@ -136,10 +221,9 @@ def get_upcoming_workouts(cache, days=5):
                 'days_ahead': days_ahead,
                 'name': workout.get('workout_name') or workout.get('name', 'Workout'),
                 'description': workout.get('description', ''),
-                'domain': workout.get('domain', 'unknown')
+                'domain': workout.get('domain', 'unknown'),
             })
 
-    # Sort by date and deduplicate by (date, name)
     upcoming.sort(key=lambda x: x['date'])
     seen = set()
     unique_upcoming = []
@@ -148,7 +232,6 @@ def get_upcoming_workouts(cache, days=5):
         if key not in seen:
             seen.add(key)
             unique_upcoming.append(w)
-
     return unique_upcoming
 
 
