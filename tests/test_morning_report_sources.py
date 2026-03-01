@@ -194,7 +194,7 @@ class TestParseAiResponse:
 
     def test_extracts_notification(self):
         text = "NOTIFICATION:\n45min E as planned. Recovery excellent.\nADJUSTMENT:\nAs planned\nFULL_REPORT:\n## Recovery\nAll good."
-        notif, report = self._parse(text)
+        notif, _ = self._parse(text)
         assert "45min E as planned" in notif
 
     def test_as_planned_not_prepended_to_report(self):
