@@ -78,7 +78,6 @@ class TestGetTodaysWorkout:
     def _call(self, sessions, cache_workouts, today_str=None):
         from morning_report import get_todays_workout
         cache = {"scheduled_workouts": cache_workouts}
-        today = today_str or date.today().isoformat()
         with patch("morning_report.get_active_sessions", return_value=sessions):
             return get_todays_workout(cache)
 
