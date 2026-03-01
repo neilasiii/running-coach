@@ -1000,7 +1000,7 @@ async def coach_plan_command(interaction: discord.Interaction):
         await interaction.edit_original_response(
             embed=discord.Embed(
                 title="⏳ Plan Generated, Publishing to Garmin...",
-                description=clamp(plan_msg, 4000),
+                description=clamp(plan_msg, MOBILE_DESC_LIMIT),
                 color=discord.Color.blurple(),
                 timestamp=datetime.now(),
             )
@@ -2340,12 +2340,12 @@ async def saturday_plan_task():
                 garmin_note = f"\n⚠️ Garmin export failed: {(exp_err or exp_out)[:120]}"
                 logger.warning("[Saturday Plan] Garmin export failed: %s", exp_err or exp_out)
 
-            embed = discord.Embed(
-                title="📅 Next Week's Plan Ready",
-                description=clamp(stdout.strip(), 3900 - len(garmin_note)) + garmin_note,
-                color=discord.Color.blue(),
-                timestamp=datetime.now(),
-            )
+            plan_embeds = split_embeds(stdout.strip() or "Plan generated.", "📅 Next Week's Plan Ready", discord.Color.blue())
+            if garmin_note:
+                # Append the garmin status note to the last embed's description
+                last = plan_embeds[-1]
+                last.description = clamp((last.description or "") + "\n\n" + garmin_note, MOBILE_DESC_LIMIT)
+            await channel.send(embeds=plan_embeds[:10])
         else:
             msg = stderr.strip() or stdout.strip() or "Unknown error"
             embed = discord.Embed(
@@ -2354,7 +2354,7 @@ async def saturday_plan_task():
                 color=discord.Color.orange(),
                 timestamp=datetime.now(),
             )
-        await channel.send(embed=embed)
+            await channel.send(embed=embed)
     except Exception as exc:
         logger.error("saturday_plan_task error: %s", exc)
 
