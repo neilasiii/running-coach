@@ -1000,7 +1000,7 @@ async def coach_plan_command(interaction: discord.Interaction):
         await interaction.edit_original_response(
             embed=discord.Embed(
                 title="⏳ Plan Generated, Publishing to Garmin...",
-                description=plan_msg,
+                description=clamp(plan_msg, 4000),
                 color=discord.Color.blurple(),
                 timestamp=datetime.now(),
             )
