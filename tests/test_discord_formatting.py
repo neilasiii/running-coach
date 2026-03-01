@@ -204,3 +204,12 @@ class TestBulletFields:
     def test_empty_list(self):
         result = bullet_fields([])
         assert result == ""
+
+    def test_mixed_valid_and_na(self):
+        result = bullet_fields([
+            ("😴", "Sleep", "78/100"),
+            ("❤️", "RHR", "N/A"),
+            ("📈", "HRV", None),
+            ("🔋", "Battery", "62%"),
+        ])
+        assert result == "😴 Sleep: 78/100\n❤️ RHR: —\n📈 HRV: —\n🔋 Battery: 62%"
