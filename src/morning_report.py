@@ -554,8 +554,11 @@ def build_ai_prompt(workout, recovery, activities, athlete_context, weather=None
 
     # Format ORIGINAL PLAN block (rich context for internal plan sessions)
     original_plan_text = "Not available (health cache source — no structured plan data)"
-    if workout and isinstance(workout, list) and workout[0].get("source") == "internal_plan":
-        w = workout[0]
+    _plan_workout = None
+    if workout and isinstance(workout, list):
+        _plan_workout = next((w for w in workout if w.get("source") == "internal_plan"), None)
+    if _plan_workout:
+        w = _plan_workout
         wtype = w.get("workout_type", "unknown")
         dur = w.get("duration_min", 0)
         intent = w.get("intent", "")
@@ -659,10 +662,10 @@ IMPORTANT CONTEXT - PERCENTILES:
 - A high absolute score that's low percentile can be concerning ("score seems ok but lower than usual")
 - Consider both absolute values AND historical context in your recommendation
 
-OUTPUT FORMAT - You MUST follow this EXACTLY and output the ACTUAL content, not placeholders:
+OUTPUT FORMAT - Start your response immediately with NOTIFICATION. Do NOT restate these instructions.
 
 NOTIFICATION:
-[Single line, max 200 chars. Format: "Original → Recommendation (key reason). Recovery metric"]
+[Single line, max 240 chars. Format: "Original → Recommendation (key reason). Recovery metric"]
 Example: "45min E → 30min E (readiness 50). Battery 14/100"
 Example: "Rest day. Readiness LOW (46), battery depleted"
 Example: "40min E as planned. Recovery excellent"
@@ -697,7 +700,7 @@ CRITICAL RULES:
 - If a metric is missing, acknowledge it.
 - ALWAYS consider percentiles when interpreting metrics - historical context matters
 - Convert percentiles to descriptive language - NEVER use percentile numbers in the report
-- The NOTIFICATION line must be under 200 characters.
+- The NOTIFICATION line must be under 240 characters.
 - Be specific and actionable.
 - DO NOT use placeholders like "Generated above" or "[Report content provided above]" - output the COMPLETE report text directly."""
 
@@ -780,6 +783,7 @@ def parse_ai_response(response):
             full_report = rest_adj.split('FULL_REPORT:', 1)[1].strip()
         else:
             adjustment = rest_adj.strip()
+            full_report = adjustment  # use adjustment as report body if FULL_REPORT: absent
     elif 'NOTIFICATION:' in response:
         # Backwards compat: no ADJUSTMENT section
         parts = response.split('NOTIFICATION:', 1)

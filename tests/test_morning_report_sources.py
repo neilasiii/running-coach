@@ -201,6 +201,7 @@ class TestParseAiResponse:
         text = "NOTIFICATION:\nAs planned.\nADJUSTMENT:\nAs planned\nFULL_REPORT:\n## Recovery\nGood numbers."
         _, report = self._parse(text)
         assert "## Adjustment" not in report
+        assert not report.startswith("## Adjustment")  # no Adjustment header prepended
         assert "As planned" not in report.split("## Recovery")[0]
 
     def test_modification_prepended_to_full_report(self):
