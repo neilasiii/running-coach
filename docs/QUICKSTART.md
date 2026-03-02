@@ -102,8 +102,7 @@ Edit the files in `data/athlete/` to personalize your coaching:
    - Work constraints: Mon-Thu 7:00 AM - 5:30 PM
 
    # Dietary Requirements
-   - Gluten-free (required)
-   - Dairy-free (required)
+   - [Any dietary restrictions, e.g. gluten-free, dairy-free]
    ```
 
 3. **`upcoming_races.md`** - Your race schedule

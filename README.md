@@ -1,27 +1,172 @@
-# Running Coach (VDOT + Garmin)
+# Running Coach
 
-A personal AI-powered running coach that generates structured weekly training plans, publishes structured workouts to Garmin Connect, and monitors daily readiness — all driven by a persistent Memory OS and a Brain LLM planner.
+An AI-powered running coach that generates structured weekly training plans, publishes workouts directly to Garmin Connect, and monitors daily readiness — built on a persistent Memory OS and a Brain LLM planner.
 
-- VDOT-based running plans (Jack Daniels methodology) — VDOT derived from actual race performance, not Garmin VO2max
-- Syncs health data directly from Garmin Connect (sleep, HRV, body battery, VO2 max, activities)
+- **VDOT-based plans** (Jack Daniels methodology) — derived from actual race performance, not Garmin's VO2max estimate
+- **Garmin Connect integration** — syncs sleep, HRV, body battery, VO2 max, and activities
 - **Macro plan layer** — LLM-generated 12–16 week periodization arc (base → quality → race-specific → taper) that rails the weekly planner
-- Internal plan is authoritative — FinalSurge/ICS are optional inputs only
-- Background agent runs every 15 minutes; re-plans at 4am if plan is stale
-- Discord bot provides the primary day-to-day interface
-- CLI available for headless / ops use
+- **Background agent** — runs every 15 minutes; re-plans at 4am if plan is stale
+- **Discord bot** — primary day-to-day interface
+- **CLI** — available for headless / ops use
 
 > **Note:** Strength, mobility, and nutrition coaching are currently stubbed. This system runs in running-only mode.
 
 ---
 
-## Architecture (High Level)
+## Quick Start
+
+### Prerequisites
+
+- Python 3.10+
+- A Garmin Connect account with a paired Garmin device
+- [Claude Code](https://docs.anthropic.com/en/docs/claude-code) (for AI coaching)
+- A Discord bot token (optional — for the Discord interface)
+- An Anthropic API key (for the Brain LLM planner)
+
+### 1. Install Claude Code
+
+```bash
+npm install -g @anthropic-ai/claude-code
+```
+
+Verify:
+
+```bash
+claude --version
+```
+
+See the [Claude Code docs](https://docs.anthropic.com/en/docs/claude-code) for full setup instructions and authentication.
+
+### 2. Clone and install dependencies
+
+```bash
+git clone https://github.com/neilasiii/running-coach.git
+cd running-coach
+pip install -r requirements.txt
+```
+
+### 3. Set up Garmin authentication
+
+**Option A — Token-based (recommended for servers/bots)**
+
+Generate tokens on a machine with browser access:
+
+```bash
+python3 bin/generate_garmin_tokens.py
+```
+
+Follow the prompts, then copy `~/.garminconnect/` to your target machine.
+
+**Option B — Password auth (simple)**
+
+```bash
+export GARMIN_EMAIL=your@email.com
+export GARMIN_PASSWORD=yourpassword
+```
+
+See [docs/GARMIN_TOKEN_AUTH.md](docs/GARMIN_TOKEN_AUTH.md) for the full authentication guide.
+
+### 4. Configure the AI planner
+
+```bash
+cp config/gemini_api.env.example config/gemini_api.env
+# Add your GEMINI_API_KEY (free tier works: https://aistudio.google.com/app/apikey)
+# Used as Claude fallback — also set ANTHROPIC_API_KEY in your environment
+```
+
+### 5. Set up your athlete profile
+
+```bash
+mkdir -p data/athlete
+```
+
+Create the following files (templates below):
+
+**`data/athlete/goals.md`**
+```markdown
+# Primary Goal
+- [Your race goal, e.g. "Run a marathon in under 4:00"]
+
+# Secondary Goals
+- Stay injury-free throughout training
+- Build consistent weekly mileage
+```
+
+**`data/athlete/upcoming_races.md`**
+```markdown
+# Upcoming Races
+
+## A-Race
+- **Race**: [Race name]
+- **Date**: [YYYY-MM-DD]
+- **Goal Time**: [HH:MM:SS]
+```
+
+**`data/athlete/training_preferences.md`**
+```markdown
+# Schedule
+- Available days: [e.g. Mon/Wed/Fri/Sat]
+- Preferred time: [e.g. early morning]
+
+# Constraints
+- [Any childcare, work, or other scheduling constraints]
+```
+
+**`data/athlete/communication_preferences.md`**
+```markdown
+# Current Mode: STANDARD
+# Options: BRIEF | STANDARD | DETAILED
+```
+
+### 6. Initial Garmin sync
+
+```bash
+python3 cli/coach.py sync
+```
+
+### 7. Generate your first training week
+
+```bash
+# Generate this week's plan (calls Brain LLM)
+python3 cli/coach.py plan --week
+
+# Preview Garmin workout upload (dry run — no API calls)
+python3 cli/coach.py export-garmin
+
+# See today's workout
+python3 cli/coach.py brief --today
+
+# Upload to Garmin (after reviewing dry run)
+python3 cli/coach.py export-garmin --live
+```
+
+### 8. (Optional) Set up the Discord bot
+
+```bash
+cp config/discord_bot.env.example config/discord_bot.env
+# Add your DISCORD_BOT_TOKEN
+
+bash bin/start_discord_bot.sh
+```
+
+Or install as a systemd service:
+
+```bash
+# Edit deploy/running-coach-bot.service to set correct paths
+sudo cp deploy/running-coach-bot.service /etc/systemd/system/
+sudo systemctl daemon-reload
+sudo systemctl enable running-coach-bot
+sudo systemctl start running-coach-bot
+```
+
+---
+
+## Architecture
 
 ```
 Garmin Connect API
         │
 src/garmin_sync.py  ──►  data/health/health_data_cache.json
-        │
-skills/garmin_sync.py (wrapper)
         │
 Memory OS ─────────────────────────────────────────────────
 │  data/coach.sqlite      (plans, events, metrics, state)  │
@@ -79,15 +224,13 @@ Detection logic (`memory/retrieval.py`):
 - Identifies races via standard distance bands (5k / 10k / 15k / half marathon / marathon)
 - Falls back to activity name keywords (`race`, `5k`, `10k`, `half`, `marathon`, etc.)
 - `vdot_race_derived` exposed in context packet alongside raw `vo2_max`
-- Macro planner prefers `vdot_race_derived`; falls back to 38.0 default if none found
+- Macro planner prefers `vdot_race_derived`; falls back to a safe default if none found
 
 ---
 
 ## Macro Plan System
 
 The macro plan gives the weekly planner a deterministic periodization arc. It is a **rail, not a cage** — readiness can reduce weekly volume, but the macro target is the ceiling.
-
-**Two modes:**
 
 | Mode | Trigger | Structure |
 |---|---|---|
@@ -96,54 +239,43 @@ The macro plan gives the weekly planner a deterministic periodization arc. It is
 
 **Key behaviors:**
 - Cache-first: no LLM call if an active macro plan already exists (override with `--force`)
-- Validation gate: 9-check structural validator runs before plan is activated
-  - Sunday alignment, phase progression, taper rules, volume ramp caps (≤15%/wk), long run sanity, etc.
+- Validation gate: 9-check structural validator runs before plan is activated (Sunday alignment, phase progression, taper rules, volume ramp ≤15%/wk, long run sanity, etc.)
 - Volume ceiling: weekly planner auto-clamped to macro target (0.5 mi tolerance)
-- Short-race recovery: 4-day no-quality window after races < 10 mi (5k/10k); no volume cap
+- Short-race recovery: 4-day no-quality window after races < 10 mi; no volume cap
 - Long-race recovery: full cap + recovery weeks after half/marathon
-- Current week highlighted with `→` in `coach plan --show` output
-
-**Model:** Claude Haiku (fast structured JSON generation, ~3 min for 12-week plan, 7 min timeout)
-
----
-
-## Quick Start (Local)
 
 ```bash
-# 1. Sync Garmin health data
-python3 cli/coach.py sync
-
-# 2. Generate this week's plan (calls Brain LLM — one call)
-python3 cli/coach.py plan --week
-
-# 3. Preview Garmin upload (dry run — safe, no API calls)
-python3 cli/coach.py export-garmin
-
-# 4. See today's workout
-python3 cli/coach.py brief --today
-
-# 5. Upload to Garmin (only after reviewing dry run)
-python3 cli/coach.py export-garmin --live
-
-# 6. Generate / view macro periodization plan
 python3 cli/coach.py plan --macro          # generate (cached; no LLM if active plan exists)
 python3 cli/coach.py plan --macro --show   # print table of all weeks
 python3 cli/coach.py plan --macro --force  # regenerate even if active plan exists
 ```
 
-All CLI commands: `python3 cli/coach.py --help`
+---
+
+## CLI Reference
+
+```bash
+python3 cli/coach.py --help
+```
+
+| Command | What it does | Calls LLM? |
+|---|---|---|
+| `sync` | Sync Garmin health data | No |
+| `brief --today` | Show today's workout | No |
+| `plan --week` | Generate this week's plan | **Yes** |
+| `plan --macro` | Generate / view macro arc | **Yes** (first time) |
+| `export-garmin` | Preview Garmin upload (dry run) | No |
+| `export-garmin --live` | Upload workouts to Garmin | No |
 
 ---
 
-## Discord Usage (Recommended)
-
-The Discord bot is the primary interface. All `coach_*` commands route to `cli/coach.py`.
+## Discord Interface
 
 | Command | What it does | Calls LLM? |
 |---|---|---|
 | `/coach_today` | Show today's plan from SQLite | No |
 | `/coach_sync` | Sync Garmin data | No |
-| `/coach_plan` | Generate new weekly plan, then publish updates to Garmin | **Yes** |
+| `/coach_plan` | Generate new weekly plan + publish to Garmin | **Yes** |
 | `/coach_macro` | Generate / view macro periodization plan | **Yes** (first time) |
 | `/coach_export` | Preview Garmin upload (dry run) | No |
 | `/coach_status` | Agent lock state + recent task runs | No |
@@ -156,53 +288,45 @@ The Discord bot is the primary interface. All `coach_*` commands route to `cli/c
 |---|---|
 | `today` / `brief` / `workout` | Shows today's plan |
 | `sync` | Runs Garmin sync |
-| `plan` *(exact)* or `plan <anything>` | Generates new plan (LLM) |
-| `status` / `agent` | Shows agent status |
+| `plan` | Generates new plan (LLM) |
 | `ai: <question>` | Direct Claude/Gemini question |
 
-See **[docs/USER_GUIDE.md](docs/USER_GUIDE.md)** for the full command reference and `#coach` keyword routing rules.
+See **[docs/USER_GUIDE.md](docs/USER_GUIDE.md)** for the full command reference.
 
 ---
 
 ## Systemd Services
 
-### Discord Bot (running)
+### Discord Bot
 
 ```bash
-sudo systemctl status running-coach-bot --no-pager
+sudo systemctl status running-coach-bot
 sudo systemctl restart running-coach-bot
 sudo journalctl -u running-coach-bot -f
 ```
 
-### Heartbeat Agent (install once)
+### Heartbeat Agent
 
 ```bash
 sudo cp deploy/running-coach-agent.service /etc/systemd/system/
 sudo systemctl daemon-reload
 sudo systemctl enable running-coach-agent
 sudo systemctl start running-coach-agent
-sudo journalctl -u running-coach-agent -f
 ```
 
 The agent runs every 15 minutes. At 4am it performs a daily deep run: writes a vault note, checks plan staleness, and re-plans if needed. Both services share a SQLite lock so they never conflict.
 
 ---
 
-## Docs
+## Documentation
 
 | Document | Contents |
 |---|---|
-| **[docs/USER_GUIDE.md](docs/USER_GUIDE.md)** | Full user guide: daily workflow, all commands, end-to-end testing checklist, debugging playbook, token discipline |
+| **[docs/USER_GUIDE.md](docs/USER_GUIDE.md)** | Daily workflow, all commands, debugging playbook |
 | [docs/SYSTEM_ARCHITECTURE.md](docs/SYSTEM_ARCHITECTURE.md) | Technical architecture detail |
 | [docs/TRAINING_PHILOSOPHY.md](docs/TRAINING_PHILOSOPHY.md) | VDOT periodization and training principles |
 | [docs/GARMIN_TOKEN_AUTH.md](docs/GARMIN_TOKEN_AUTH.md) | Token-based Garmin authentication setup |
-| [docs/QUICKSTART.md](docs/QUICKSTART.md) | Initial setup guide |
-
-The **User Guide** (`docs/USER_GUIDE.md`) is the primary reference for day-to-day use. It includes:
-- Complete Discord and CLI command reference
-- 10-step end-to-end testing checklist
-- Debugging playbook for common failures
-- Token/cost discipline guide
+| [docs/QUICKSTART.md](docs/QUICKSTART.md) | Detailed setup guide |
 
 ---
 

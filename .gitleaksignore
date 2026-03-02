@@ -6,13 +6,11 @@
 
 # config/discord_bot.env.example — placeholder Discord snowflake IDs (123456789012345678)
 # These are well-known example values used in documentation templates, not real guild/channel IDs.
-config/discord_bot.env.example:discord-client-id:8
-03dad7ffb7e1cd6315dfca769dd1c172bcf39651:config/discord_bot.env.example:discord-client-id:8
+7e077ad34e9e2dd340d32572341686eba54f2e1f:config/discord_bot.env.example:discord-client-id:8
 
 # docs/DISCORD_BOT_MIGRATION_PLAN.md — same placeholder Discord snowflake IDs in doc template
-dd604906baf3ef1b215d3e06ab29525af9bd089d:docs/DISCORD_BOT_MIGRATION_PLAN.md:discord-client-id:696
+76340d3ea8f830a2d351d458b9d871648b992664:docs/DISCORD_BOT_MIGRATION_PLAN.md:discord-client-id:696
 
-# tests/test_security.py — synthetic fake API key (sk-1234567890abcdef) used as a test fixture
+# tests/test_security.py — synthetic fake API key used as a test fixture
 # to verify that the log-redaction filter correctly sanitises fake keys in log messages.
-tests/test_security.py:generic-api-key:180
-ed8be34c6a865c3ad0a6efb605d73bc768b67068:tests/test_security.py:generic-api-key:180
+35b8a398300f3144cab4a1131ebd9cc0cb91c511:tests/test_security.py:generic-api-key:180
