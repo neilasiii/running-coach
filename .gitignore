@@ -122,3 +122,7 @@ vault/coach/
 
 # Stray shell artifacts
 echo
+
+# SQLite WAL files
+data/coach.sqlite-shm
+data/coach.sqlite-wal

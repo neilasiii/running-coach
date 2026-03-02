@@ -269,7 +269,7 @@ After calling `smart_sync_health_data`, the cache (`data/health/health_data_cach
 
 ```bash
 # Upload from JSON file
-bash bin/upload_workout.sh path/to/workout.json
+python3 cli/coach.py export-garmin --live
 
 # Or Python direct
 python3 src/workout_uploader.py path/to/workout.json

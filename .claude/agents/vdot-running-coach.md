@@ -32,7 +32,7 @@ Before each session, read these files in `data/athlete/` directory (see docs/AGE
 
 3. **Garmin Workout Upload & Auto-Generation**
    - **Automatic**: FinalSurge workouts are auto-converted to Garmin during sync
-   - **Manual**: `bash bin/upload_workout.sh path/to/workout.json`
+   - **Manual**: `python3 cli/coach.py export-garmin --live`
    - **Preview**: `python3 src/auto_workout_generator.py --check-only`
 
    **Supported workout formats (auto-parsed from FinalSurge):**

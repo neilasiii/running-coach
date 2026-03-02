@@ -230,7 +230,7 @@ Get daily training summaries with AI-powered analysis:
 
 Use the `/report` command in Discord for instant morning reports with recovery metrics and workout recommendations.
 
-See [DISCORD_BOT_SETUP_COMPLETE.md](DISCORD_BOT_SETUP_COMPLETE.md) for setup instructions.
+See [docs/QUICKSTART.md](docs/QUICKSTART.md) for setup instructions.
 
 ### Command Line
 
@@ -402,7 +402,7 @@ bash bin/sync_garmin_data.sh --days 90
 
 4. **Start Coaching** - Open in Claude Code and ask for today's workout
 
-5. **Setup Discord Bot** (Optional) - See [DISCORD_BOT_SETUP_COMPLETE.md](DISCORD_BOT_SETUP_COMPLETE.md) for automated coaching interface
+5. **Setup Discord Bot** (Optional) - See [docs/QUICKSTART.md](docs/QUICKSTART.md) for Discord setup guide
 
 ## Additional Resources
 

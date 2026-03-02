@@ -145,7 +145,7 @@ See [docs/GARMIN_TOKEN_AUTH.md](docs/GARMIN_TOKEN_AUTH.md) for complete authenti
 **Workout Upload to Garmin (Manual & Automatic)**
 ```bash
 # Manual upload from JSON file
-bash bin/upload_workout.sh path/to/workout.json
+python3 cli/coach.py export-garmin --live
 python3 src/workout_uploader.py path/to/workout.json
 
 # Automatic generation from FinalSurge (runs during sync)
@@ -316,7 +316,7 @@ journalctl -u running-coach-bot -f       # View bot logs
 - **Morning Report:** Starts checking at 5:30 AM EST, continues until ~10:00 AM (sends to #morning-report channel when sleep data detected)
 - **Sync Digest:** midnight, 6:00 AM, noon, 6:00 PM EST — posts a summary of the last 6 hours of heartbeat activity to #sync-log (reads SQLite only, no network I/O)
 
-See [docs/DISCORD_BOT_SETUP_COMPLETE.md](docs/DISCORD_BOT_SETUP_COMPLETE.md) for complete setup guide.
+See [docs/QUICKSTART.md](docs/QUICKSTART.md) for setup guide.
 
 **Automation**
 

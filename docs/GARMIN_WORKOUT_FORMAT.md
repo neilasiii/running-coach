@@ -579,7 +579,7 @@ bash bin/sync_garmin_data.sh
 
 ```bash
 # Upload a workout from JSON file
-bash bin/upload_workout.sh path/to/workout.json
+python3 cli/coach.py export-garmin --live
 
 # Or use Python directly
 python3 src/workout_uploader.py path/to/workout.json
