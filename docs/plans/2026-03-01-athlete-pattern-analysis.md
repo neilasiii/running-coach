@@ -184,7 +184,7 @@ _KEYWORD_MAP = [
     (r'tempo|threshold', 'tempo'),
     (r'interval|repeat|fartlek|x\d+\s*(min|sec|m\b)|strides', 'interval'),
     (r'marathon|half marathon|\bhm\b|race|5k|10k|15k', 'race'),
-    # Brant shorthand: "30 min E", "45' E", "E$", " E " (standalone capital E)
+    # Coach shorthand: "30 min E", "45' E", "E$", " E " (standalone capital E)
     (r'\d+\s*(min|\')\s*[Ee]\b|[Ee]\s*$|\s[Ee]\s', 'easy'),
 ]
 
