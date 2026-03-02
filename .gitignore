@@ -115,3 +115,10 @@ vault/coach/
 
 # Git worktrees
 .worktrees/
+.dev/
+
+# Claude Code local plan files (session-specific, may contain personal context)
+.claude/plan.md
+
+# Stray shell artifacts
+echo
