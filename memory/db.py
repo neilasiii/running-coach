@@ -79,6 +79,10 @@ CREATE TABLE IF NOT EXISTS plans (
     end_date     DATE     NOT NULL,
     created_at   DATETIME NOT NULL DEFAULT (datetime('now')),
     context_hash TEXT,
+    plan_revision_number INTEGER NOT NULL DEFAULT 1,
+    supersedes_plan_id TEXT,
+    replan_reason TEXT,
+    revised_at DATETIME,
     status       TEXT NOT NULL DEFAULT 'draft',
     plan_json    TEXT NOT NULL
 );
@@ -190,6 +194,10 @@ def _run_migrations(conn: sqlite3.Connection) -> None:
         # Watch-side self-evaluation (from Garmin summaryDTO)
         "ALTER TABLE workout_checkins ADD COLUMN rpe_watch REAL",    # directWorkoutRpe / 10
         "ALTER TABLE workout_checkins ADD COLUMN workout_feel REAL", # directWorkoutFeel (0=bad,50=ok,75=good,100=excellent)
+        "ALTER TABLE plans ADD COLUMN plan_revision_number INTEGER NOT NULL DEFAULT 1",
+        "ALTER TABLE plans ADD COLUMN supersedes_plan_id TEXT",
+        "ALTER TABLE plans ADD COLUMN replan_reason TEXT",
+        "ALTER TABLE plans ADD COLUMN revised_at DATETIME",
     ]
     for sql in migrations:
         try:
@@ -431,6 +439,10 @@ def insert_plan(
     plan_json: Dict,
     context_hash: Optional[str] = None,
     status: str = "draft",
+    plan_revision_number: int = 1,
+    supersedes_plan_id: Optional[str] = None,
+    replan_reason: Optional[str] = None,
+    revised_at: Optional[str] = None,
     db_path: Path = DB_PATH,
 ) -> str:
     """
@@ -450,13 +462,20 @@ def insert_plan(
             plan_id = f"{start_date.strftime('%Y%m%d')}-{uuid.uuid4().hex[:8]}"
 
         conn.execute(
-            """INSERT INTO plans(plan_id, start_date, end_date, context_hash, status, plan_json)
-               VALUES (?, ?, ?, ?, ?, ?)""",
+            """INSERT INTO plans(
+                   plan_id, start_date, end_date, context_hash,
+                   plan_revision_number, supersedes_plan_id, replan_reason, revised_at,
+                   status, plan_json
+               ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
             (
                 plan_id,
                 start_date.isoformat(),
                 end_date.isoformat(),
                 context_hash,
+                plan_revision_number,
+                supersedes_plan_id,
+                replan_reason,
+                revised_at,
                 status,
                 json.dumps(plan_json),
             ),
@@ -641,6 +660,9 @@ def get_active_plan(
             "end_date":     plan_row["end_date"],
             "created_at":   plan_row["created_at"],
             "context_hash": plan_row["context_hash"],
+            "plan_revision_number": plan_row["plan_revision_number"],
+            "supersedes_plan_id": plan_row["supersedes_plan_id"],
+            "replan_reason": plan_row["replan_reason"],
             "status":       plan_row["status"],
             "plan":         json.loads(plan_row["plan_json"]),
             "days": [

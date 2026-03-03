@@ -79,7 +79,7 @@ def cmd_plan(args) -> int:
         print(
             f"  macro_guidance = {mg.get('macro_id')} "
             f"week {cw.get('week_number')}/{mg.get('total_weeks')} "
-            f"phase={cw.get('phase')} vol={cw.get('target_volume_miles')}mi"
+            f"phase={cw.get('phase')} vol={cw.get('volume_floor_miles')}-{cw.get('volume_target_miles')}-{cw.get('volume_ceiling_miles')}mi"
         )
 
     print("Calling Brain (LLM)…")
