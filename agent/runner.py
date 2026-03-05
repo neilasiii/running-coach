@@ -209,6 +209,14 @@ def run_cycle(db_path=None) -> dict:
             summary["hooks_run"].append("on_weekly_rollup")
             log.info("on_weekly_rollup: weekly synthesis queued")
 
+        # ── 8. FinalSurge cutover readiness check (always) ──────────────────
+        from hooks.on_cutover_ready import run as on_cutover_ready
+        cutover = on_cutover_ready(db_path=db)
+        if cutover["pending_written"]:
+            summary["hooks_run"].append("on_cutover_ready")
+            log.info("on_cutover_ready: cutover prompt queued (%d/%d plans)",
+                     cutover["count"], cutover["threshold"])
+
         log_task_finish(run_id, "success", details=summary, db_path=db)
 
     except Exception as exc:
