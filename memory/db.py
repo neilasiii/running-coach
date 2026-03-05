@@ -401,6 +401,16 @@ def get_state(
         conn.close()
 
 
+def delete_state(key: str, db_path: Path = DB_PATH) -> None:
+    """Delete a state key. No-op if key does not exist."""
+    conn = _connect(db_path)
+    try:
+        conn.execute("DELETE FROM state WHERE key = ?", (key,))
+        conn.commit()
+    finally:
+        conn.close()
+
+
 # ── Metrics ──────────────────────────────────────────────────────────────────────
 
 

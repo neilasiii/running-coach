@@ -72,9 +72,8 @@ def _handle_delay(db_path=None) -> bool:
     Called when athlete replies 'delay'. Bumps threshold by 1, clears awaiting flag.
     Returns True if delay was applied, False if not currently awaiting a response.
     """
-    import sqlite3 as _sqlite3
 
-    from memory.db import DB_PATH as _DEFAULT_DB, get_state, set_state
+    from memory.db import DB_PATH as _DEFAULT_DB, delete_state, get_state, set_state
 
     db = db_path or _DEFAULT_DB
 
@@ -88,10 +87,7 @@ def _handle_delay(db_path=None) -> bool:
     set_state(_THRESHOLD_KEY, str(new_threshold), db_path=db)
 
     # Delete awaiting flag — hook will re-queue when count catches up
-    conn = _sqlite3.connect(str(db))
-    conn.execute(f"DELETE FROM state WHERE key = \'{_AWAITING_KEY}\'")
-    conn.commit()
-    conn.close()
+    delete_state(_AWAITING_KEY, db_path=db)
 
     log.info("on_cutover_ready: delay applied — new threshold %d", new_threshold)
     return True
