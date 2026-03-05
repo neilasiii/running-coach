@@ -36,11 +36,15 @@ def test_increment_saturday_count_accumulates(tmp_path):
 
 
 def test_only_increments_on_full_success(tmp_path):
+    """Counter stays None when increment is never called (simulating Garmin export failure)."""
     db = make_db(tmp_path)
     from memory.db import get_state
-
+    # Garmin export failed — never call _increment_success_count
     assert get_state("saturday_plan_success_count", db_path=db) is None
-    assert get_state("saturday_plan_success_count", db_path=db) is None
+    # But if we call it (simulating full success), it moves to 1
+    from hooks.on_cutover_ready import _increment_success_count
+    _increment_success_count(db_path=db)
+    assert get_state("saturday_plan_success_count", db_path=db) == "1"
 
 
 def test_hook_queues_prompt_at_threshold(tmp_path):
