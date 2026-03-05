@@ -59,6 +59,10 @@ def run(db_path=None) -> Dict[str, Any]:
         result["reason"] = "obs_not_started"
         return result
 
+    if runs >= 7:
+        result["reason"] = "obs_window_complete"
+        return result
+
     # ── 2. Is it past 8:30 AM EST today? ───────────────────────────────────
     now_est = datetime.now(EST)
     cutoff = now_est.replace(hour=_OBS_SCHEDULED_HOUR, minute=_OBS_SCHEDULED_MIN, second=0, microsecond=0)
