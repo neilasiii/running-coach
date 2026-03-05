@@ -2336,6 +2336,12 @@ async def saturday_plan_task():
             garmin_note = ""
             if exp_rc == 0:
                 garmin_note = "\n✅ Workouts published to Garmin Connect."
+                try:
+                    from hooks.on_cutover_ready import _increment_success_count
+                    _increment_success_count()
+                    logger.info("[Saturday Plan] Cutover success count incremented")
+                except Exception as _exc:
+                    logger.warning("[Saturday Plan] Could not increment cutover count: %s", _exc)
             else:
                 garmin_note = f"\n⚠️ Garmin export failed: {(exp_err or exp_out)[:120]}"
                 logger.warning("[Saturday Plan] Garmin export failed: %s", exp_err or exp_out)

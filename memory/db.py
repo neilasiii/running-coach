@@ -186,6 +186,9 @@ CREATE TABLE IF NOT EXISTS workout_checkins (
 CREATE INDEX IF NOT EXISTS checkins_date ON workout_checkins(activity_date);
 """
 
+# Back-compat alias used by tests that initialize sqlite schema directly.
+SCHEMA = _DDL
+
 
 def _run_migrations(conn: sqlite3.Connection) -> None:
     """Apply any schema changes to existing tables."""
