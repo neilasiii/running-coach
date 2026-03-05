@@ -5,13 +5,10 @@ import json
 
 
 def make_db(tmp_path):
-    from memory.db import SCHEMA, _connect
+    from memory.db import init_db
 
     db = tmp_path / "coach.sqlite"
-    conn = _connect(db)
-    conn.executescript(SCHEMA)
-    conn.commit()
-    conn.close()
+    init_db(db_path=db)
     return db
 
 
@@ -170,3 +167,43 @@ def test_delay_without_awaiting_is_noop(tmp_path):
 
     assert result is False
     assert get_state("cutover_threshold", db_path=db) is None
+
+
+def test_build_cutover_report_structure(tmp_path):
+    """_build_cutover_report returns dict with required keys (empty DB = empty lists)."""
+    db = make_db(tmp_path)
+    from src.discord_bot import _build_cutover_report
+    report = _build_cutover_report(db_path=db)
+    assert "plans_summary" in report
+    assert "rpe_summary" in report
+    assert "vdot_warning" in report
+    assert isinstance(report["plans_summary"], list)
+    assert isinstance(report["rpe_summary"], list)
+    assert len(report["plans_summary"]) == 4  # always 4 weeks
+
+
+def test_disable_finalsurge_in_config(tmp_path):
+    """_disable_finalsurge_calendar flips enabled=False on training-type entries only."""
+    import json
+    config_path = tmp_path / "calendar_sources.json"
+    config_path.write_text(json.dumps({
+        "calendar_urls": [
+            {"name": "FinalSurge", "url": "https://finalsurge.com/ical/abc", "enabled": True, "type": "training"},
+            {"name": "Constraint", "url": "https://example.com/cal.ics", "enabled": True, "type": "constraint"},
+        ]
+    }))
+    from src.discord_bot import _disable_finalsurge_calendar
+    count = _disable_finalsurge_calendar(config_path=config_path)
+    assert count == 1
+    data = json.loads(config_path.read_text())
+    training = [c for c in data["calendar_urls"] if c["type"] == "training"]
+    constraint = [c for c in data["calendar_urls"] if c["type"] == "constraint"]
+    assert all(not c["enabled"] for c in training)
+    assert all(c["enabled"] for c in constraint)
+
+
+def test_disable_finalsurge_missing_config(tmp_path):
+    """_disable_finalsurge_calendar returns 0 if config file does not exist."""
+    from src.discord_bot import _disable_finalsurge_calendar
+    count = _disable_finalsurge_calendar(config_path=tmp_path / "nonexistent.json")
+    assert count == 0

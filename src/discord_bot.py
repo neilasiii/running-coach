@@ -1227,6 +1227,79 @@ async def coach_note_command(interaction: discord.Interaction, note: str):
     await interaction.followup.send(embed=embed)
 
 
+
+
+@bot.tree.command(name="coach_cutover", description="Review FinalSurge cutover readiness and confirm when ready")
+@app_commands.describe(action="Action: 'confirm' to cut FinalSurge, 'status' to see progress (default)")
+async def coach_cutover_command(interaction: discord.Interaction, action: str = "status"):
+    await interaction.response.defer()
+    action = action.strip().lower()
+
+    from memory.db import get_state, delete_state, DB_PATH
+    count = int(get_state("saturday_plan_success_count", default="0") or "0")
+    threshold = int(get_state("cutover_threshold", default="4") or "4")
+
+    if action == "status":
+        if count >= threshold:
+            status_str = "Ready — run `/coach_cutover confirm`"
+        else:
+            status_str = f"{threshold - count} more week(s) needed"
+        embed = discord.Embed(
+            title="📊 FinalSurge Cutover Status",
+            description=(
+                f"**Plans completed:** {count}/{threshold}\n"
+                f"**Status:** {status_str}"
+            ),
+            color=discord.Color.blue(),
+        )
+        await interaction.followup.send(embed=embed)
+        return
+
+    if action != "confirm":
+        await interaction.followup.send("Usage: `/coach_cutover confirm` or `/coach_cutover status`")
+        return
+
+    # Generate readiness report
+    report = _build_cutover_report()
+    lines_out = ["**Readiness Report**"]
+
+    lines_out.append("**Last 4 Weeks — Plan Structure:**")
+    for week in report["plans_summary"]:
+        run_days = [d for d in week["days"] if d.get("intent") not in ("rest", None, "")]
+        wk = week["week_start"]
+        lines_out.append(f"• Week of {wk}: {len(run_days)} training days planned")
+
+    rpe_rows = [r for r in report["rpe_summary"] if r.get("rpe")]
+    if rpe_rows:
+        avg_rpe = sum(r["rpe"] for r in rpe_rows) / len(rpe_rows)
+        n = len(rpe_rows)
+        lines_out.append(f"\n**RPE (last 4 weeks):** {avg_rpe:.1f} avg across {n} sessions")
+    else:
+        lines_out.append("\n**RPE:** No check-in data yet")
+
+    if report["vdot_warning"]:
+        lines_out.append("\n⚠️ **Pending VDOT update** — consider resolving before cutting FinalSurge")
+
+    disabled = _disable_finalsurge_calendar()
+    lines_out.append(f"\n✅ **FinalSurge disabled** ({disabled} calendar(s) turned off)")
+    lines_out.append("Internal plan is now authoritative. FinalSurge ICS import will no longer run.")
+
+    # Clear cutover state
+    try:
+        delete_state("cutover_awaiting_response")
+        delete_state("cutover_threshold")
+    except Exception as exc:
+        logger.warning("coach_cutover: state cleanup error: %s", exc)
+
+    embed = discord.Embed(
+        title="✅ FinalSurge Cutover Complete",
+        description=clamp("\n".join(lines_out), MOBILE_DESC_LIMIT),
+        color=discord.Color.green(),
+        timestamp=datetime.now(),
+    )
+    await interaction.followup.send(embed=embed)
+
+
 # ============== RPE Tracking ==============
 
 # Maps Discord message ID → activity_id for pending check-ins.
@@ -2298,6 +2371,72 @@ async def _post_pending_cutover_prompt(channel) -> bool:
 
     logger.info("_post_pending_cutover_prompt: cutover prompt posted")
     return True
+
+
+def _build_cutover_report(db_path=None) -> dict:
+    """
+    Build cutover readiness report data.
+    Returns: {plans_summary: list, rpe_summary: list, vdot_warning: str|None}
+    """
+    import sqlite3 as _sql
+    from datetime import date, timedelta
+    from memory.db import get_weekly_rpe_summary, get_state, DB_PATH
+    db = db_path or DB_PATH
+
+    # Last 4 weeks of plan days
+    today = date.today()
+    plans_summary = []
+    for weeks_back in range(4, 0, -1):
+        week_start = today - timedelta(days=today.weekday() + 7 * weeks_back)
+        week_end = week_start + timedelta(days=6)
+        try:
+            conn = _sql.connect(str(db))
+            conn.row_factory = _sql.Row
+            rows = conn.execute(
+                "SELECT day, intent FROM plan_days WHERE day BETWEEN ? AND ? ORDER BY day",
+                (week_start.isoformat(), week_end.isoformat()),
+            ).fetchall()
+            conn.close()
+            days = [dict(r) for r in rows]
+            plans_summary.append({"week_start": week_start.isoformat(), "days": days})
+        except Exception:
+            plans_summary.append({"week_start": week_start.isoformat(), "days": []})
+
+    # Last 4 weeks of RPE data
+    rpe_summary = []
+    for weeks_back in range(4, 0, -1):
+        week_start = today - timedelta(days=today.weekday() + 7 * weeks_back)
+        rows = get_weekly_rpe_summary(week_start, db_path=db)
+        rpe_summary.extend(rows)
+
+    # VDOT drift warning
+    vdot_warning = get_state("pending_vdot_update", db_path=db)
+
+    return {
+        "plans_summary": plans_summary,
+        "rpe_summary": rpe_summary,
+        "vdot_warning": vdot_warning,
+    }
+
+
+def _disable_finalsurge_calendar(config_path=None) -> int:
+    """
+    Set enabled=False on all type='training' entries in calendar_sources.json.
+    Returns count of entries disabled.
+    """
+    import json as _json
+    from pathlib import Path as _Path
+    path = _Path(config_path) if config_path else _Path("config/calendar_sources.json")
+    if not path.exists():
+        return 0
+    data = _json.loads(path.read_text())
+    disabled = 0
+    for entry in data.get("calendar_urls", []):
+        if entry.get("type") == "training" and entry.get("enabled"):
+            entry["enabled"] = False
+            disabled += 1
+    path.write_text(_json.dumps(data, indent=2))
+    return disabled
 
 
 
