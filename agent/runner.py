@@ -217,6 +217,14 @@ def run_cycle(db_path=None) -> dict:
             log.info("on_cutover_ready: cutover prompt queued (%d/%d plans)",
                      cutover["count"], cutover["threshold"])
 
+        # ── 9. Injury risk monitor (always) ─────────────────────────────────
+        from hooks.on_injury_risk import run as on_injury_risk
+        injury = on_injury_risk(db_path=db)
+        if injury["pending_written"]:
+            summary["hooks_run"].append("on_injury_risk")
+            log.info("on_injury_risk: %s alert queued (%d signals)",
+                     injury["severity"], len(injury["signals_fired"]))
+
         log_task_finish(run_id, "success", details=summary, db_path=db)
 
     except Exception as exc:

@@ -248,3 +248,13 @@ def test_run_no_queue_while_awaiting_response(tmp_path):
     from hooks.on_injury_risk import run
     result = run(db_path=db)
     assert result["pending_written"] is False
+
+
+def test_hook_importable_and_callable(tmp_path):
+    """Smoke test: hook can be imported and run() returns expected structure."""
+    db = make_db(tmp_path)
+    from hooks.on_injury_risk import run
+    result = run(db_path=db)
+    assert "pending_written" in result
+    assert "signals_fired" in result
+    assert isinstance(result["signals_fired"], list)
