@@ -34,17 +34,12 @@ def check_deps(root):
     if not req.exists():
         return {"ok": False, "reason": "requirements.txt not found"}
     result = subprocess.run(
-        [sys.executable, "-m", "pip", "check"],
+        [sys.executable, "-m", "pip", "install", "--dry-run", "-r", str(req)],
         capture_output=True, text=True
     )
     if result.returncode == 0:
         return {"ok": True}
-    missing = []
-    for line in result.stdout.splitlines():
-        if "not installed" in line.lower():
-            pkg = line.split()[0]
-            missing.append(pkg)
-    return {"ok": False, "missing": missing or ["see pip check output"]}
+    return {"ok": False, "reason": "missing or incompatible packages (run: pip install -r requirements.txt)"}
 
 
 def check_athlete_files(root):
@@ -70,31 +65,40 @@ def check_health_cache(root):
 def check_garmin_creds():
     email = os.environ.get("GARMIN_EMAIL", "").strip()
     password = os.environ.get("GARMIN_PASSWORD", "").strip()
-    token_dir_override = os.environ.get("GARMIN_TOKEN_DIR", "").strip()
-    token_dir = Path(token_dir_override) if token_dir_override else Path.home() / ".garminconnect"
-    has_tokens = token_dir.exists() and any(token_dir.iterdir())
+    token_dir = Path(os.environ.get("GARMIN_TOKEN_DIR", str(Path.home() / ".garminconnect")))
+    try:
+        has_tokens = token_dir.exists() and any(token_dir.iterdir())
+    except (PermissionError, OSError):
+        has_tokens = False
     if (email and password) or has_tokens:
         return {"ok": True, "method": "tokens" if has_tokens else "password"}
     return {"ok": False, "reason": "no credentials or tokens found"}
 
 
 def check_discord(root):
-    cfg = root / "config" / "discord.env"
+    cfg = root / "config" / "discord_bot.env"
     if not cfg.exists():
-        return {"ok": False, "reason": "config/discord.env not found"}
+        return {"ok": False, "reason": "config/discord_bot.env not found"}
     content = cfg.read_text()
-    if "DISCORD_BOT_TOKEN" not in content:
-        return {"ok": False, "reason": "DISCORD_BOT_TOKEN not set in config/discord.env"}
-    return {"ok": True}
+    for line in content.splitlines():
+        if line.startswith("DISCORD_BOT_TOKEN="):
+            value = line.split("=", 1)[1].strip()
+            if value and value != "your_bot_token_here":
+                return {"ok": True}
+            return {"ok": False, "reason": "DISCORD_BOT_TOKEN is empty or still set to example value"}
+    return {"ok": False, "reason": "DISCORD_BOT_TOKEN not set in config/discord_bot.env"}
 
 
 def check_systemd():
-    result = subprocess.run(
-        ["systemctl", "is-enabled", "running-coach-bot"],
-        capture_output=True, text=True
-    )
-    ok = result.returncode == 0 and result.stdout.strip() == "enabled"
-    return {"ok": ok}
+    try:
+        result = subprocess.run(
+            ["systemctl", "is-enabled", "running-coach-bot"],
+            capture_output=True, text=True
+        )
+        ok = result.returncode == 0 and result.stdout.strip() == "enabled"
+        return {"ok": ok}
+    except FileNotFoundError:
+        return {"ok": False, "reason": "systemd not available on this platform"}
 
 
 def auto_fix(root):
@@ -112,6 +116,8 @@ def auto_fix(root):
         )
         if result.returncode == 0:
             fixes.append("Installed Python dependencies")
+        else:
+            fixes.append(f"WARNING: pip install failed — {result.stderr.strip()[:120]}")
     return fixes
 
 
@@ -151,7 +157,8 @@ def print_human(checks, needed):
         icon = icons[c["ok"]]
         detail = ""
         if not c["ok"]:
-            detail = f" -- {c.get('reason') or ', '.join(c.get('missing', []))}"
+            reason = c.get("reason") or ", ".join(c.get("missing", []))
+            detail = f" -- {reason}" if reason else " -- (unknown reason)"
         print(f"  {icon} {label}{detail}")
     print()
     if needed:

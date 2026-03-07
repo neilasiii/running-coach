@@ -103,9 +103,25 @@ def test_discord_config_missing(tmp_path):
 def test_discord_config_present(tmp_path):
     config_dir = tmp_path / "config"
     config_dir.mkdir(parents=True)
-    (config_dir / "discord.env").write_text("DISCORD_BOT_TOKEN=abc123")
+    (config_dir / "discord_bot.env").write_text("DISCORD_BOT_TOKEN=abc123")
     data = run_check(tmp_path=tmp_path)
     assert data["checks"]["discord"]["ok"] is True
+
+
+def test_discord_config_placeholder_token(tmp_path):
+    config_dir = tmp_path / "config"
+    config_dir.mkdir(parents=True)
+    (config_dir / "discord_bot.env").write_text("DISCORD_BOT_TOKEN=your_bot_token_here")
+    data = run_check(tmp_path=tmp_path)
+    assert data["checks"]["discord"]["ok"] is False
+
+
+def test_discord_config_empty_token(tmp_path):
+    config_dir = tmp_path / "config"
+    config_dir.mkdir(parents=True)
+    (config_dir / "discord_bot.env").write_text("DISCORD_BOT_TOKEN=")
+    data = run_check(tmp_path=tmp_path)
+    assert data["checks"]["discord"]["ok"] is False
 
 
 def test_json_output_has_all_keys(tmp_path):
