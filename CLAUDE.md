@@ -614,6 +614,20 @@ When implementing new features, ALWAYS update:
 3. **Documentation** - Create comprehensive guides in `docs/`
 4. **Agent Prompts** - Update relevant agents in `.claude/agents/`
 
+### Refactoring Rules
+
+When moving a function from module A to module B:
+
+1. **Update test mock targets.** `mock.patch("module_A.func")` patches the name in A's namespace — it will NOT intercept calls from module C that now imports from B directly. After any import path change, grep all test files for patches of the old path and update them:
+   ```bash
+   grep -r 'patch("module_A\.' tests/
+   ```
+
+2. **Run the full test suite — no `-x` flag.** Always compare pass count against the known baseline. A partial run (e.g. stopped at first slow test) hides failures:
+   ```bash
+   python3 -m pytest tests/ -q   # full run, compare to baseline count
+   ```
+
 ### Documentation Standards
 
 - Use clear, concise language
