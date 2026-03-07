@@ -45,7 +45,7 @@ def _read_hrv_baseline() -> float:
 
 
 def _signal_load_spike(conn: sqlite3.Connection, today: date) -> Tuple[bool, str]:
-    """Running mileage jumped >10% week-over-week."""
+    """Running mileage jumped >10% week-over-week (Sun–Sat calendar weeks)."""
     def _miles(start: str, end: str) -> float:
         row = conn.execute(
             "SELECT SUM(distance_m) FROM activities "
@@ -54,8 +54,14 @@ def _signal_load_spike(conn: sqlite3.Connection, today: date) -> Tuple[bool, str
         ).fetchone()
         return (row[0] or 0.0) / 1609.34
 
-    prior   = _miles((today - timedelta(days=13)).isoformat(), (today - timedelta(days=7)).isoformat())
-    current = _miles((today - timedelta(days=6)).isoformat(), today.isoformat())
+    # Align to Sun–Sat calendar weeks so week boundaries match FinalSurge
+    days_since_sunday = (today.weekday() + 1) % 7  # Mon=0…Sun=6 → Sun=0
+    curr_week_start = today - timedelta(days=days_since_sunday)
+    prior_week_start = curr_week_start - timedelta(days=7)
+    prior_week_end   = curr_week_start - timedelta(days=1)
+
+    prior   = _miles(prior_week_start.isoformat(), prior_week_end.isoformat())
+    current = _miles(curr_week_start.isoformat(), today.isoformat())
 
     if prior < 5.0:
         return False, "insufficient prior-week data"

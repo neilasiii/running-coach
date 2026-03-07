@@ -38,19 +38,48 @@ def _seed_activity(db, days_back: int, distance_miles: float, activity_type: str
     conn.close()
 
 
+def _seed_activity_on(db, on_date: date, distance_miles: float, activity_type: str = "running"):
+    """Insert an activity row for a specific date."""
+    conn = sqlite3.connect(str(db))
+    act_id = f"test_{on_date.isoformat()}_{activity_type}"
+    distance_m = distance_miles * 1609.34
+    conn.execute(
+        "INSERT OR IGNORE INTO activities(activity_id, activity_date, activity_type, distance_m, name) VALUES (?,?,?,?,?)",
+        (act_id, on_date.isoformat(), activity_type, distance_m, f"Test {activity_type} run"),
+    )
+    conn.commit()
+    conn.close()
+
+
+def _week_bounds(today: date = None):
+    """Return (curr_week_start, prior_week_start, prior_week_end) for Sun-Sat weeks."""
+    today = today or date.today()
+    days_since_sunday = (today.weekday() + 1) % 7
+    curr_start  = today - timedelta(days=days_since_sunday)
+    prior_start = curr_start - timedelta(days=7)
+    prior_end   = curr_start - timedelta(days=1)
+    return curr_start, prior_start, prior_end
+
+
 # Signal unit tests
 
 def test_load_spike_fires_at_11_percent(tmp_path):
     """Load spike fires when current week mileage is 11% above prior week."""
     db = make_db(tmp_path)
-    for d in range(7, 14):
-        _seed_activity(db, d, 20.0 / 7)
-    for d in range(0, 7):
-        _seed_activity(db, d, 22.2 / 7)
+    today = date.today()
+    curr_start, prior_start, prior_end = _week_bounds(today)
+
+    # Prior week: 20 miles spread over 7 days
+    for i in range(7):
+        _seed_activity_on(db, prior_start + timedelta(days=i), 20.0 / 7)
+    # Current week so far: 22.2 miles spread over days elapsed
+    days_elapsed = (today - curr_start).days + 1
+    for i in range(days_elapsed):
+        _seed_activity_on(db, curr_start + timedelta(days=i), 22.2 / days_elapsed)
 
     conn = sqlite3.connect(str(db))
     from hooks.on_injury_risk import _signal_load_spike
-    fired, msg = _signal_load_spike(conn, date.today())
+    fired, msg = _signal_load_spike(conn, today)
     conn.close()
     assert fired is True
     assert "11%" in msg or "10%" in msg or "mi" in msg
@@ -59,14 +88,18 @@ def test_load_spike_fires_at_11_percent(tmp_path):
 def test_load_spike_no_fire_at_5_percent(tmp_path):
     """Load spike does not fire at 5% increase."""
     db = make_db(tmp_path)
-    for d in range(7, 14):
-        _seed_activity(db, d, 20.0 / 7)
-    for d in range(0, 7):
-        _seed_activity(db, d, 21.0 / 7)
+    today = date.today()
+    curr_start, prior_start, prior_end = _week_bounds(today)
+
+    for i in range(7):
+        _seed_activity_on(db, prior_start + timedelta(days=i), 20.0 / 7)
+    days_elapsed = (today - curr_start).days + 1
+    for i in range(days_elapsed):
+        _seed_activity_on(db, curr_start + timedelta(days=i), 21.0 / days_elapsed)
 
     conn = sqlite3.connect(str(db))
     from hooks.on_injury_risk import _signal_load_spike
-    fired, _ = _signal_load_spike(conn, date.today())
+    fired, _ = _signal_load_spike(conn, today)
     conn.close()
     assert fired is False
 
@@ -74,12 +107,15 @@ def test_load_spike_no_fire_at_5_percent(tmp_path):
 def test_load_spike_skips_with_low_prior_mileage(tmp_path):
     """Load spike skips when prior week mileage < 5 miles."""
     db = make_db(tmp_path)
-    _seed_activity(db, 8, 2.0)
-    _seed_activity(db, 1, 10.0)
+    today = date.today()
+    curr_start, prior_start, _ = _week_bounds(today)
+
+    _seed_activity_on(db, prior_start + timedelta(days=3), 2.0)  # 2mi prior week
+    _seed_activity_on(db, curr_start, 10.0)                       # big jump, prior too small
 
     conn = sqlite3.connect(str(db))
     from hooks.on_injury_risk import _signal_load_spike
-    fired, msg = _signal_load_spike(conn, date.today())
+    fired, msg = _signal_load_spike(conn, today)
     conn.close()
     assert fired is False
 
