@@ -394,15 +394,13 @@ bash bin/sync_garmin_data.sh --days 90
 
 ## Next Steps
 
-1. **Customize Your Profile** - Edit files in `data/athlete/` to match your goals and constraints
+The easiest way to get started is the onboarding wizard built into Claude Code:
 
-2. **Calculate Your VDOT** - Run `python3 src/vdot_calculator.py` with a recent race result
+1. Open this repository in [Claude Code](https://docs.anthropic.com/en/docs/claude-code)
+2. Claude will detect it's a fresh setup and ask if you want to run the wizard
+3. Say **yes** — the wizard covers Garmin auth, your athlete profile, and optional Discord setup
 
-3. **Update Training Status** - Edit `data/athlete/current_training_status.md` with your VDOT and training paces
-
-4. **Start Coaching** - Open in Claude Code and ask for today's workout
-
-5. **Setup Discord Bot** (Optional) - See [docs/QUICKSTART.md](docs/QUICKSTART.md) for Discord setup guide
+If you prefer to set things up manually, the sections above cover each step individually.
 
 ## Additional Resources
 
