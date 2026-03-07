@@ -85,7 +85,11 @@ def load_health_data():
     """Load health data from cache."""
     sys.path.insert(0, str(Path(__file__).parent.parent))
     from memory.retrieval import load_health_cache as _load
-    data = _load()
+    try:
+        data = _load()
+    except json.JSONDecodeError:
+        print("Error: Invalid health data cache.", file=sys.stderr)
+        sys.exit(1)
     if data is None:
         print("Error: Health data cache not found. Run sync first.", file=sys.stderr)
         sys.exit(1)

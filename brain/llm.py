@@ -93,14 +93,17 @@ def call_llm(
     if model:
         cmd += ["--model", model]
 
-    result = subprocess.run(
-        cmd,
-        capture_output=True,
-        text=True,
-        timeout=timeout,
-        cwd=str(PROJECT_ROOT),
-        env=env,
-    )
+    try:
+        result = subprocess.run(
+            cmd,
+            capture_output=True,
+            text=True,
+            timeout=timeout,
+            cwd=str(PROJECT_ROOT),
+            env=env,
+        )
+    except subprocess.TimeoutExpired:
+        raise RuntimeError(f"claude CLI timed out after {timeout}s")
 
     if result.returncode != 0:
         raise RuntimeError(
