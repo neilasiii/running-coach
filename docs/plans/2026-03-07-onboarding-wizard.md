@@ -117,7 +117,7 @@ def test_discord_config_missing(tmp_path):
 def test_discord_config_present(tmp_path):
     config_dir = tmp_path / "config"
     config_dir.mkdir(parents=True)
-    (config_dir / "discord.env").write_text("DISCORD_BOT_TOKEN=abc123")
+    (config_dir / "discord_bot.env").write_text("DISCORD_BOT_TOKEN=abc123")
     data = run_check(tmp_path=tmp_path)
     assert data["checks"]["discord"]["ok"] is True
 
@@ -226,12 +226,12 @@ def check_garmin_creds():
 
 
 def check_discord(root):
-    cfg = root / "config" / "discord.env"
+    cfg = root / "config" / "discord_bot.env"
     if not cfg.exists():
-        return {"ok": False, "reason": "config/discord.env not found"}
+        return {"ok": False, "reason": "config/discord_bot.env not found"}
     content = cfg.read_text()
     if "DISCORD_BOT_TOKEN" not in content:
-        return {"ok": False, "reason": "DISCORD_BOT_TOKEN not set in config/discord.env"}
+        return {"ok": False, "reason": "DISCORD_BOT_TOKEN not set in config/discord_bot.env"}
     return {"ok": True}
 
 
@@ -593,7 +593,7 @@ Say: "Go to https://discord.com/developers/applications in your browser and clic
 When they paste the token, write it:
 ```bash
 mkdir -p config
-echo "DISCORD_BOT_TOKEN=<token>" > config/discord.env
+echo "DISCORD_BOT_TOKEN=<token>" > config/discord_bot.env
 ```
 
 **Step 2 — Invite the bot to your server:**
@@ -604,7 +604,7 @@ Say: "In Discord, go to Settings → Advanced and turn on 'Developer Mode'. Then
 
 When they paste the channel ID, append to config:
 ```bash
-echo "COACH_CHANNEL_ID=<id>" >> config/discord.env
+echo "COACH_CHANNEL_ID=<id>" >> config/discord_bot.env
 ```
 
 Ask for the morning report channel ID separately if they want reports in a different channel.

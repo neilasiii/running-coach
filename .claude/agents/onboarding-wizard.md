@@ -40,7 +40,23 @@ Check `garmin_creds` from the JSON output.
 
 **If credentials are missing:**
 
-Say: "I need your Garmin Connect credentials to pull your training data. These are the same email and password you use at connect.garmin.com."
+Say: "I need to connect to your Garmin account to pull your training data. There are two ways to do this — I'll recommend the more reliable one first."
+
+**Recommended: Token-based auth (more reliable for automated sync)**
+
+Run:
+```bash
+python3 bin/generate_garmin_tokens.py
+```
+
+This opens a browser prompt. Walk the user through logging in. Once complete, test:
+```bash
+python3 src/garmin_token_auth.py --test
+```
+
+If they prefer the simpler option or if token generation fails:
+
+**Alternative: Password-based auth**
 
 Ask for email, then password. Write them to `~/.bashrc`:
 ```bash
@@ -49,17 +65,12 @@ echo 'export GARMIN_PASSWORD=<password>' >> ~/.bashrc
 source ~/.bashrc
 ```
 
-**Test authentication:**
+Test:
 ```bash
 python3 src/garmin_token_auth.py --test
 ```
 
-If it fails with a 403 error, explain: "Garmin blocks automated logins on some accounts. We can use a one-time browser login to generate a token instead." Then run:
-```bash
-python3 bin/generate_garmin_tokens.py
-```
-
-Walk the user through the browser step. Once complete, test again.
+If this fails with a 403 error, fall back to token-based auth above.
 
 **Run initial sync** (once auth is confirmed working):
 ```bash
