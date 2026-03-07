@@ -135,7 +135,7 @@ def onboarding_needed(checks):
 
 
 def print_human(checks, needed):
-    icons = {True: "OK", False: "MISSING"}
+    icons = {True: "✅", False: "❌"}
     print("\nRunning Coach -- Setup Status\n" + "=" * 32)
     labels = {
         "python": "Python >= 3.8",
@@ -152,7 +152,7 @@ def print_human(checks, needed):
         detail = ""
         if not c["ok"]:
             detail = f" -- {c.get('reason') or ', '.join(c.get('missing', []))}"
-        print(f"  [{icon}] {label}{detail}")
+        print(f"  {icon} {label}{detail}")
     print()
     if needed:
         print("Onboarding needed: run @onboarding-wizard in Claude Code")
