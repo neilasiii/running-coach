@@ -389,7 +389,6 @@ _TYPE_EMOJI = {
     "tempo": ("🟠", "Quality"),
     "interval": ("🟠", "Quality"),
     "workout": ("🟠", "Quality"),
-    "strength": ("🟠", "Quality"),
     "cross": ("🟠", "Quality"),
     "none": ("⚫", "No entry"),
 }

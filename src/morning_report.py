@@ -437,7 +437,7 @@ def get_recovery_summary(cache):
 
 
 def get_recent_activities(cache, days=7):
-    """Get summary of recent activities including strength sessions."""
+    """Get summary of recent activities."""
     activities = cache.get('activities', [])
     cutoff = (datetime.now() - timedelta(days=days)).isoformat()
     today = datetime.now().strftime("%Y-%m-%d")
@@ -445,47 +445,11 @@ def get_recent_activities(cache, days=7):
     recent = [a for a in activities if a.get('date', '') >= cutoff]
 
     running = [a for a in recent if a.get('activity_type') == 'RUNNING']
-    strength = [a for a in recent if a.get('activity_type') == 'STRENGTH']
-
-    # Build strength session summaries with focus areas
-    strength_sessions = []
-    for a in strength:
-        session = {
-            'date': a.get('date', '')[:10],
-            'name': a.get('activity_name', 'Strength'),
-            'duration_min': int(a.get('duration_seconds', 0) / 60),
-            'focus_areas': '',
-            'workout_description': a.get('workout_description', '')
-        }
-
-        # Try to extract focus from workout description or markdown file
-        if session['workout_description']:
-            for line in session['workout_description'].split('\n'):
-                if 'Focus:' in line or 'focus:' in line.lower():
-                    session['focus_areas'] = line.split(':', 1)[-1].strip()
-                    break
-
-        # Fallback to markdown file
-        if not session['focus_areas']:
-            workout_file = Path(__file__).parent.parent / 'data' / 'workouts' / 'strength' / f"{session['date']}.md"
-            if workout_file.exists():
-                try:
-                    content = workout_file.read_text()
-                    for line in content.split('\n'):
-                        if line.startswith('**Focus:**'):
-                            session['focus_areas'] = line.replace('**Focus:**', '').strip()
-                            break
-                except:
-                    pass
-
-        strength_sessions.append(session)
-
     return {
         'total_activities': len(recent),
         'running_count': len(running),
         'running_miles': round(sum(a.get('distance_miles', 0) for a in running), 1),
-        'last_run': running[0] if running else None,
-        'strength_sessions': strength_sessions
+        'last_run': running[0] if running else None
     }
 
 
@@ -577,14 +541,8 @@ def build_ai_prompt(workout, recovery, activities, athlete_context, weather=None
             for i, w in enumerate(workout, 1):
                 workout_text += f"\n{i}. {w['name']}"
                 if w.get('description'):
-                    # For strength/mobility, extract key focus areas
                     desc = w['description']
-                    if 'Key Focus:' in desc or 'KEY FOCUS:' in desc:
-                        for line in desc.split('\n'):
-                            if 'Key Focus:' in line or 'KEY FOCUS:' in line:
-                                workout_text += f"\n   {line.strip()}"
-                                break
-                    elif len(desc) < 200:
+                    if len(desc) < 200:
                         workout_text += f"\n   {desc}"
         else:
             # Backwards compatibility - single workout
@@ -620,13 +578,6 @@ def build_ai_prompt(workout, recovery, activities, athlete_context, weather=None
         run = activities['last_run']
         activity_text += f"\nLast run: {run.get('activity_name', 'Run')} - {round(run.get('distance_miles', 0), 1)}mi"
 
-    # Include recent strength sessions if available
-    if activities.get('strength_sessions'):
-        for s in activities['strength_sessions'][:2]:  # Last 2 strength sessions
-            activity_text += f"\nStrength ({s['date']}): {s['name']}"
-            if s.get('focus_areas'):
-                activity_text += f" - {s['focus_areas'][:60]}"
-
     # Format upcoming workouts
     upcoming_text = "No upcoming workouts in next 5 days"
     if upcoming_workouts and len(upcoming_workouts) > 0:
@@ -634,12 +585,6 @@ def build_ai_prompt(workout, recovery, activities, athlete_context, weather=None
         for w in upcoming_workouts[:5]:  # Show next 5 workouts
             day_label = "Tomorrow" if w['days_ahead'] == 1 else f"In {w['days_ahead']} days"
             upcoming_lines.append(f"{day_label} ({w['date']}): {w['name']}")
-            # For strength/mobility, add key focus if available
-            if w.get('description') and ('Key Focus:' in w['description'] or 'Focus:' in w['description']):
-                for line in w['description'].split('\n'):
-                    if 'Key Focus:' in line or 'Focus:' in line:
-                        upcoming_lines.append(f"  → {line.strip()}")
-                        break
         upcoming_text = "\n".join(upcoming_lines)
 
     # Weather with pace adjustment

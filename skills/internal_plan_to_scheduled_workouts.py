@@ -57,7 +57,7 @@ def convert(
     for session in sessions:
         workout_type = session.get("workout_type", "rest")
         if workout_type not in _RUNNING_TYPES:
-            continue  # skip strength / rest / cross
+            continue  # skip rest / cross
 
         date_ = session["date"]
         duration_min = max(session.get("duration_min", 0), 1)

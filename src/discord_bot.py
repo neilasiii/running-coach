@@ -363,7 +363,6 @@ async def sync_command(interaction: discord.Interaction):
 
                         running = [a for a in new_activities if a.get('activity_type') == 'RUNNING']
                         walking = [a for a in new_activities if a.get('activity_type') == 'WALKING']
-                        strength = [a for a in new_activities if a.get('activity_type') == 'STRENGTH']
 
                         if running:
                             total_miles = sum(a.get('distance_miles', 0) for a in running)
@@ -374,8 +373,6 @@ async def sync_command(interaction: discord.Interaction):
                             total_miles = sum(a.get('distance_miles', 0) for a in walking)
                             new_data_details.append(f"🚶 Walk: {len(walking)} walks, {total_miles:.1f} mi")
 
-                        if strength:
-                            new_data_details.append(f"💪 Strength: {len(strength)} sessions")
 
                     # Analyze NEW sleep
                     new_sleep_count = after_counts['sleep'] - before_counts['sleep']
@@ -472,10 +469,6 @@ async def sync_command(interaction: discord.Interaction):
         if running_workout_details:
             content_lines.append("\n🏃 Running workouts scheduled:")
             content_lines.extend(running_workout_details)
-
-        if supplemental_workout_details:
-            content_lines.append("\n💪 Strength workouts scheduled:")
-            content_lines.extend(supplemental_workout_details)
 
         if removed_workouts:
             content_lines.append("\n🗑️ Workouts removed:")
@@ -652,12 +645,6 @@ async def workout_command(interaction: discord.Interaction):
                 if "ics_calendar" in source or domain == "running":
                     emoji = "🏃"
                     color = discord.Color.green()
-                elif "strength" in domain or "strength" in w.get("name", "").lower():
-                    emoji = "💪"
-                    color = discord.Color.orange()
-                elif "mobility" in domain or "mobility" in w.get("name", "").lower():
-                    emoji = "🧘"
-                    color = discord.Color.purple()
                 else:
                     emoji = "📋"
                     color = discord.Color.blue()
@@ -910,33 +897,6 @@ async def ask_command(interaction: discord.Interaction, question: str):
 async def running_coach_command(interaction: discord.Interaction, question: str):
     await interaction.response.send_message(
         "ℹ️ Running-only mode enabled. Use `/ask` for AI questions or message the #coach channel with `ai: <your question>`.",
-        ephemeral=True,
-    )
-
-
-@bot.tree.command(name="strength", description="[Deprecated] Strength coaching moved to agent system")
-@app_commands.describe(question="Your strength training question")
-async def strength_coach_command(interaction: discord.Interaction, question: str):
-    await interaction.response.send_message(
-        "ℹ️ Running-only mode enabled. Strength programming is now handled by the agent system. Use `/coach_today` to see today's plan.",
-        ephemeral=True,
-    )
-
-
-@bot.tree.command(name="mobility", description="[Deprecated] Mobility coaching moved to agent system")
-@app_commands.describe(question="Your mobility/recovery question")
-async def mobility_coach_command(interaction: discord.Interaction, question: str):
-    await interaction.response.send_message(
-        "ℹ️ Running-only mode enabled. Mobility work is now handled by the agent system. Use `/coach_today` to see today's plan.",
-        ephemeral=True,
-    )
-
-
-@bot.tree.command(name="nutrition", description="[Deprecated] Nutrition coaching moved to agent system")
-@app_commands.describe(question="Your nutrition/fueling question")
-async def nutrition_coach_command(interaction: discord.Interaction, question: str):
-    await interaction.response.send_message(
-        "ℹ️ Running-only mode enabled. Nutrition guidance is now handled by the agent system. Use `/coach_today` to see today's plan.",
         ephemeral=True,
     )
 

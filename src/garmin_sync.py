@@ -374,43 +374,6 @@ def _fetch_activity_hr_zones(client: Garmin, activity_id: str, quiet: bool = Fal
         return []
 
 
-def _fetch_strength_workout_details(client: Garmin, activity_id: str, quiet: bool = False) -> Optional[str]:
-    """
-    Fetch workout description for a strength activity.
-
-    For strength activities that were created from a scheduled workout template,
-    this fetches the full workout description (exercises, sets, reps, notes).
-
-    Returns the workout description string or None if not available.
-    """
-    try:
-        # Get activity details to find associated workout ID
-        activity_details = client.get_activity(activity_id)
-        metadata = activity_details.get('metadataDTO', {})
-        workout_id = metadata.get('associatedWorkoutId')
-
-        if not workout_id:
-            return None
-
-        # Fetch the workout template
-        try:
-            workout = client.get_workout_by_id(workout_id)
-            description = workout.get('description')
-            if description:
-                return description
-        except Exception:
-            # Workout template may have been deleted (e.g., during regeneration)
-            # Fall back to checking local markdown files
-            pass
-
-        return None
-
-    except Exception as e:
-        if not quiet:
-            print(f"  Warning: Could not fetch workout details for activity {activity_id}: {e}", file=sys.stderr)
-        return None
-
-
 def fetch_activities(client: Garmin, start_date: date, end_date: date, quiet: bool = False) -> List[Dict[str, Any]]:
     """
     Fetch activities from Garmin Connect for the specified date range.
@@ -485,10 +448,7 @@ def fetch_activities(client: Garmin, start_date: date, end_date: date, quiet: bo
             # Fetch HR zone data for this activity
             hr_zones = _fetch_activity_hr_zones(client, str(activity_id), quiet)
 
-            # For strength activities, try to get workout details
             workout_description = None
-            if activity_type == 'STRENGTH':
-                workout_description = _fetch_strength_workout_details(client, str(activity_id), quiet)
 
             activity_data = {
                 'activity_id': activity_id,
@@ -2052,53 +2012,6 @@ def main():
                 else:
                     if not args.quiet:
                         print(f"  ⚠ Skipping deletion for '{workout_name}' - no Garmin ID found")
-
-            # DISABLED: Automatic strength workout regeneration after reschedules
-            # User requested this feature be disabled (all automatic strength generation disabled)
-            # To re-enable, uncomment the code block below
-            #
-            # # Regenerate strength workouts for affected weeks
-            # if reschedule_log and generate_week_supplemental_workouts:
-            #     if not args.quiet:
-            #         print(f"\n💪 Regenerating strength workouts for affected weeks...")
-            #
-            #     # Determine which weeks were affected by reschedules
-            #     affected_weeks = set()
-            #     for entry in reschedule_log:
-            #         if entry.get('domain') == 'running':
-            #             # Get week start (Monday) for both original and new dates
-            #             for date_str in [entry['original_date'], entry['new_date']]:
-            #                 date_obj = datetime.strptime(date_str, '%Y-%m-%d').date()
-            #                 # Get Monday of this week
-            #                 week_start = date_obj - timedelta(days=date_obj.weekday())
-            #                 affected_weeks.add(week_start)
-            #
-            #     # Regenerate strength for each affected week
-            #     for week_start in sorted(affected_weeks):
-            #         if not args.quiet:
-            #             print(f"\n  📅 Week of {week_start.strftime('%Y-%m-%d')} (Monday):")
-            #
-            #         try:
-            #             # Call the generator with force regeneration
-            #             # This will delete old strength workouts and create new ones
-            #             created = generate_week_supplemental_workouts(
-            #                 week_start=datetime.combine(week_start, datetime.min.time()),
-            #                 check_only=False,  # Actually create workouts
-            #                 quiet=args.quiet,
-            #                 skip_mobility=True,  # Only regenerate strength
-            #                 use_ai=True,
-            #                 force_regen=True  # Force regeneration even if already exists
-            #             )
-            #
-            #             if not args.quiet:
-            #                 if created:
-            #                     print(f"  ✓ Regenerated {len(created)} strength workout(s)")
-            #                 else:
-            #                     print(f"  ℹ No strength workouts needed for this week")
-            #
-            #         except Exception as e:
-            #             if not args.quiet:
-            #                 print(f"  ⚠ Failed to regenerate strength for week {week_start}: {e}", file=sys.stderr)
 
         # If no ICS calendar available, use Garmin templates as-is (without dates)
         if not new_scheduled_workouts and garmin_workout_templates:

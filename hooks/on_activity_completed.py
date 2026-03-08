@@ -1,11 +1,11 @@
 """
-Hook: on_activity_completed — detects new running/strength activities and queues
-a post-workout check-in message for Discord delivery.
+Hook: on_activity_completed — detects new running activities and queues a
+post-workout check-in message for Discord delivery.
 
 Called from agent/runner.py inside the hash_changed block each heartbeat cycle.
 
 Logic:
-  1. Query activities table for running + strength activities from last 48 hours.
+  1. Query activities table for running activities from last 48 hours.
   2. For each, call upsert_checkin (INSERT OR IGNORE — idempotent).
   3. Call get_unsent_checkins — find any not yet delivered.
   4. If any exist AND no pending_checkin key in state:
@@ -29,9 +29,8 @@ sys.path.insert(0, str(PROJECT_ROOT / "src"))
 _STATE_PENDING_KEY = "pending_checkin"
 
 # Activity types that trigger a check-in
-_RUNNING_TYPES  = {"running", "trail_running", "treadmill_running"}
-_STRENGTH_TYPES = {"strength_training", "cardio"}
-_CHECKIN_TYPES  = _RUNNING_TYPES | _STRENGTH_TYPES
+_RUNNING_TYPES = {"running", "trail_running", "treadmill_running"}
+_CHECKIN_TYPES = _RUNNING_TYPES
 
 log = logging.getLogger("hooks.on_activity_completed")
 
@@ -63,7 +62,7 @@ def run(db_path=None) -> Dict[str, Any]:
         log.warning("on_activity_completed: could not query activities: %s", exc)
         return result
 
-    # Filter to running + strength types
+    # Filter to running activity types
     relevant = [a for a in recent if a.get("activity_type", "").lower() in _CHECKIN_TYPES]
 
     # ── 2. Upsert checkin rows (INSERT OR IGNORE) ──────────────────────────

@@ -22,7 +22,7 @@ def get_active_sessions(db_path=None) -> List[Dict[str, Any]]:
     Each session dict contains:
         date           str  YYYY-MM-DD
         intent         str  human-readable one-liner
-        workout_type   str  easy | tempo | interval | long | strength | rest | cross
+        workout_type   str  easy | tempo | interval | long | rest | cross
         duration_min   int
         structure_steps list[dict]
         safety_flags   list[str]

@@ -183,7 +183,7 @@ Required output JSON structure (all fields required unless marked optional):
     {
       "date": "YYYY-MM-DD",
       "intent": "<one-liner, max 80 chars>",
-      "workout_type": "easy"|"tempo"|"interval"|"long"|"strength"|"rest"|"cross",
+      "workout_type": "easy"|"tempo"|"interval"|"long"|"rest"|"cross",
       "priority": "must_do"|"nice_to_have"|"optional",
       "duration_min": <int 0-300>,
       "structure_steps": [
@@ -208,7 +208,7 @@ Required output JSON structure:
   "date": "YYYY-MM-DD",
   "original_intent": "<from active plan or null>",
   "adjusted_intent": "<max 80 chars>",
-  "workout_type": "easy"|"tempo"|"interval"|"long"|"strength"|"rest"|"cross",
+  "workout_type": "easy"|"tempo"|"interval"|"long"|"rest"|"cross",
   "duration_min": <int 0-300>,
   "structure_steps": [
     {"label":"warmup"|"main"|"cooldown","duration_min":<int>,"target_metric":"pace"|"hr"|"power"|"rpe","target_value":"<str>"}

@@ -21,7 +21,7 @@ from pydantic import BaseModel, Field, model_validator
 
 # ── Enums (as Literal unions for JSON-friendly serialisation) ─────────────────
 
-WorkoutTypeT = Literal["easy", "tempo", "interval", "long", "strength", "rest", "cross"]
+WorkoutTypeT = Literal["easy", "tempo", "interval", "long", "rest", "cross"]
 TargetMetricT = Literal["pace", "hr", "power", "rpe"]
 TrainingPhaseT = Literal["base", "quality", "race_specific", "taper"]
 StepLabelT = Literal["warmup", "main", "cooldown", "interval", "recovery", "strides"]

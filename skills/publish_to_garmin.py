@@ -37,8 +37,6 @@ _GENERATED_LOG = PROJECT_ROOT / "data" / "generated_workouts.json"
 # (not removable) until explicitly added here as non-running.
 NON_RUNNING_TYPES = {
     "rest",
-    "strength",
-    "mobility",
     "cross",
     "cross_training",
     "off",
@@ -49,21 +47,19 @@ NON_RUNNING_TYPES = {
 def _load_generated_log() -> Dict[str, Any]:
     """Load generated_workouts.json with backward-compatible defaults."""
     if not _GENERATED_LOG.exists():
-        return {"running": {}, "strength": {}, "mobility": {}, "week_snapshots": {}}
+        return {"running": {}, "week_snapshots": {}}
 
     try:
         with open(_GENERATED_LOG) as f:
             data = json.load(f)
     except Exception as exc:
         log.warning("Could not read generated_workouts.json: %s — starting fresh", exc)
-        return {"running": {}, "strength": {}, "mobility": {}, "week_snapshots": {}}
+        return {"running": {}, "week_snapshots": {}}
 
     if not isinstance(data, dict):
-        return {"running": {}, "strength": {}, "mobility": {}, "week_snapshots": {}}
+        return {"running": {}, "week_snapshots": {}}
 
     data.setdefault("running", {})
-    data.setdefault("strength", {})
-    data.setdefault("mobility", {})
     data.setdefault("week_snapshots", {})
     if not isinstance(data["running"], dict):
         data["running"] = {}

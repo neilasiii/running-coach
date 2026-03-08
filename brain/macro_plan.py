@@ -521,8 +521,8 @@ Required JSON structure (output ONLY this, no prose, no markdown fences):
       "long_run_max_min": <int 0-300>,
       "intensity_budget": "none" | "low" | "moderate" | "high",
       "quality_sessions_allowed": <int 0-2>,
-      "key_workout_type": "easy" | "tempo" | "interval" | "long" | "strength" | "rest" | "cross",
-      "recommended_session_types": ["easy"|"tempo"|"interval"|"long"|"strength"|"rest"|"cross", ...],
+      "key_workout_type": "easy" | "tempo" | "interval" | "long" | "rest" | "cross",
+      "recommended_session_types": ["easy"|"tempo"|"interval"|"long"|"rest"|"cross", ...],
       "paces": {
         "easy": "<e.g. '10:30-11:10/mi' — max 20 chars>",
         "tempo": null | "<max 20 chars>",
