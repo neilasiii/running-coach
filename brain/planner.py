@@ -30,7 +30,14 @@ from typing import Any, Dict, List, Optional
 from pydantic import ValidationError
 
 from .schemas import PlanDecision, TodayAdjustment, HARD_TYPES
-from .llm import call_llm as _call_llm, _try_strict_extract, _brace_search_last, _JSON_FENCE_RE
+from .llm import (
+    call_llm as _call_llm,
+    _try_strict_extract,
+    _brace_search_last,
+    _JSON_FENCE_RE,
+    FIX_JSON_PROMPT,
+    MODEL_HAIKU,
+)
 
 PROJECT_ROOT = Path(__file__).parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
@@ -219,13 +226,6 @@ Required output JSON structure:
   "safety_flags": ["<string>", ...],
   "rationale": "<max 200 chars>"
 }"""
-
-_FIX_JSON_PROMPT = (
-    "The JSON you returned failed schema validation. "
-    "Return ONLY a corrected JSON object. No explanation. No markdown. "
-    "Error: {error}"
-)
-
 
 def _extract_or_reprompt(raw: str, system: str) -> str:
     """
@@ -577,7 +577,7 @@ def plan_week(
 
     # ── Call LLM ──────────────────────────────────────────────────────────
     raw = _call_llm(
-        _SYSTEM_PLAN_WEEK, user_prompt, timeout=300, model="claude-haiku-4-5-20251001"
+        _SYSTEM_PLAN_WEEK, user_prompt, timeout=300, model=MODEL_HAIKU
     )
     decision = _parse_and_validate_plan(raw, ctx_hash, _SYSTEM_PLAN_WEEK)
     decision = _enforce_stride_rules(decision)
@@ -746,7 +746,7 @@ def _parse_and_validate_plan(raw: str, ctx_hash: str, system: str) -> PlanDecisi
                 log.warning("plan schema attempt 1 failed: %s — reprompting", exc)
                 fix_raw = _call_llm(
                     system,
-                    _FIX_JSON_PROMPT.format(error=str(exc)[:200])
+                    FIX_JSON_PROMPT.format(error=str(exc)[:200])
                     + f"\n\nPrevious output:\n{json_str[:500]}",
                 )
                 json_str = _extract_or_reprompt(fix_raw, system)
@@ -1029,7 +1029,7 @@ def _parse_and_validate_adjustment(
                 log.warning("adjust schema attempt 1 failed: %s — reprompting", exc)
                 fix_raw = _call_llm(
                     system,
-                    _FIX_JSON_PROMPT.format(error=str(exc)[:200])
+                    FIX_JSON_PROMPT.format(error=str(exc)[:200])
                     + f"\n\nPrevious output:\n{json_str[:500]}",
                 )
                 json_str = _extract_or_reprompt(fix_raw, system)
