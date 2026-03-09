@@ -21,8 +21,9 @@ from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 from typing import Optional
 
+from memory.retrieval import HEALTH_CACHE as CACHE_FILE
+
 PROJECT_ROOT = Path(__file__).parent.parent
-CACHE_FILE = PROJECT_ROOT / "data" / "health" / "health_data_cache.json"
 log = logging.getLogger("skills.garmin_sync")
 
 # Default lookback used when --days is not specified
