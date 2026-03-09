@@ -278,7 +278,7 @@ def call_ai_with_fallback(prompt, allowed_tools=None, timeout=180):
     # Fallback to Gemini
     try:
         sys.path.insert(0, str(PROJECT_ROOT / 'src'))
-        from gemini_client import call_gemini
+        from brain.llm import call_gemini
 
         response, error = call_gemini(prompt, max_tokens=4096)
 
