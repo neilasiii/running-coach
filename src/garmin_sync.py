@@ -48,12 +48,10 @@ except ImportError:
 try:
     from workout_scheduler import apply_schedule_constraints
     from workout_uploader import delete_workout
-    from supplemental_workout_generator import generate_week_supplemental_workouts
 except ImportError:
     # Workout scheduler is optional - workouts won't be rescheduled for conflicts
     apply_schedule_constraints = None
     delete_workout = None
-    generate_week_supplemental_workouts = None
 
 try:
     from ics_exporter import export_calendar
