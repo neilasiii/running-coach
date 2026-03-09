@@ -1,12 +1,17 @@
 """
-Skills wrapper: Garmin sync.
+skills/garmin_sync.py — Health data ingest + cache freshness skill.
 
-Calls sync_garmin_data.sh after a native Python cache-age check.
-After a successful sync, ingests recovery metrics and activities into SQLite
-(B11-012, B11-013) — JSON cache remains the primary read path for now.
+Role in the pipeline:
+  1. Checks health_data_cache.json age (written by src/garmin_sync.py via bin/sync_garmin_data.sh)
+  2. Triggers a fresh Garmin sync when the cache is stale (>30 min)
+  3. Reads the refreshed cache and ingests daily metrics into SQLite (data/coach.sqlite)
 
-Does NOT modify health_data_cache.json format — that remains owned by
-src/garmin_sync.py (sacred invariant).
+This module does NOT call the Garmin API directly. It delegates to bin/smart_sync.sh,
+which calls src/garmin_sync.py as a subprocess.
+
+Contrast with:
+  src/garmin_sync.py        — raw Garmin Connect API client; writes health_data_cache.json
+  skills/garmin_sync.py     — cache age check + SQLite ingest layer (this file)
 """
 
 import json
