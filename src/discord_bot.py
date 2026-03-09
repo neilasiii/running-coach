@@ -106,6 +106,17 @@ def clamp(text: str, n: int) -> str:
     return text if len(text) <= n else text[:n - 3] + "..."
 
 
+_ANSI_ESCAPE = re.compile(r'\x1b\[[0-9;]*[mGKHF]')
+_MOTD_KEYWORDS = ('Debian LXC Container', 'Provided by:', 'GitHub:', 'Hostname:', 'IP Address:')
+
+
+def _strip_motd(text: str) -> str:
+    """Strip ANSI codes and Debian LXC Container MOTD banner lines from output."""
+    clean = _ANSI_ESCAPE.sub('', text)
+    lines = [ln for ln in clean.split('\n') if not any(kw in ln for kw in _MOTD_KEYWORDS)]
+    return '\n'.join(lines).strip()
+
+
 # Mobile-safe embed description cap. Discord allows 4096 chars per embed
 # description, but walls of text are unreadable on a phone screen.
 MOBILE_DESC_LIMIT = 1200
@@ -411,7 +422,6 @@ async def sync_command(interaction: discord.Interaction):
 
         # Extract workout generation info from sync output
         running_workout_details = []
-        supplemental_workout_details = []
         removed_workouts = []
 
         # Parse running workouts
@@ -428,21 +438,6 @@ async def sync_command(interaction: discord.Interaction):
                         running_workout_details.append(f"  → {workout}")
                     elif line.strip() and not line.strip().startswith('•'):
                         in_workout_section = False
-
-        # Parse supplemental workouts
-        if "Successfully created supplemental workouts:" in sync_output:
-            lines = sync_output.split('\n')
-            in_supplemental_section = False
-            for line in lines:
-                if "Successfully created supplemental workouts:" in line:
-                    in_supplemental_section = True
-                    continue
-                if in_supplemental_section:
-                    if line.strip().startswith('•'):
-                        workout = line.strip()[2:].split(' (ID:')[0].strip()
-                        supplemental_workout_details.append(f"  → {workout}")
-                    elif line.strip() and not line.strip().startswith('•'):
-                        in_supplemental_section = False
 
         # Parse removed workouts (from deduplicate_workouts.py output)
         lines = sync_output.split('\n')
@@ -520,36 +515,14 @@ async def report_command(interaction: discord.Interaction):
     await interaction.response.defer(thinking=True)
 
     try:
-        result = subprocess.run(
-            [sys.executable, str(PROJECT_ROOT / "cli" / "coach.py"), "morning-report", "--full-only"],
-            cwd=PROJECT_ROOT,
-            capture_output=True,
-            text=True,
-            timeout=120
-        )
+        rc, stdout, stderr = await run_coach_cli(["morning-report", "--full-only"], timeout=120)
 
-        if result.returncode == 0:
-            # Filter out MOTD banner (Debian LXC Container message)
-            import re
-            ansi_escape = re.compile(r'\x1b\[[0-9;]*[mGKHF]')
-            report_clean = ansi_escape.sub('', result.stdout)
-
-            # Remove MOTD lines
-            lines = report_clean.split('\n')
-            filtered_lines = []
-            for line in lines:
-                # Skip MOTD banner lines
-                if 'Debian LXC Container' in line or 'Provided by:' in line or \
-                   'GitHub:' in line or 'Hostname:' in line or 'IP Address:' in line:
-                    continue
-                filtered_lines.append(line)
-
-            report = '\n'.join(filtered_lines).strip()
-
+        if rc == 0 and stdout:
+            report = _strip_motd(stdout)
             embeds = split_embeds(report, "🌅 Morning Training Report", discord.Color.blue())
             await interaction.followup.send(embeds=embeds[:10])
         else:
-            await interaction.followup.send(f"❌ Error generating report:\n{result.stderr[:500]}")
+            await interaction.followup.send(f"❌ Error generating report:\n{(stderr or 'Unknown error')[:500]}")
 
     except Exception as e:
         await interaction.followup.send(f"❌ Error: {str(e)}")
@@ -1640,22 +1613,7 @@ async def morning_report_task():
         rc, stdout, stderr = await run_coach_cli(["morning-report", "--full-only"], timeout=120)
 
         if rc == 0 and stdout:
-            # Filter out MOTD banner (Debian LXC Container message)
-            import re
-            ansi_escape = re.compile(r'\x1b\[[0-9;]*[mGKHF]')
-            report_clean = ansi_escape.sub('', stdout)
-
-            # Remove MOTD lines
-            lines = report_clean.split('\n')
-            filtered_lines = []
-            for line in lines:
-                # Skip MOTD banner lines
-                if 'Debian LXC Container' in line or 'Provided by:' in line or \
-                   'GitHub:' in line or 'Hostname:' in line or 'IP Address:' in line:
-                    continue
-                filtered_lines.append(line)
-
-            report = '\n'.join(filtered_lines).strip()
+            report = _strip_motd(stdout)
             embeds = split_embeds(report, "🌅 Morning Training Report", discord.Color.blue())
             await channel.send(embeds=embeds[:10])
         else:
