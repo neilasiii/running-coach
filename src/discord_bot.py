@@ -17,6 +17,7 @@ import re
 import sys
 import logging
 from datetime import datetime, time, timedelta, timezone
+from zoneinfo import ZoneInfo
 from pathlib import Path
 
 # Configuration
@@ -34,8 +35,8 @@ CHANNELS = {
 PROJECT_ROOT = Path(__file__).parent.parent
 CLAUDE_PATH = os.path.expanduser("~/.local/bin/claude")
 
-# Timezone for scheduling (Eastern Time)
-EST = timezone(timedelta(hours=-5))
+# Timezone for scheduling (Eastern Time — DST-aware)
+EST = ZoneInfo("America/New_York")
 
 # Set up logging
 logging.basicConfig(
