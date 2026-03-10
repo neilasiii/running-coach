@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Unit tests for garmin_sync.py
+Unit tests for garmin_fetcher.py
 
 Run with: python3 -m pytest tests/test_garmin_sync.py -v
 or: python3 tests/test_garmin_sync.py
