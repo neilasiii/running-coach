@@ -25,7 +25,7 @@ def run(db_path=None) -> Dict[str, Any]:
     Post-sync hook. Should be called immediately after skills.garmin_sync.run()
     reports success=True.
 
-    Returns dict with keys: metrics_updated, vault_written, today, metrics (dict).
+    Returns dict with keys: vault_written, daily_metrics_rows, today, metrics (dict).
     """
     from memory.db import init_db, DB_PATH as _DEFAULT_DB
     from memory.vault import write_daily_note
@@ -37,19 +37,17 @@ def run(db_path=None) -> Dict[str, Any]:
     # ── Load health cache ──────────────────────────────────────────────────
     if not _CACHE_PATH.exists():
         log.warning("Health cache not found at %s — skipping daily_metrics sync", _CACHE_PATH)
-        return {"metrics_updated": False, "vault_written": False, "today": today.isoformat(), "metrics": {}}
+        return {"vault_written": False, "daily_metrics_rows": 0, "today": today.isoformat(), "metrics": {}}
 
     try:
         with open(_CACHE_PATH) as f:
             health = json.load(f)
     except Exception as exc:
         log.error("Could not load health cache: %s", exc)
-        return {"metrics_updated": False, "vault_written": False, "today": today.isoformat(), "metrics": {}}
+        return {"vault_written": False, "daily_metrics_rows": 0, "today": today.isoformat(), "metrics": {}}
 
     # ── Extract today's metrics ────────────────────────────────────────────
     metrics = _extract_today_metrics(health, today)
-
-    metrics_updated = False  # legacy blob write removed; key kept for runner.py compat
 
     # ── Sync daily_metrics table from current JSON cache ───────────────────
     # External processes (morning report, Discord bot) update health_data_cache.json
@@ -74,7 +72,6 @@ def run(db_path=None) -> Dict[str, Any]:
         log.info("Vault daily note written for %s", today.isoformat())
 
     return {
-        "metrics_updated":      metrics_updated,
         "daily_metrics_rows":   daily_metrics_rows,
         "vault_written":        vault_written,
         "today":                today.isoformat(),
