@@ -25,7 +25,16 @@ log = logging.getLogger("brain.llm")
 # ── LLM config ─────────────────────────────────────────────────────────────────
 
 MODEL = "claude-sonnet-4-6"
+MODEL_HAIKU = "claude-haiku-4-5-20251001"
 MAX_TOKENS = 2048
+
+# ── Shared LLM prompt constants ─────────────────────────────────────────────────
+
+FIX_JSON_PROMPT = (
+    "The JSON you returned failed schema validation. "
+    "Return ONLY a corrected JSON object. No explanation. No markdown. "
+    "Error: {error}"
+)
 CLAUDE_PATHS = [
     Path.home() / ".local" / "bin" / "claude",
     Path("/usr/local/bin/claude"),

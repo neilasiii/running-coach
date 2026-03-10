@@ -34,7 +34,14 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 from .schemas import MacroPlan, MacroWeek, MacroModeT, RaceDistanceT
-from .llm import call_llm as _call_llm, _try_strict_extract, _brace_search_last, _JSON_FENCE_RE
+from .llm import (
+    call_llm as _call_llm,
+    _try_strict_extract,
+    _brace_search_last,
+    _JSON_FENCE_RE,
+    FIX_JSON_PROMPT,
+    MODEL_HAIKU,
+)
 
 log = logging.getLogger("brain.macro_plan")
 
@@ -43,7 +50,7 @@ MAX_TOKENS_MACRO = 4096
 # Haiku is 5-10× faster than Sonnet for structured JSON generation — the macro
 # plan is a template-filling task (apply rules, output week objects), not a
 # complex reasoning task, so speed wins here.
-_MACRO_MODEL = "claude-haiku-4-5-20251001"
+_MACRO_MODEL = MODEL_HAIKU
 
 # Number of days after a short race during which quality sessions are prohibited.
 # Applies when a race-level effort < 10 mi is detected (5k, 10k, etc.).
@@ -894,9 +901,8 @@ def _parse_and_validate_macro(raw_text: str, system: str) -> MacroPlan:
                 log.warning("Macro schema attempt 1 failed: %s — reprompting", exc)
                 fix_raw = _call_llm(
                     system,
-                    f"The JSON you returned failed schema validation. "
-                    f"Return ONLY a corrected JSON object. No explanation. No markdown. "
-                    f"Error: {str(exc)[:200]}\n\nPrevious output:\n{json_str[:600]}",
+                    FIX_JSON_PROMPT.format(error=str(exc)[:200])
+                    + f"\n\nPrevious output:\n{json_str[:600]}",
                     timeout=120,
                     model=_MACRO_MODEL,
                 )

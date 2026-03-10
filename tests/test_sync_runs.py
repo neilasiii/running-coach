@@ -66,7 +66,7 @@ class TestSyncRunsSchema:
                 ).fetchall()
             }
             conn.close()
-            for expected in ("task_runs", "state", "plans", "events", "metrics"):
+            for expected in ("task_runs", "state", "plans", "events"):
                 assert expected in tables, f"Expected table {expected!r} missing after init_db()"
         finally:
             db.unlink(missing_ok=True)

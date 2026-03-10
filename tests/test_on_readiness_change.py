@@ -83,9 +83,9 @@ class TestReadinessChangeDedup:
         ctx = _base_context(readiness_today=35)
         fake_adj = _fake_adjustment()
 
-        # get_metrics_range is lazy-imported from memory.db inside run(), so patch the source
+        # get_daily_metrics is lazy-imported from memory.db inside run(), so patch the source
         with (
-            patch("memory.db.get_metrics_range", return_value=[]),
+            patch("memory.db.get_daily_metrics", return_value=[]),
             patch("brain.adjust_today", return_value=fake_adj) as mock_brain,
             patch("memory.db.insert_plan_days") as mock_persist,
             patch(
@@ -124,7 +124,7 @@ class TestReadinessChangeDedup:
         fake_adj = _fake_adjustment()
 
         with (
-            patch("memory.db.get_metrics_range", return_value=[]),
+            patch("memory.db.get_daily_metrics", return_value=[]),
             patch("brain.adjust_today", return_value=fake_adj) as mock_brain,
             patch("memory.db.insert_plan_days") as mock_persist,
             patch(
@@ -151,7 +151,7 @@ class TestReadinessChangeDedup:
 
         ctx = _base_context(readiness_today=35)
 
-        with patch("memory.db.get_metrics_range", return_value=[]):
+        with patch("memory.db.get_daily_metrics", return_value=[]):
             with patch("brain.adjust_today", side_effect=RuntimeError("LLM timeout")):
                 result = _run(ctx, db)
 
@@ -170,7 +170,7 @@ class TestReadinessChangeDedup:
         fake_adj = _fake_adjustment()
 
         with (
-            patch("memory.db.get_metrics_range", return_value=[]),
+            patch("memory.db.get_daily_metrics", return_value=[]),
             patch("brain.adjust_today", return_value=fake_adj) as mock_brain,
             patch("memory.db.insert_plan_days") as mock_persist,
             patch(
@@ -216,7 +216,7 @@ class TestReadinessChangeDedup:
         )
 
         with (
-            patch("memory.db.get_metrics_range", return_value=[]),
+            patch("memory.db.get_daily_metrics", return_value=[]),
             patch("brain.adjust_today", return_value=fake_adj) as mock_brain,
             patch("memory.db.insert_plan_days") as mock_persist,
             patch(
@@ -295,7 +295,7 @@ class TestReadinessChangeGates:
         init_db(db_path=db)
         # today=70, yesterday=72 → drop=2, below threshold=15; today > LOW=45
         ctx = _base_context(readiness_today=70)
-        with patch("memory.db.get_metrics_range",
+        with patch("memory.db.get_daily_metrics",
                    return_value=[{"training_readiness": 72}]):
             with patch("brain.adjust_today") as mock_brain:
                 result = _run(ctx, db)
@@ -312,7 +312,7 @@ class TestReadinessChangeGates:
         ctx = _base_context(readiness_today=52)
         fake_adj = _fake_adjustment()
         with (
-            patch("memory.db.get_metrics_range",
+            patch("memory.db.get_daily_metrics",
                   return_value=[{"training_readiness": 68}]),
             patch("brain.adjust_today", return_value=fake_adj) as mock_brain,
             patch("memory.db.insert_plan_days") as mock_persist,

@@ -6,7 +6,7 @@ Fetches health and activity data from Garmin Connect API and stores it in the lo
 Supports incremental updates by tracking the last sync timestamp.
 
 Usage:
-    python3 src/garmin_sync.py [--days DAYS] [--summary] [--quiet]
+    python3 src/garmin_fetcher.py [--days DAYS] [--summary] [--quiet]
 
 Options:
     --days DAYS     Number of days of historical data to sync (default: 30)

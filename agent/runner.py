@@ -151,8 +151,8 @@ def run_cycle(db_path=None) -> dict:
             from hooks.on_sync import run as on_sync
             sync_hook = on_sync(db_path=db)
             summary["hooks_run"].append("on_sync")
-            log.info("on_sync: metrics_updated=%s vault_written=%s",
-                     sync_hook["metrics_updated"], sync_hook["vault_written"])
+            log.info("on_sync: vault_written=%s daily_metrics_rows=%s",
+                     sync_hook["vault_written"], sync_hook["daily_metrics_rows"])
 
             refresh_lock(owner, db_path=db)
 

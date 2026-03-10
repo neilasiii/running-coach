@@ -30,7 +30,14 @@ from typing import Any, Dict, List, Optional
 from pydantic import ValidationError
 
 from .schemas import PlanDecision, TodayAdjustment, HARD_TYPES
-from .llm import call_llm as _call_llm, _try_strict_extract, _brace_search_last, _JSON_FENCE_RE
+from .llm import (
+    call_llm as _call_llm,
+    _try_strict_extract,
+    _brace_search_last,
+    _JSON_FENCE_RE,
+    FIX_JSON_PROMPT,
+    MODEL_HAIKU,
+)
 
 PROJECT_ROOT = Path(__file__).parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
@@ -219,13 +226,6 @@ Required output JSON structure:
   "safety_flags": ["<string>", ...],
   "rationale": "<max 200 chars>"
 }"""
-
-_FIX_JSON_PROMPT = (
-    "The JSON you returned failed schema validation. "
-    "Return ONLY a corrected JSON object. No explanation. No markdown. "
-    "Error: {error}"
-)
-
 
 def _extract_or_reprompt(raw: str, system: str) -> str:
     """
@@ -417,6 +417,23 @@ def _normalize_weekly_structure(context_packet: Dict) -> Dict[str, Any]:
     }
 
 
+# ── Shared day-mutation helpers ─────────────────────────────────────────────────
+
+def _weekday(iso_day: str) -> str:
+    """Return the lowercase weekday name for an ISO date string (e.g. 'monday')."""
+    return date.fromisoformat(iso_day).strftime("%A").lower()
+
+
+def _to_rest(day_obj, flag: str) -> None:
+    """Mutate day_obj to a rest day and append flag to its safety_flags."""
+    day_obj.workout_type = "rest"
+    day_obj.duration_min = 0
+    day_obj.structure_steps = []
+    day_obj.priority = "optional"
+    if flag not in day_obj.safety_flags:
+        day_obj.safety_flags.append(flag)
+
+
 def _enforce_structure_constraints(
     decision: PlanDecision, structure: Dict[str, Any]
 ) -> None:
@@ -425,19 +442,8 @@ def _enforce_structure_constraints(
     blocked = set(structure.get("non_negotiable_blocked_days", []))
     anchors = set(structure.get("anchor_days", []))
 
-    def _weekday_name(day_obj) -> str:
-        return date.fromisoformat(day_obj.date).strftime("%A").lower()
-
     def _is_run(day_obj) -> bool:
         return day_obj.workout_type in run_types
-
-    def _to_rest(day_obj, flag: str) -> None:
-        day_obj.workout_type = "rest"
-        day_obj.duration_min = 0
-        day_obj.structure_steps = []
-        day_obj.priority = "optional"
-        if flag not in day_obj.safety_flags:
-            day_obj.safety_flags.append(flag)
 
     def _make_easy(day_obj, flag: str) -> None:
         day_obj.workout_type = "easy"
@@ -448,7 +454,7 @@ def _enforce_structure_constraints(
             day_obj.safety_flags.append(flag)
 
     for d in [d for d in decision.days if _is_run(d)]:
-        if _weekday_name(d) in blocked:
+        if _weekday(d.date) in blocked:
             _to_rest(d, "blocked_day_enforced")
 
     while (
@@ -458,7 +464,7 @@ def _enforce_structure_constraints(
         drop = sorted(
             run_days,
             key=lambda d: (
-                1 if _weekday_name(d) in anchors else 0,
+                1 if _weekday(d.date) in anchors else 0,
                 priority_rank.get(d.priority, 1),
                 d.duration_min,
             ),
@@ -473,14 +479,14 @@ def _enforce_structure_constraints(
         candidates = [
             d
             for d in decision.days
-            if not _is_run(d) and _weekday_name(d) not in blocked
+            if not _is_run(d) and _weekday(d.date) not in blocked
         ]
         if not candidates:
             break
         promote = sorted(
             candidates,
             key=lambda d: (
-                0 if _weekday_name(d) in anchors else 1,
+                0 if _weekday(d.date) in anchors else 1,
                 0 if d.workout_type == "rest" else 1,
             ),
         )[0]
@@ -493,12 +499,12 @@ def _enforce_structure_constraints(
         candidates = [
             d
             for d in decision.days
-            if not _is_run(d) and _weekday_name(d) not in blocked
+            if not _is_run(d) and _weekday(d.date) not in blocked
         ]
         if candidates:
             promote = sorted(
                 candidates,
-                key=lambda d: (0 if _weekday_name(d) in anchors else 1, d.duration_min),
+                key=lambda d: (0 if _weekday(d.date) in anchors else 1, d.duration_min),
             )[0]
             _make_easy(promote, "preferred_run_count_backfilled")
 
@@ -577,7 +583,7 @@ def plan_week(
 
     # ── Call LLM ──────────────────────────────────────────────────────────
     raw = _call_llm(
-        _SYSTEM_PLAN_WEEK, user_prompt, timeout=300, model="claude-haiku-4-5-20251001"
+        _SYSTEM_PLAN_WEEK, user_prompt, timeout=300, model=MODEL_HAIKU
     )
     decision = _parse_and_validate_plan(raw, ctx_hash, _SYSTEM_PLAN_WEEK)
     decision = _enforce_stride_rules(decision)
@@ -746,7 +752,7 @@ def _parse_and_validate_plan(raw: str, ctx_hash: str, system: str) -> PlanDecisi
                 log.warning("plan schema attempt 1 failed: %s — reprompting", exc)
                 fix_raw = _call_llm(
                     system,
-                    _FIX_JSON_PROMPT.format(error=str(exc)[:200])
+                    FIX_JSON_PROMPT.format(error=str(exc)[:200])
                     + f"\n\nPrevious output:\n{json_str[:500]}",
                 )
                 json_str = _extract_or_reprompt(fix_raw, system)
@@ -795,19 +801,8 @@ def replan_remaining_week(
         if str(d).strip()
     }
 
-    def _weekday(iso_day: str) -> str:
-        return date.fromisoformat(iso_day).strftime("%A").lower()
-
     def _is_hard(day_obj) -> bool:
         return day_obj.workout_type in HARD_TYPES
-
-    def _to_rest(day_obj, flag: str) -> None:
-        day_obj.workout_type = "rest"
-        day_obj.duration_min = 0
-        day_obj.structure_steps = []
-        day_obj.priority = "optional"
-        if flag not in day_obj.safety_flags:
-            day_obj.safety_flags.append(flag)
 
     def _to_easy(day_obj, flag: str) -> None:
         day_obj.workout_type = "easy"
@@ -1029,7 +1024,7 @@ def _parse_and_validate_adjustment(
                 log.warning("adjust schema attempt 1 failed: %s — reprompting", exc)
                 fix_raw = _call_llm(
                     system,
-                    _FIX_JSON_PROMPT.format(error=str(exc)[:200])
+                    FIX_JSON_PROMPT.format(error=str(exc)[:200])
                     + f"\n\nPrevious output:\n{json_str[:500]}",
                 )
                 json_str = _extract_or_reprompt(fix_raw, system)
