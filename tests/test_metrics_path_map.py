@@ -47,8 +47,8 @@ class TestLegacyMetricsTable:
     """
     Validates the contract for the legacy 'metrics' table (blob storage).
 
-    Writer: hooks/on_sync.py → upsert_metrics(day, payload_dict)
-    Reader: hooks/on_readiness_change.py → get_metrics_range(start, end)
+    Writer: hooks/on_sync.py (REMOVED — legacy write path deleted in Track F)
+    Reader: hooks/on_readiness_change.py (REMOVED — migrated to get_daily_metrics)
 
     The payload is an untyped JSON blob; the only guaranteed key observed in
     production is 'training_readiness'.  These tests pin the current surface.
@@ -119,7 +119,7 @@ class TestDailyMetricsTable:
     Validates the contract for the 'daily_metrics' table (typed columns).
 
     Writer: skills/garmin_sync._ingest_daily_metrics() → upsert_daily_metrics()
-            hooks/on_sync.py  (via _ingest_daily_metrics)
+            hooks/on_sync.py calls _ingest_daily_metrics() (active path)
     Reader: memory/retrieval._rollup_readiness_from_sqlite()
             hooks/on_weekly_rollup.py
             cli/coach.py cmd_parity + cmd_db_sanity

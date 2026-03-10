@@ -2,7 +2,7 @@
 Hook: on_sync — runs after a successful Garmin sync.
 
 Actions (all deterministic, no LLM):
-  1. Parse today's metrics from health_data_cache.json → upsert SQLite metrics row.
+  1. Sync typed daily_metrics table from health_data_cache.json (7-day window).
   2. Write vault/daily/YYYY-MM-DD.md stub if not already present today.
 
 Returns a summary dict. Safe to call even when cache is stale or partially populated.
@@ -27,7 +27,7 @@ def run(db_path=None) -> Dict[str, Any]:
 
     Returns dict with keys: metrics_updated, vault_written, today, metrics (dict).
     """
-    from memory.db import upsert_metrics, init_db, DB_PATH as _DEFAULT_DB
+    from memory.db import init_db, DB_PATH as _DEFAULT_DB
     from memory.vault import write_daily_note
 
     db = db_path or _DEFAULT_DB
@@ -36,7 +36,7 @@ def run(db_path=None) -> Dict[str, Any]:
 
     # ── Load health cache ──────────────────────────────────────────────────
     if not _CACHE_PATH.exists():
-        log.warning("Health cache not found at %s — skipping metrics upsert", _CACHE_PATH)
+        log.warning("Health cache not found at %s — skipping daily_metrics sync", _CACHE_PATH)
         return {"metrics_updated": False, "vault_written": False, "today": today.isoformat(), "metrics": {}}
 
     try:
@@ -49,12 +49,7 @@ def run(db_path=None) -> Dict[str, Any]:
     # ── Extract today's metrics ────────────────────────────────────────────
     metrics = _extract_today_metrics(health, today)
 
-    # ── Upsert metrics rollup ──────────────────────────────────────────────
-    metrics_updated = False
-    if metrics:
-        upsert_metrics(today, metrics, db_path=db)
-        metrics_updated = True
-        log.info("Metrics upserted for %s: %s", today.isoformat(), list(metrics.keys()))
+    metrics_updated = False  # legacy blob write removed; key kept for runner.py compat
 
     # ── Sync daily_metrics table from current JSON cache ───────────────────
     # External processes (morning report, Discord bot) update health_data_cache.json
