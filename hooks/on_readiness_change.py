@@ -109,7 +109,7 @@ def run(context_packet: Dict[str, Any], db_path=None) -> Dict[str, Any]:
                         by the runner for this cycle (avoids double build).
         db_path:        SQLite path override.
     """
-    from memory.db import get_metrics_range, DB_PATH as _DEFAULT_DB
+    from memory.db import get_daily_metrics, DB_PATH as _DEFAULT_DB
 
     db = db_path or _DEFAULT_DB
     today = date.today()
@@ -205,9 +205,9 @@ def run(context_packet: Dict[str, Any], db_path=None) -> Dict[str, Any]:
 
     readiness_today = int(readiness_today)
 
-    # Yesterday from SQLite metrics (more reliable than context packet history)
+    # Yesterday from SQLite daily_metrics (more reliable than context packet history)
     yesterday = today - timedelta(days=1)
-    yesterday_metrics = get_metrics_range(yesterday, yesterday, db_path=db)
+    yesterday_metrics = get_daily_metrics(yesterday, yesterday, db_path=db)
     readiness_yesterday: Optional[int] = None
     if yesterday_metrics:
         readiness_yesterday = yesterday_metrics[0].get("training_readiness")
